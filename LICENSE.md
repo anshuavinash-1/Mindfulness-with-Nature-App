@@ -1,0 +1,1 @@
+Pending Partner Confirmation
