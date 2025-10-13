@@ -15,6 +15,13 @@
 * Purpose: Code review, issue tracking, project documentation
 * Review Time: <24 hours
 
+###  Branching and Reviews 
+* Default branch: `main`
+* Future workflow: Will use `feature/*` branches with PR reviews when app development begins.
+* Once `feature/*` has completed, submit a Pull Request.
+* Pull Request will require at least 1 review from different teammate to be merged.
+* Once the Pull Request has been reviewed, the feature can be merged. 
+
 ## Meeting Plan
 
 ### Internal Team Syncs
@@ -33,6 +40,7 @@
 * Design Documents: GitHub "docs" folder
 
   
+
 
 
 
