@@ -1,5 +1,5 @@
 # Mindfulness-with-Nature-App
-Mindfulness with Nature App is a mobile app that combines guided mindfulness exercise with nature's restorative power. Featuring audio/video sessions, progress tracking and mood reflection tools, it provides an accessible mental wellness resource for managing stress and fostering a deeper connection with the natural world.  
+Mindfulness with Nature App is a mobile application that combines guided mindfulness exercises with nature's restorative power through audio/video sessions, progress tracking, and mood reflection tools.
 
 # Team:
 * Anshu Avinash -  avinasha@oregonstate.edu
