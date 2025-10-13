@@ -4,8 +4,8 @@
 
 ### Discord
 * Purpose: Day-to-day discussion, quick questions and coordinations
-* Server:
-* Expected Response Time:<12 hours
+* Server: https://discord.gg/mjXGYsd2hc 
+* Expected Response Time: <12 hours
 
 ### Email 
 * Purpose: Urgent matters, formal updates to partners/instructors
@@ -13,19 +13,19 @@
 
 ### GitHub 
 * Purpose: Code review, issue tracking, project documentation
-* Review Time:< 24 hours
+* Review Time: <24 hours
 
 ## Meeting Plan
 
 ### Internal Team Syncs
 * Frequency: Once (Friday)
 * Time: 5:00pm PST
-* Duration: 30min - 1hour
+* Duration: 30min - 1 hour
 
 ### Partner Sync Meeting
 * Frequency: Every Other Week
-* Day/Time: TBD
-* Duration: TBD
+* Day/Time: Thursday, 4:15pm PST
+* Duration: 30min - 1 hour
 
 ## Document Locations
 * Code and Issues: GitHub Repository
@@ -33,5 +33,6 @@
 * Design Documents: GitHub "docs" folder
 
   
+
 
 
