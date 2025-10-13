@@ -5,15 +5,15 @@
 ### Discord
 * Purpose: Day-to-day discussion, quick questions and coordinations
 * Server:
-* Expected Response Time:
+* Expected Response Time:<12 hours
 
 ### Email 
 * Purpose: Urgent matters, formal updates to partners/instructors
-* Expected Response Time:
+* Expected Response Time: <24 hours
 
 ### GitHub 
 * Purpose: Code review, issue tracking, project documentation
-* Review Time:
+* Review Time:< 24 hours
 
 ## Meeting Plan
 
@@ -33,4 +33,5 @@
 * Design Documents: GitHub "docs" folder
 
   
+
 
