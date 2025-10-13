@@ -19,13 +19,13 @@
 
 ### Internal Team Syncs
 * Frequency: Once (Friday)
-* Time:
-* Duration:
+* Time: 5:00pm PST
+* Duration: 30min - 1hour
 
 ### Partner Sync Meeting
-* Frequency:
-* Day/Time: 
-* Duration:
+* Frequency: Every Other Week
+* Day/Time: TBD
+* Duration: TBD
 
 ## Document Locations
 * Code and Issues: GitHub Repository
@@ -33,3 +33,4 @@
 * Design Documents: GitHub "docs" folder
 
   
+
