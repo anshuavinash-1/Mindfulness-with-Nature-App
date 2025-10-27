@@ -31,4 +31,4 @@ jobs:
           channelId: live
           projectId: mindfulness-with-nature-2025 
           target: hosting 
-          entryPoint: mindfulness_with_nature_app_flutter/build/web
+          entryPoint: ./mindfulness_with_nature_app_flutter
