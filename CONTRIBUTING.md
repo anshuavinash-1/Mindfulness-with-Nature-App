@@ -6,9 +6,20 @@ How to set up, code, test, review, and release so contributions meet our Definit
 
 Reference the project/community behavior expectations and reporting process.
 
+We expect all contributors to maintain a respectful, inclusive and collaborative environment.Report any concerns privately to the project maintainers.
+
 ## Getting Started
 
 List prerequisites, setup steps, environment variables/secrets handling, and how to run the app locally.
+
+### Prerequisties 
+
+
+### Local Setup
+
+
+### Environment Setup
+
 
 ## Branching & Workflow
 
@@ -16,7 +27,13 @@ Describe the workflow (e.g., trunk-based or GitFlow), default branch, branch nam
 
 ## Issues & Planning
 
-Explain how to file issues, required templates/labels, estimation, and triage/assignment practices.
+Use GitHub Issues with provided templates
+
+Label issues: bug, enhancement, documentation, question
+
+Assign points during sprint planning
+
+Issues are triaged weekly
 
 ## Commit Messages
 
