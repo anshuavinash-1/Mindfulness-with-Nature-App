@@ -21,6 +21,7 @@ All team members and contributors are expected to:
 ### Setup Steps 
 # Clone and navigate to Flutter project
 git clone https://github.com/anshuavinash-1/Mindfulness-with-Nature-App.git
+
 cd Mindfulness-with-Nature-App/mindfulness_with_nature_app_flutter
 
 # Install dependencies
