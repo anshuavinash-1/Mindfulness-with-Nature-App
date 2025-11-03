@@ -19,16 +19,16 @@ All team members and contributors are expected to:
 * Git
 
 ### Setup Steps 
-# Clone and navigate to Flutter project
-git clone https://github.com/anshuavinash-1/Mindfulness-with-Nature-App.git
-
-cd Mindfulness-with-Nature-App/mindfulness_with_nature_app_flutter
-
-# Install dependencies
-flutter pub get
-
-# Run the app
-flutter run
+    # Clone and navigate to Flutter project
+    git clone https://github.com/anshuavinash-1/Mindfulness-with-Nature-App.git
+    
+    cd Mindfulness-with-Nature-App/mindfulness_with_nature_app_flutter
+    
+    # Install dependencies
+    flutter pub get
+    
+    # Run the app
+    flutter run
 
 ### Environment Setup
 - Firebase configuration files are stored in /android/app/ and /ios/Runner/
@@ -40,18 +40,18 @@ flutter run
 
 We follow trunk-based development with feature branches.
 
-# Branch Naming
+### Branch Naming
 - feature/short-description (e.g., feature/mood-tracking)
 - bugfix/issue-description (e.g., bugfix/audio-playback-crash)
 - hotfix/urgent-fix
 
-# Process 
+### Process 
 1. Create a branch from main
 2. Make changes
 3. Open PR against main
 4. Rebase, don't merge
 
-*** Rebase vs. Merge
+### Rebase vs. Merge
 - **Always rebase** your feature branches before creating PRs:
     git fetch origin
     git rebase origin/main
