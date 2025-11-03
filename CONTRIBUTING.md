@@ -202,19 +202,44 @@ Reviewer Expectations
 - **Setup Guides** - For new environment requirements
 
 ### Documentation Standards
-/// Calculates user's mindfulness progress based on completed sessions.
-///
-/// [completedSessions] The number of sessions the user has finished
-/// [totalSessions] The total number of available sessions
-///
-/// Returns a progress percentage between 0.0 and 1.0
-/// Throws [ArgumentError] if completedSessions exceeds totalSessions
-double calculateProgress(int completedSessions, int totalSessions) {
-  if (completedSessions > totalSessions) {
-    throw ArgumentError('Completed sessions cannot exceed total sessions');
-  }
-  return completedSessions / totalSessions;
-}
+Clear documentation is essential for maintaining our code base. Follow these standards for all documentation. 
+
+### When Documentation is Required
+- **Code Comments** - Complex logic, non-obvious solutions, workarounds (Location: in the source code)
+- **API Documentation**- All public methods, classes, and functions (Location: Dart doc comments above declarations)
+- **Feature Documentation**- New user-facing features (Location: README.md Features section)
+- **Setup Documentation** -  New dependencies or environment changes (Location: README.md Setup section)
+- **Architecture Decisions** - Significant technical decisions (Location: docs/decisions/ directory)
+
+### Documentation Quality Checklist
+
+Before submitting any code, verify:
+
+### ✅ API Documentation
+
+- All public methods have Dart doc comments
+- Parameters and return values are documented
+- Examples provided for complex usage
+- Exception conditions clearly described
+
+### ✅ Code Comments
+- Complex algorithms have explanatory comments
+- Workarounds or temporary solutions are documented
+- "Why" is explained, not just "what"
+- No redundant or obvious comments
+
+### ✅ Project Documentation
+- README.md updated for new features
+- Setup instructions reflect current state
+- Configuration changes documented
+- Architecture decisions recorded in docs/
+
+### Documentation Maintenance
+- Review Documentation during code reviews
+- Update Documentation when modifying features
+- Remove Documentation for removed functionality
+- Verify Accuracy before each release
+
 
 ## Release Process
 
@@ -233,16 +258,16 @@ We use **Semantic Versioning** (MAJOR.MINOR.PATCH)
 6. Deploy to Firebase Hosting (automated via CI)
 
 **Changelog Format**
-  ## [1.2.3] - 2024-10-26
-  ### Added
+ [1.2.3] - 2024-10-26
+ Added
   - Mood tracking visualization
   - Daily mindfulness prompts
   
-  ### Fixed
+ Fixed
   - Audio playback issues on iOS
   - Login screen layout on small devices
   
-  ### Changed
+  Changed
   - Updated color palette for better accessibility
 
 ### Rollback Process
