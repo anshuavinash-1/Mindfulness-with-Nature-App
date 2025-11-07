@@ -30,5 +30,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           channelId: live
           projectId: mindfulness-with-nature-2025 
-          target: hosting 
           entryPoint: ./mindfulness_with_nature_app_flutter
