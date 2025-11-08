@@ -1,175 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:async';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthService(),
-      child: MaterialApp(
-        title: 'Mindfulness with Nature',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          useMaterial3: true,
-        ),
-        home: const AuthWrapper(),
-        debugShowCheckedModeBanner: false,
-      ),
-    );
-  }
-}
-
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    
-    if (authService.userEmail == null) {
-      return const LoginPage();
-    } else {
-      return const DashboardPage();
-    }
-  }
-}
-
-// Auth Service
-class AuthService with ChangeNotifier {
-  String? _userEmail;
-  bool _isLoading = false;
-
-  String? get userEmail => _userEmail;
-  bool get isLoading => _isLoading;
-
-  Future<bool> login(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
-    
-    await Future.delayed(const Duration(seconds: 2));
-    
-    _isLoading = false;
-    if (email.isNotEmpty && password.isNotEmpty) {
-      _userEmail = email;
-      notifyListeners();
-      return true;
-    }
-    notifyListeners();
-    return false;
-  }
-
-  void logout() {
-    _userEmail = null;
-    notifyListeners();
-  }
-}
-
-// Login Page
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.green[50],
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.nature_outlined,
-                size: 80,
-                color: Colors.green[700],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Mindfulness with Nature',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Find peace in nature\'s embrace',
-                style: TextStyle(
-                  color: Colors.green[600],
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 24),
-              Consumer<AuthService>(
-                builder: (context, authService, child) {
-                  return authService.isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: () async {
-                            final success = await authService.login(
-                              _emailController.text,
-                              _passwordController.text,
-                            );
-                            if (!success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Login failed'),
-                                ),
-                              );
-                            }
-                          },
-                          child: const Text('Login'),
-                        );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-}
-
 // Enhanced Dashboard Page
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -184,8 +12,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   static final List<Widget> _pages = [
     const HomeTab(),
-    MeditationTab(onSessionComplete: null),
-    ProgressTab(totalMinutes: 0),
+    const MeditationTab(),
+    const ProgressTab(),
   ];
 
   void _onItemTapped(int index) {
@@ -222,11 +50,14 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: [
-          const HomeTab(),
-          MeditationTab(onSessionComplete: _addMeditationSession),
-          ProgressTab(totalMinutes: _meditationMinutes),
-        ],
+        children: _pages.map((page) {
+          if (page is MeditationTab) {
+            return MeditationTab(onSessionComplete: _addMeditationSession);
+          } else if (page is ProgressTab) {
+            return ProgressTab(totalMinutes: _meditationMinutes);
+          }
+          return page;
+        }).toList(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -335,6 +166,7 @@ class HomeTab extends StatelessWidget {
                 color: Colors.green,
                 onTap: () {
                   // Will navigate to meditation tab
+                  // You can add navigation logic here
                 },
               ),
               _buildActionCard(
@@ -366,7 +198,7 @@ class HomeTab extends StatelessWidget {
           
           const SizedBox(height: 32),
           
-          // Today's Focus
+          // Recent Sessions
           Text(
             'Today\'s Focus',
             style: TextStyle(
