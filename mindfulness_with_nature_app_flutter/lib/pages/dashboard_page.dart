@@ -1,4 +1,10 @@
-// Enhanced Dashboard Page
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:async';
+import '../services/auth_service.dart';
+import 'login_page.dart';
+import 'notification_settings_page.dart';
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -9,12 +15,6 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int _selectedIndex = 0;
   int _meditationMinutes = 0;
-
-  static final List<Widget> _pages = [
-    const HomeTab(),
-    const MeditationTab(),
-    const ProgressTab(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -41,7 +41,24 @@ class _DashboardPageState extends State<DashboardPage> {
         actions: [
           IconButton(
             onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.notifications),
+            tooltip: 'Reminder Settings',
+          ),
+          IconButton(
+            onPressed: () {
+              // Perform logout and navigate back to the login screen, clearing navigation stack
               authService.logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+                (route) => false,
+              );
             },
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
@@ -50,14 +67,11 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: _pages.map((page) {
-          if (page is MeditationTab) {
-            return MeditationTab(onSessionComplete: _addMeditationSession);
-          } else if (page is ProgressTab) {
-            return ProgressTab(totalMinutes: _meditationMinutes);
-          }
-          return page;
-        }).toList(),
+        children: [
+          const HomeTab(),
+          MeditationTab(onSessionComplete: _addMeditationSession),
+          ProgressTab(totalMinutes: _meditationMinutes),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -132,7 +146,7 @@ class HomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Logged in as: ${authService.userEmail}',
+                  'Logged in as: ${authService.userEmail ?? "(not available)"}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -164,10 +178,7 @@ class HomeTab extends StatelessWidget {
                 icon: Icons.self_improvement,
                 title: 'Start Meditation',
                 color: Colors.green,
-                onTap: () {
-                  // Will navigate to meditation tab
-                  // You can add navigation logic here
-                },
+                onTap: () {},
               ),
               _buildActionCard(
                 icon: Icons.forest,
@@ -198,7 +209,7 @@ class HomeTab extends StatelessWidget {
           
           const SizedBox(height: 32),
           
-          // Recent Sessions
+          // Today's Focus
           Text(
             'Today\'s Focus',
             style: TextStyle(
@@ -376,40 +387,13 @@ class _MeditationTabState extends State<MeditationTab> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (!_isMeditating) ...[
-            // Meditation Setup
-            Icon(
-              Icons.self_improvement,
-              size: 80,
-              color: Colors.green[700],
-            ),
+            Icon(Icons.self_improvement, size: 80, color: Colors.green[700]),
             const SizedBox(height: 20),
-            const Text(
-              'Meditation Timer',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
+            const Text('Meditation Timer', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green)),
             const SizedBox(height: 10),
-            const Text(
-              'Choose your meditation duration',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
+            const Text('Choose your meditation duration', style: TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 40),
-            
-            // Duration Selection
-            Text(
-              '$_selectedDuration minutes',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
+            Text('$_selectedDuration minutes', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green)),
             const SizedBox(height: 20),
             Slider(
               value: _selectedDuration.toDouble(),
@@ -417,37 +401,25 @@ class _MeditationTabState extends State<MeditationTab> {
               max: 30,
               divisions: 29,
               label: '$_selectedDuration minutes',
-              onChanged: (value) {
-                setState(() {
-                  _selectedDuration = value.toInt();
-                });
-              },
+              onChanged: (value) => setState(() => _selectedDuration = value.toInt()),
               activeColor: Colors.green[700],
             ),
             const SizedBox(height: 40),
-            
-            // Start Button
             ElevatedButton(
               onPressed: _startMeditation,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Start Meditation',
-                style: TextStyle(fontSize: 18),
-              ),
+              child: const Text('Start Meditation', style: TextStyle(fontSize: 18)),
             ),
           ] else ...[
-            // Meditation in Progress
             Stack(
               alignment: Alignment.center,
               children: [
-                Container(
+                SizedBox(
                   width: 200,
                   height: 200,
                   child: CircularProgressIndicator(
@@ -459,39 +431,18 @@ class _MeditationTabState extends State<MeditationTab> {
                 ),
                 Column(
                   children: [
-                    Text(
-                      _formatTime(_remainingSeconds),
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'minutes remaining',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text(_formatTime(_remainingSeconds), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                    Text('minutes remaining', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 40),
-            const Text(
-              'Focus on your breath...',
-              style: TextStyle(
-                fontSize: 18,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            const Text('Focus on your breath...', style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic)),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: _stopMeditation,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16)),
               child: const Text('End Session'),
             ),
           ],
@@ -513,30 +464,17 @@ class ProgressTab extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Stats Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green[100]!,
-                  blurRadius: 10,
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.green[100]!, blurRadius: 10)],
             ),
             child: Column(
               children: [
-                Text(
-                  'Your Mindfulness Journey',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[800],
-                  ),
-                ),
+                Text('Your Mindfulness Journey', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green[800])),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -550,8 +488,6 @@ class ProgressTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          
-          // Progress Message
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -567,20 +503,12 @@ class ProgressTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Great Start!',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                      const Text('Great Start!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       Text(
                         totalMinutes == 0 
                             ? 'Start your first meditation session to begin your journey!'
                             : 'You\'ve meditated for $totalMinutes minutes. Keep going!',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -588,22 +516,12 @@ class ProgressTab extends StatelessWidget {
               ],
             ),
           ),
-          
           const SizedBox(height: 32),
-          
-          // Recent Activity
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Recent Activity',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[800],
-                  ),
-                ),
+                Text('Recent Activity', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green[800])),
                 const SizedBox(height: 16),
                 Expanded(
                   child: ListView(
@@ -630,20 +548,8 @@ class ProgressTab extends StatelessWidget {
       children: [
         Icon(icon, size: 30, color: Colors.green[700]),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
       ],
     );
   }
@@ -655,10 +561,7 @@ class ProgressTab extends StatelessWidget {
         leading: Icon(Icons.self_improvement, color: Colors.green[700]),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: Text(duration),
-        trailing: Text(
-          time,
-          style: TextStyle(color: Colors.grey[500], fontSize: 12),
-        ),
+        trailing: Text(time, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
       ),
     );
   }

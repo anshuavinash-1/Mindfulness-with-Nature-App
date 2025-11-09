@@ -1,6 +1,7 @@
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'login_page.dart';
 import 'dashboard_page.dart';
@@ -89,8 +90,12 @@ class _SignupPageState extends State<SignupPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
+                          // Trim whitespace before validation
+                          final email = value.trim();
+                          // Comprehensive email validation regex
+                          final emailRe = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                          if (!emailRe.hasMatch(email)) {
+                            return 'Please enter a valid email address (e.g., name@example.com)';
                           }
                           return null;
                         },
@@ -114,8 +119,16 @@ class _SignupPageState extends State<SignupPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                          if (value.length < 8) {
+                            return 'Password must be at least 8 characters long';
+                          }
+                          // Check for password complexity
+                          bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
+                          bool hasDigits = value.contains(RegExp(r'[0-9]'));
+                          bool hasSpecialCharacters = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+                          
+                          if (!hasUppercase || !hasDigits || !hasSpecialCharacters) {
+                            return 'Password must contain at least:\n• One uppercase letter\n• One number\n• One special character';
                           }
                           return null;
                         },
@@ -153,28 +166,42 @@ class _SignupPageState extends State<SignupPage> {
                               ? const CircularProgressIndicator()
                               : ElevatedButton(
                                   onPressed: () async {
+                                    // Capture context-dependent objects before the async gap
+                                    final navigator = Navigator.of(context);
+                                    final messenger = ScaffoldMessenger.of(context);
+
                                     if (_formKey.currentState!.validate()) {
                                       final success = await authService.signup(
                                         _emailController.text,
                                         _passwordController.text,
                                         _confirmPasswordController.text,
                                       );
-                                      
-                                      if (success && mounted) {
-                                        Navigator.pushReplacement(
-                                          context,
+
+                                      // Immediately bail if the widget was removed while waiting.
+                                      if (!mounted) return;
+
+                                      if (success) {
+                                        navigator.pushReplacement(
                                           MaterialPageRoute(
                                             builder: (context) => const DashboardPage(),
                                           ),
                                         );
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        messenger.showSnackBar(
                                           const SnackBar(
                                             content: Text('Signup failed. Please try again.'),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
                                       }
+                                    } else {
+                                      // Show a short message so the user knows validation failed
+                                      messenger.showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please fix the errors in the form.'),
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      );
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
