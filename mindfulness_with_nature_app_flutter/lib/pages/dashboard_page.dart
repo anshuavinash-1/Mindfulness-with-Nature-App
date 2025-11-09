@@ -4,6 +4,7 @@ import 'dart:async';
 import '../services/auth_service.dart';
 import 'login_page.dart';
 import 'notification_settings_page.dart';
+import 'mood_tracking_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -70,6 +71,7 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           const HomeTab(),
           MeditationTab(onSessionComplete: _addMeditationSession),
+          const MoodTrackingPage(),
           ProgressTab(totalMinutes: _meditationMinutes),
         ],
       ),
@@ -78,6 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
         onTap: _onItemTapped,
         selectedItemColor: Colors.green[700],
         unselectedItemColor: Colors.grey[600],
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -86,6 +89,10 @@ class _DashboardPageState extends State<DashboardPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.self_improvement),
             label: 'Meditate',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.mood),
+            label: 'Mood',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.insights),

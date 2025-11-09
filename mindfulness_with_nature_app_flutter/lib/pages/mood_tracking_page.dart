@@ -27,23 +27,40 @@ class _MoodTrackingPageState extends State<MoodTrackingPage> {
 
   void _submitEntry(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final moodService = Provider.of<MoodService>(context, listen: false);
-      
-      final entry = MoodEntry(
-        timestamp: DateTime.now(),
-        moodLevel: _moodLevel,
-        stressLevel: _stressLevel,
-        notes: _notesController.text.trim(),
-        userId: authService.userEmail!,
-      );
+      try {
+        final authService = Provider.of<AuthService>(context, listen: false);
+        if (authService.userEmail == null) {
+          debugPrint('MoodTracking: Error - User email is null');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: User not logged in')),
+          );
+          return;
+        }
 
-      moodService.addEntry(entry);
-      _notesController.clear();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mood entry saved!')),
-      );
+        final moodService = Provider.of<MoodService>(context, listen: false);
+        final entry = MoodEntry(
+          timestamp: DateTime.now(),
+          moodLevel: _moodLevel,
+          stressLevel: _stressLevel,
+          notes: _notesController.text.trim(),
+          userId: authService.userEmail!,
+        );
+
+        debugPrint('MoodTracking: Submitting entry - Mood: $_moodLevel, Stress: $_stressLevel');
+        moodService.addEntry(entry);
+        _notesController.clear();
+        
+        setState(() {}); // Trigger a rebuild to refresh the chart
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mood entry saved!')),
+        );
+      } catch (e) {
+        debugPrint('MoodTracking: Error saving entry - $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving mood entry: $e')),
+        );
+      }
     }
   }
 
@@ -121,17 +138,57 @@ class _MoodTrackingPageState extends State<MoodTrackingPage> {
                       const SizedBox(height: 16),
                       
                       // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => _submitEntry(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[700],
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: const Text('Save Entry'),
-                        ),
+                      Consumer2<AuthService, MoodService>(
+                        builder: (context, authService, moodService, _) {
+                          return SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (!authService.isLoggedIn) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please log in to save mood entries'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                final entry = MoodEntry(
+                                  timestamp: DateTime.now(),
+                                  moodLevel: _moodLevel,
+                                  stressLevel: _stressLevel,
+                                  notes: _notesController.text.trim(),
+                                  userId: authService.userEmail!,
+                                );
+
+                                await moodService.addEntry(entry);
+
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Mood entry saved successfully!'),
+                                    backgroundColor: Colors.green[700],
+                                  ),
+                                );
+
+                                // Reset the form
+                                setState(() {
+                                  _moodLevel = 3;
+                                  _stressLevel = 3;
+                                  _notesController.clear();
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[700],
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: const Text('Save Entry'),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

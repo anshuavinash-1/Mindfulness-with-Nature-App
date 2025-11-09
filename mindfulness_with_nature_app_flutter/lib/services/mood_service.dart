@@ -16,18 +16,36 @@ class MoodService with ChangeNotifier {
 
   // Load entries from storage
   Future<void> _loadEntries() async {
-    final String? entriesJson = _prefs.getString(_storageKey);
-    if (entriesJson != null) {
-      final List<dynamic> decoded = jsonDecode(entriesJson);
-      _entries = decoded.map((item) => MoodEntry.fromJson(item)).toList();
+    try {
+      debugPrint('MoodService: Loading entries from storage');
+      final String? entriesJson = _prefs.getString(_storageKey);
+      if (entriesJson != null) {
+        debugPrint('MoodService: Found stored entries: $entriesJson');
+        final List<dynamic> decoded = jsonDecode(entriesJson);
+        _entries = decoded.map((item) => MoodEntry.fromJson(item)).toList();
+        debugPrint('MoodService: Loaded ${_entries.length} entries');
+      } else {
+        debugPrint('MoodService: No stored entries found');
+        _entries = [];
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('MoodService: Error loading entries - $e');
+      _entries = [];
       notifyListeners();
     }
   }
 
   // Save entries to storage
   Future<void> _saveEntries() async {
-    final String encoded = jsonEncode(_entries.map((e) => e.toJson()).toList());
-    await _prefs.setString(_storageKey, encoded);
+    try {
+      final String encoded = jsonEncode(_entries.map((e) => e.toJson()).toList());
+      final success = await _prefs.setString(_storageKey, encoded);
+      debugPrint('MoodService: Saving entries - Success: $success');
+      debugPrint('MoodService: Number of entries: ${_entries.length}');
+    } catch (e) {
+      debugPrint('MoodService: Error saving entries - $e');
+    }
   }
 
   // Add a new mood entry
