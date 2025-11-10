@@ -1,0 +1,52 @@
+name: Flutter Test/linter run
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./mindfulness_with_nature_app_flutter
+
+      - name: Check Dart Format
+        run: dart format --set-exit-if-changed lib/ integration_test/
+        working-directory: ./mindfulness_with_nature_app_flutter
+
+      - name: Run Flutter Analyze(linter)
+        run: flutter analyze
+        working-directory: ./mindfulness_with_nature_app_flutter
+
+      # - name: Run Flutter Unit Tests
+      #   run: flutter test
+      #   working-directory: ./mindfulness_with_nature_app_flutter
+
+      - name: Integration Test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          profile: Nexus 6
+          working-directory: ./mindfulness_with_nature_app_flutter
+          script: flutter test integration_test/app_test.dart

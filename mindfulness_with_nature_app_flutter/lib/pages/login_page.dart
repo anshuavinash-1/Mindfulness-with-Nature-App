@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
-        
+
         if (success) {
           Navigator.pushReplacement(
             context,
@@ -118,7 +118,8 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Please enter your email';
                     }
                     final email = value.trim();
-                    final emailRe = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                    final emailRe = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                     if (!emailRe.hasMatch(email)) {
                       return 'Please enter a valid email address';
                     }
@@ -169,7 +170,8 @@ class _LoginPageState extends State<LoginPage> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : Text(
@@ -192,7 +194,8 @@ class _LoginPageState extends State<LoginPage> {
                             // Navigate to signup page
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const SignupPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => const SignupPage()),
                             );
                           },
                     child: Text(

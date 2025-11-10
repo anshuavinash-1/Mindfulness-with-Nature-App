@@ -25,7 +25,9 @@ class NotificationSettingsPage extends StatelessWidget {
                   ),
                   value: notificationService.isReminderEnabled,
                   onChanged: (bool value) async {
-                    if (value && !await notificationService.requestNotificationPermissions()) {
+                    if (value &&
+                        !await notificationService
+                            .requestNotificationPermissions()) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -37,7 +39,7 @@ class NotificationSettingsPage extends StatelessWidget {
                       }
                       return;
                     }
-                    
+
                     if (value && notificationService.reminderTime == null) {
                       // If enabling reminders but no time is set, show time picker
                       if (context.mounted) {
@@ -45,7 +47,7 @@ class NotificationSettingsPage extends StatelessWidget {
                           context: context,
                           initialTime: TimeOfDay.now(),
                         );
-                        
+
                         if (selectedTime != null) {
                           await notificationService.saveSettings(
                             isEnabled: true,
@@ -73,10 +75,10 @@ class NotificationSettingsPage extends StatelessWidget {
                     onTap: () async {
                       final TimeOfDay? selectedTime = await showTimePicker(
                         context: context,
-                        initialTime: notificationService.reminderTime ??
-                            TimeOfDay.now(),
+                        initialTime:
+                            notificationService.reminderTime ?? TimeOfDay.now(),
                       );
-                      
+
                       if (selectedTime != null) {
                         await notificationService.saveSettings(
                           isEnabled: true,

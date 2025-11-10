@@ -20,7 +20,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   LatLng? _selectedLocation;
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   static const CameraPosition _defaultLocation = CameraPosition(
     target: LatLng(37.7749, -122.4194), // San Francisco
     zoom: 12,
@@ -30,6 +30,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -65,7 +66,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
         Marker(
           markerId: const MarkerId('new_place'),
           position: location,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         ),
       );
     });
@@ -95,7 +97,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description (optional)'),
+                decoration:
+                    const InputDecoration(labelText: 'Description (optional)'),
                 maxLines: 3,
               ),
             ],
@@ -127,7 +130,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
     if (_formKey.currentState!.validate()) {
       final authService = Provider.of<AuthService>(context, listen: false);
       final placesService = Provider.of<PlacesService>(context, listen: false);
-      
+
       final newPlace = FavoritePlace(
         id: const Uuid().v4(),
         name: _nameController.text.trim(),
@@ -141,10 +144,10 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
       placesService.addPlace(newPlace);
       _nameController.clear();
       _descriptionController.clear();
-      
+
       Navigator.pop(context);
       _loadSavedPlaces();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Location saved!')),
       );
@@ -152,6 +155,13 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   }
 
   void _showPlaceDetails(FavoritePlace place) {
+    _mapController.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(place.latitude, place.longitude),
+        15,
+      ),
+    );
+
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(

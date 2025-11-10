@@ -56,23 +56,28 @@ class PlacesService with ChangeNotifier {
   }
 
   // Get places near a location
-  List<FavoritePlace> getPlacesNearLocation(double lat, double lng, double radiusKm) {
+  List<FavoritePlace> getPlacesNearLocation(
+      double lat, double lng, double radiusKm) {
     return _places.where((place) {
-      final distance = _calculateDistance(lat, lng, place.latitude, place.longitude);
+      final distance =
+          _calculateDistance(lat, lng, place.latitude, place.longitude);
       return distance <= radiusKm;
     }).toList();
   }
 
   // Calculate distance between two points using Haversine formula
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
     const double earthRadius = 6371; // Earth's radius in kilometers
     final double dLat = _toRadians(lat2 - lat1);
     final double dLon = _toRadians(lon2 - lon1);
-    
+
     final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_toRadians(lat1)) * cos(_toRadians(lat2)) *
-        sin(dLon / 2) * sin(dLon / 2);
-    
+        cos(_toRadians(lat1)) *
+            cos(_toRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
     final double c = 2 * asin(sqrt(a));
     return earthRadius * c;
   }

@@ -11,10 +11,10 @@ class AuthService with ChangeNotifier {
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-    
+
     // Simulate API call
     await Future.delayed(const Duration(seconds: 2));
-    
+
     _isLoading = false;
     final trimmedEmail = email.trim();
     if (trimmedEmail.isNotEmpty && password.isNotEmpty) {
@@ -28,7 +28,8 @@ class AuthService with ChangeNotifier {
 
   /// Simple signup implementation that mirrors [login].
   /// In a real app this should call your backend.
-  Future<bool> signup(String email, String password, String confirmPassword) async {
+  Future<bool> signup(
+      String email, String password, String confirmPassword) async {
     _isLoading = true;
     notifyListeners();
 
@@ -37,7 +38,10 @@ class AuthService with ChangeNotifier {
 
     _isLoading = false;
     final trimmedEmail = email.trim();
-    if (trimmedEmail.isNotEmpty && password.isNotEmpty && password == confirmPassword && password.length >= 6) {
+    if (trimmedEmail.isNotEmpty &&
+        password.isNotEmpty &&
+        password == confirmPassword &&
+        password.length >= 6) {
       _userEmail = trimmedEmail;
       notifyListeners();
       return true;

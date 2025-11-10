@@ -32,7 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.green[50],
       appBar: AppBar(
@@ -111,7 +111,7 @@ class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -163,7 +163,7 @@ class HomeTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Quick Actions
           Text(
             'Quick Actions',
@@ -213,9 +213,9 @@ class HomeTab extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Today's Focus
           Text(
             'Today\'s Focus',
@@ -313,7 +313,7 @@ class HomeTab extends StatelessWidget {
 // Meditation Tab
 class MeditationTab extends StatefulWidget {
   final Function(int)? onSessionComplete;
-  
+
   const MeditationTab({super.key, this.onSessionComplete});
 
   @override
@@ -331,7 +331,7 @@ class _MeditationTabState extends State<MeditationTab> {
       _isMeditating = true;
       _remainingSeconds = _selectedDuration * 60;
     });
-    
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_remainingSeconds > 0) {
@@ -349,14 +349,15 @@ class _MeditationTabState extends State<MeditationTab> {
     setState(() {
       _isMeditating = false;
     });
-    
+
     widget.onSessionComplete?.call(_selectedDuration);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Meditation Complete! 🎉'),
-        content: Text('Great job completing your $_selectedDuration minute session.'),
+        content: Text(
+            'Great job completing your $_selectedDuration minute session.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -396,11 +397,20 @@ class _MeditationTabState extends State<MeditationTab> {
           if (!_isMeditating) ...[
             Icon(Icons.self_improvement, size: 80, color: Colors.green[700]),
             const SizedBox(height: 20),
-            const Text('Meditation Timer', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green)),
+            const Text('Meditation Timer',
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
             const SizedBox(height: 10),
-            const Text('Choose your meditation duration', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const Text('Choose your meditation duration',
+                style: TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 40),
-            Text('$_selectedDuration minutes', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green)),
+            Text('$_selectedDuration minutes',
+                style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
             const SizedBox(height: 20),
             Slider(
               value: _selectedDuration.toDouble(),
@@ -408,7 +418,8 @@ class _MeditationTabState extends State<MeditationTab> {
               max: 30,
               divisions: 29,
               label: '$_selectedDuration minutes',
-              onChanged: (value) => setState(() => _selectedDuration = value.toInt()),
+              onChanged: (value) =>
+                  setState(() => _selectedDuration = value.toInt()),
               activeColor: Colors.green[700],
             ),
             const SizedBox(height: 40),
@@ -417,10 +428,13 @@ class _MeditationTabState extends State<MeditationTab> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Start Meditation', style: TextStyle(fontSize: 18)),
+              child: const Text('Start Meditation',
+                  style: TextStyle(fontSize: 18)),
             ),
           ] else ...[
             Stack(
@@ -433,23 +447,32 @@ class _MeditationTabState extends State<MeditationTab> {
                     value: _remainingSeconds / (_selectedDuration * 60),
                     strokeWidth: 8,
                     backgroundColor: Colors.green[100],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.green[700]!),
                   ),
                 ),
                 Column(
                   children: [
-                    Text(_formatTime(_remainingSeconds), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                    Text('minutes remaining', style: TextStyle(color: Colors.grey[600])),
+                    Text(_formatTime(_remainingSeconds),
+                        style: const TextStyle(
+                            fontSize: 32, fontWeight: FontWeight.bold)),
+                    Text('minutes remaining',
+                        style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 40),
-            const Text('Focus on your breath...', style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic)),
+            const Text('Focus on your breath...',
+                style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic)),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: _stopMeditation,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 16)),
               child: const Text('End Session'),
             ),
           ],
@@ -462,7 +485,7 @@ class _MeditationTabState extends State<MeditationTab> {
 // Progress Tab
 class ProgressTab extends StatelessWidget {
   final int totalMinutes;
-  
+
   const ProgressTab({super.key, required this.totalMinutes});
 
   @override
@@ -481,14 +504,21 @@ class ProgressTab extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Text('Your Mindfulness Journey', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green[800])),
+                Text('Your Mindfulness Journey',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[800])),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem('Total Minutes', '$totalMinutes', Icons.timer),
-                    _buildStatItem('Sessions', '${(totalMinutes / 5).ceil()}', Icons.self_improvement),
-                    _buildStatItem('Current Streak', '1 day', Icons.local_fire_department),
+                    _buildStatItem(
+                        'Total Minutes', '$totalMinutes', Icons.timer),
+                    _buildStatItem('Sessions', '${(totalMinutes / 5).ceil()}',
+                        Icons.self_improvement),
+                    _buildStatItem(
+                        'Current Streak', '1 day', Icons.local_fire_department),
                   ],
                 ),
               ],
@@ -510,9 +540,11 @@ class ProgressTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Great Start!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text('Great Start!',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       Text(
-                        totalMinutes == 0 
+                        totalMinutes == 0
                             ? 'Start your first meditation session to begin your journey!'
                             : 'You\'ve meditated for $totalMinutes minutes. Keep going!',
                         style: TextStyle(color: Colors.grey[600]),
@@ -528,16 +560,24 @@ class ProgressTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Recent Activity', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green[800])),
+                Text('Recent Activity',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[800])),
                 const SizedBox(height: 16),
                 Expanded(
                   child: ListView(
                     children: [
-                      _buildActivityItem('Morning Meditation', '5 min', 'Today, 8:00 AM'),
-                      _buildActivityItem('Focus Session', '10 min', 'Yesterday, 7:30 PM'),
+                      _buildActivityItem(
+                          'Morning Meditation', '5 min', 'Today, 8:00 AM'),
+                      _buildActivityItem(
+                          'Focus Session', '10 min', 'Yesterday, 7:30 PM'),
                       if (totalMinutes == 0) ...[
-                        _buildActivityItem('Evening Relaxation', '15 min', 'Nov 8, 6:00 PM'),
-                        _buildActivityItem('Breathing Exercise', '8 min', 'Nov 7, 9:00 AM'),
+                        _buildActivityItem(
+                            'Evening Relaxation', '15 min', 'Nov 8, 6:00 PM'),
+                        _buildActivityItem(
+                            'Breathing Exercise', '8 min', 'Nov 7, 9:00 AM'),
                       ],
                     ],
                   ),
@@ -555,7 +595,8 @@ class ProgressTab extends StatelessWidget {
       children: [
         Icon(icon, size: 30, color: Colors.green[700]),
         const SizedBox(height: 8),
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
       ],
     );
@@ -568,7 +609,8 @@ class ProgressTab extends StatelessWidget {
         leading: Icon(Icons.self_improvement, color: Colors.green[700]),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: Text(duration),
-        trailing: Text(time, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+        trailing:
+            Text(time, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
       ),
     );
   }

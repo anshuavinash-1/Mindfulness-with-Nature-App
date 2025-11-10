@@ -39,7 +39,8 @@ class MoodService with ChangeNotifier {
   // Save entries to storage
   Future<void> _saveEntries() async {
     try {
-      final String encoded = jsonEncode(_entries.map((e) => e.toJson()).toList());
+      final String encoded =
+          jsonEncode(_entries.map((e) => e.toJson()).toList());
       final success = await _prefs.setString(_storageKey, encoded);
       debugPrint('MoodService: Saving entries - Success: $success');
       debugPrint('MoodService: Number of entries: ${_entries.length}');
@@ -57,10 +58,10 @@ class MoodService with ChangeNotifier {
 
   // Get entries for a date range
   List<MoodEntry> getEntriesForRange(DateTime start, DateTime end) {
-    return _entries.where((entry) =>
-      entry.timestamp.isAfter(start) &&
-      entry.timestamp.isBefore(end)
-    ).toList();
+    return _entries
+        .where((entry) =>
+            entry.timestamp.isAfter(start) && entry.timestamp.isBefore(end))
+        .toList();
   }
 
   // Get average mood and stress levels for a date range
@@ -73,8 +74,10 @@ class MoodService with ChangeNotifier {
       };
     }
 
-    final moodSum = entriesInRange.fold<int>(0, (sum, entry) => sum + entry.moodLevel);
-    final stressSum = entriesInRange.fold<int>(0, (sum, entry) => sum + entry.stressLevel);
+    final moodSum =
+        entriesInRange.fold<int>(0, (sum, entry) => sum + entry.moodLevel);
+    final stressSum =
+        entriesInRange.fold<int>(0, (sum, entry) => sum + entry.stressLevel);
 
     return {
       'moodAverage': moodSum / entriesInRange.length,
@@ -84,10 +87,8 @@ class MoodService with ChangeNotifier {
 
   // Delete an entry
   Future<void> deleteEntry(MoodEntry entry) async {
-    _entries.removeWhere((e) => 
-      e.timestamp == entry.timestamp && 
-      e.userId == entry.userId
-    );
+    _entries.removeWhere(
+        (e) => e.timestamp == entry.timestamp && e.userId == entry.userId);
     await _saveEntries();
     notifyListeners();
   }

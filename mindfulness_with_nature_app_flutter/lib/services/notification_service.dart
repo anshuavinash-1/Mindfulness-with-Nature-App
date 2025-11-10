@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 class NotificationService extends ChangeNotifier {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  
+
   static const String _reminderTimeKey = 'mood_reminder_time';
   static const String _reminderEnabledKey = 'mood_reminder_enabled';
-  
+
   bool _isReminderEnabled = false;
   TimeOfDay? _reminderTime;
-  
+
   bool get isReminderEnabled => _isReminderEnabled;
   TimeOfDay? get reminderTime => _reminderTime;
 
@@ -24,18 +24,19 @@ class NotificationService extends ChangeNotifier {
 
   Future<void> _initializeNotifications() async {
     tz.initializeTimeZones();
-    
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-        
-    final DarwinInitializationSettings initializationSettingsIOS =
+
+    const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
     );
 
-    final InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
@@ -51,14 +52,14 @@ class NotificationService extends ChangeNotifier {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _isReminderEnabled = prefs.getBool(_reminderEnabledKey) ?? false;
-    
+
     final savedHour = prefs.getInt('${_reminderTimeKey}_hour');
     final savedMinute = prefs.getInt('${_reminderTimeKey}_minute');
-    
+
     if (savedHour != null && savedMinute != null) {
       _reminderTime = TimeOfDay(hour: savedHour, minute: savedMinute);
     }
-    
+
     notifyListeners();
   }
 
@@ -68,21 +69,21 @@ class NotificationService extends ChangeNotifier {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_reminderEnabledKey, isEnabled);
-    
+
     if (time != null) {
       await prefs.setInt('${_reminderTimeKey}_hour', time.hour);
       await prefs.setInt('${_reminderTimeKey}_minute', time.minute);
     }
-    
+
     _isReminderEnabled = isEnabled;
     _reminderTime = time;
-    
+
     if (isEnabled && time != null) {
       await _scheduleDailyNotification(time);
     } else {
       await cancelNotifications();
     }
-    
+
     notifyListeners();
   }
 
@@ -137,16 +138,14 @@ class NotificationService extends ChangeNotifier {
     }
 
     final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
-        flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>();
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
 
     final bool? androidGranted = await androidPlugin?.areNotificationsEnabled();
 
     final IOSFlutterLocalNotificationsPlugin? iOSPlugin =
-        flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>();
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
 
     final bool? iOSGranted = await iOSPlugin?.requestPermissions(
       alert: true,
@@ -158,20 +157,21 @@ class NotificationService extends ChangeNotifier {
   }
 
   Future<bool> _checkNotificationPermissions() async {
-    final androidPlugin = flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
+    final androidPlugin =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
-    final iOSPlugin = flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
+    final iOSPlugin =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>();
 
     // Check Android permissions
     final bool? androidEnabled = await androidPlugin?.areNotificationsEnabled();
 
     // Check iOS permissions
-    final bool? iOSEnabled = await iOSPlugin?.pendingNotificationRequests().then(
-          (requests) => requests.isNotEmpty,
-        );
+    final bool? iOSEnabled =
+        await iOSPlugin?.pendingNotificationRequests().then(
+              (requests) => requests.isNotEmpty,
+            );
 
     return (androidEnabled ?? false) || (iOSEnabled ?? false);
   }

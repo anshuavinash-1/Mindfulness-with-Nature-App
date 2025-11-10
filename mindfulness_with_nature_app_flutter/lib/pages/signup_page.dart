@@ -31,7 +31,7 @@ class _SignupPageState extends State<SignupPage> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Back button and title
                 Row(
                   children: [
@@ -55,7 +55,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                 ),
                 const SizedBox(height: 40),
-                
+
                 // Signup Form
                 Container(
                   decoration: BoxDecoration(
@@ -76,7 +76,8 @@ class _SignupPageState extends State<SignupPage> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: Icon(Icons.email, color: Colors.green[700]),
+                          prefixIcon:
+                              Icon(Icons.email, color: Colors.green[700]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -93,7 +94,8 @@ class _SignupPageState extends State<SignupPage> {
                           // Trim whitespace before validation
                           final email = value.trim();
                           // Comprehensive email validation regex
-                          final emailRe = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                          final emailRe = RegExp(
+                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                           if (!emailRe.hasMatch(email)) {
                             return 'Please enter a valid email address (e.g., name@example.com)';
                           }
@@ -105,7 +107,8 @@ class _SignupPageState extends State<SignupPage> {
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock, color: Colors.green[700]),
+                          prefixIcon:
+                              Icon(Icons.lock, color: Colors.green[700]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -125,9 +128,12 @@ class _SignupPageState extends State<SignupPage> {
                           // Check for password complexity
                           bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
                           bool hasDigits = value.contains(RegExp(r'[0-9]'));
-                          bool hasSpecialCharacters = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-                          
-                          if (!hasUppercase || !hasDigits || !hasSpecialCharacters) {
+                          bool hasSpecialCharacters =
+                              value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+
+                          if (!hasUppercase ||
+                              !hasDigits ||
+                              !hasSpecialCharacters) {
                             return 'Password must contain at least:\n• One uppercase letter\n• One number\n• One special character';
                           }
                           return null;
@@ -138,7 +144,8 @@ class _SignupPageState extends State<SignupPage> {
                         controller: _confirmPasswordController,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
-                          prefixIcon: Icon(Icons.lock_outline, color: Colors.green[700]),
+                          prefixIcon: Icon(Icons.lock_outline,
+                              color: Colors.green[700]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -159,7 +166,6 @@ class _SignupPageState extends State<SignupPage> {
                         },
                       ),
                       const SizedBox(height: 30),
-                      
                       Consumer<AuthService>(
                         builder: (context, authService, child) {
                           return authService.isLoading
@@ -168,7 +174,8 @@ class _SignupPageState extends State<SignupPage> {
                                   onPressed: () async {
                                     // Capture context-dependent objects before the async gap
                                     final navigator = Navigator.of(context);
-                                    final messenger = ScaffoldMessenger.of(context);
+                                    final messenger =
+                                        ScaffoldMessenger.of(context);
 
                                     if (_formKey.currentState!.validate()) {
                                       final success = await authService.signup(
@@ -183,13 +190,15 @@ class _SignupPageState extends State<SignupPage> {
                                       if (success) {
                                         navigator.pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) => const DashboardPage(),
+                                            builder: (context) =>
+                                                const DashboardPage(),
                                           ),
                                         );
                                       } else {
                                         messenger.showSnackBar(
                                           const SnackBar(
-                                            content: Text('Signup failed. Please try again.'),
+                                            content: Text(
+                                                'Signup failed. Please try again.'),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
@@ -198,7 +207,8 @@ class _SignupPageState extends State<SignupPage> {
                                       // Show a short message so the user knows validation failed
                                       messenger.showSnackBar(
                                         const SnackBar(
-                                          content: Text('Please fix the errors in the form.'),
+                                          content: Text(
+                                              'Please fix the errors in the form.'),
                                           backgroundColor: Colors.orange,
                                         ),
                                       );
@@ -207,7 +217,8 @@ class _SignupPageState extends State<SignupPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green[700],
                                     foregroundColor: Colors.white,
-                                    minimumSize: const Size(double.infinity, 55),
+                                    minimumSize:
+                                        const Size(double.infinity, 55),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -226,9 +237,9 @@ class _SignupPageState extends State<SignupPage> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Login link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
