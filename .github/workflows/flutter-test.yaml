@@ -46,7 +46,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
-          arch: x86_64
+          # Use x86 images and Google APIs target which are commonly available on runners.
+          arch: x86
+          target: google_apis
           profile: Nexus 6
           working-directory: ./mindfulness_with_nature_app_flutter
           script: flutter test integration_test/app_test.dart
