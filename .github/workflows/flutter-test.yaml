@@ -135,12 +135,53 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$(command -v sdkmanager || true)"
           fi
-          pkg="system-images;android-$API;$TARGET;$ARCH"
-          echo "Installing system image package: $pkg"
           echo "Using sdkmanager: $SDKMANAGER"
-          # Accept licenses and install the package; output will be shown in action logs.
-          yes | $SDKMANAGER --install "$pkg" --channel=0
-          # Also ensure platform and emulator bits are present
+
+          # Helper to try installing a package and return success/fail
+          try_install() {
+            local pkg="$1"
+            echo "Attempting install for: $pkg"
+            # First try with no channel pin (broader search) and verbose output
+            if yes | $SDKMANAGER --install "$pkg" 2>&1; then
+              echo "Installed $pkg"
+              return 0
+            fi
+            echo "Install of $pkg failed (first attempt)."
+            return 1
+          }
+
+          # Primary package (from selection)
+          primary_pkg="system-images;android-$API;$TARGET;$ARCH"
+
+          if try_install "$primary_pkg"; then
+            echo "Primary system image installed."
+          else
+            echo "Primary install failed; trying fallbacks..."
+            # Fallback attempts: try alternative targets/archs and API levels
+            tried=0
+            for api in 36 33 31 30; do
+              for tgt in google_apis_playstore google_apis default; do
+                for arch in x86 x86_64; do
+                  pkg="system-images;android-$api;$tgt;$arch"
+                  if [ "$pkg" = "$primary_pkg" ]; then
+                    continue
+                  fi
+                  if try_install "$pkg"; then
+                    echo "Installed fallback package: $pkg"
+                    tried=1
+                    break 3
+                  fi
+                done
+              done
+            done
+            if [ "$tried" -eq 0 ]; then
+              echo "All attempts to install a system-image failed. Exiting with error."
+              exit 1
+            fi
+          fi
+
+          # Ensure platform and emulator bits are present
+          echo "Ensuring platform and emulator components are installed"
           yes | $SDKMANAGER --install "platforms;android-$API" "platform-tools" "emulator" || true
         shell: bash
 
