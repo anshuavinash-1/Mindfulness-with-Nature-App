@@ -42,13 +42,114 @@ jobs:
       #   run: flutter test
       #   working-directory: ./mindfulness_with_nature_app_flutter
 
+      - name: Select Android system-image
+        id: select-image
+        run: |
+          set -euo pipefail
+          SDKMANAGER="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager || true)"
+          fi
+          echo "Using sdkmanager: $SDKMANAGER"
+          echo "Listing available packages (first 400 lines)..."
+          list="$($SDKMANAGER --list 2>/dev/null || true)"
+
+          candidates_api="36 33 31"
+          candidates_target="google_apis google_apis_playstore default"
+          candidates_arch="x86 x86_64"
+
+          found=0
+          for api in $candidates_api; do
+            for tgt in $candidates_target; do
+              for arch in $candidates_arch; do
+                pkg="system-images;android-$api;$tgt;$arch"
+                echo "Checking for $pkg"
+                if echo "$list" | grep -qF "$pkg"; then
+                  echo "Found $pkg"
+                  echo "api-level=$api" >> $GITHUB_OUTPUT
+                  echo "target=$tgt" >> $GITHUB_OUTPUT
+                  echo "arch=$arch" >> $GITHUB_OUTPUT
+                  found=1
+                  break 3
+                fi
+              done
+            done
+          done
+
+          if [ "$found" -eq 0 ]; then
+            echo "No matching system image found; defaulting to api 33 google_apis x86"
+            echo "api-level=33" >> $GITHUB_OUTPUT
+            echo "target=google_apis" >> $GITHUB_OUTPUT
+            echo "arch=x86" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Log selected image and intended install command (temporary)
+        run: |
+          set -euo pipefail
+          API=${{ steps.select-image.outputs.api-level }}
+          TARGET=${{ steps.select-image.outputs.target }}
+          ARCH=${{ steps.select-image.outputs.arch }}
+          SDKMANAGER="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager || true)"
+          fi
+          pkg="system-images;android-$API;$TARGET;$ARCH"
+          echo "Selected image package: $pkg"
+          echo "Using sdkmanager: $SDKMANAGER"
+          echo "Checking if package appears in sdkmanager --list output..."
+          if $SDKMANAGER --list 2>/dev/null | grep -qF "$pkg"; then
+            echo "Package FOUND in sdkmanager list"
+          else
+            echo "Package NOT FOUND in sdkmanager list"
+          fi
+          echo "Intended install command (not executed here):"
+          echo "yes | $SDKMANAGER --install '$pkg' --channel=0"
+        shell: bash
+
+      - name: Cache Android SDK components (restore/save)
+        uses: actions/cache@v4
+        with:
+          # Cache SDK directories to speed up subsequent runs. Keep the selection step active
+          # for the first run; this cache will help later runs be faster.
+          path: |
+            ${{ env.ANDROID_SDK_ROOT }}/platforms
+            ${{ env.ANDROID_SDK_ROOT }}/system-images
+            ${{ env.ANDROID_SDK_ROOT }}/emulator
+            ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+            ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools
+            ${{ env.ANDROID_SDK_ROOT }}/build-tools
+            $HOME/.android
+          # Key uses the workflow file hash so the cache updates if the workflow changes.
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/flutter-test.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+
+      - name: Install selected Android system-image (temporary)
+        run: |
+          set -euo pipefail
+          API=${{ steps.select-image.outputs.api-level }}
+          TARGET=${{ steps.select-image.outputs.target }}
+          ARCH=${{ steps.select-image.outputs.arch }}
+          SDKMANAGER="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager || true)"
+          fi
+          pkg="system-images;android-$API;$TARGET;$ARCH"
+          echo "Installing system image package: $pkg"
+          echo "Using sdkmanager: $SDKMANAGER"
+          # Accept licenses and install the package; output will be shown in action logs.
+          yes | $SDKMANAGER --install "$pkg" --channel=0
+          # Also ensure platform and emulator bits are present
+          yes | $SDKMANAGER --install "platforms;android-$API" "platform-tools" "emulator" || true
+        shell: bash
+
       - name: Integration Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
-          # Use x86 images and Google APIs target which are commonly available on runners.
-          arch: x86
-          target: google_apis
+          api-level: ${{ steps.select-image.outputs.api-level }}
+          arch: ${{ steps.select-image.outputs.arch }}
+          target: ${{ steps.select-image.outputs.target }}
           profile: Nexus 6
           working-directory: ./mindfulness_with_nature_app_flutter
           script: flutter test integration_test/app_test.dart
