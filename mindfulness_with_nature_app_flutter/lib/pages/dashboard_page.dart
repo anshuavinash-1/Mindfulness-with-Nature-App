@@ -24,10 +24,13 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _addMeditationSession(int minutes) {
+  // FIX: Add mounted check for safe state updates
+  if (mounted) {
     setState(() {
       _meditationMinutes += minutes;
     });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -327,22 +330,31 @@ class _MeditationTabState extends State<MeditationTab> {
   Timer? _timer;
 
   void _startMeditation() {
-    setState(() {
-      _isMeditating = true;
-      _remainingSeconds = _selectedDuration * 60;
-    });
+  // FIX: Prevent timer leaks by cancelling existing timer
+  _timer?.cancel();
+  
+  setState(() {
+    _isMeditating = true;
+    _remainingSeconds = _selectedDuration * 60;
+  });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-        } else {
-          _completeMeditation();
-          timer.cancel();
-        }
-      });
+  _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    // FIX: Check if widget is still mounted before updating state
+    if (!mounted) {
+      timer.cancel();
+      return;
+    }
+    
+    setState(() {
+      if (_remainingSeconds > 0) {
+        _remainingSeconds--;
+      } else {
+        _completeMeditation();
+        timer.cancel();
+      }
     });
-  }
+  });
+}
 
   void _completeMeditation() {
     _timer?.cancel();
