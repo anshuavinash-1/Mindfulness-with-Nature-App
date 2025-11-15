@@ -24,10 +24,13 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _addMeditationSession(int minutes) {
+  // FIX: Add mounted check for safe state updates
+  if (mounted) {
     setState(() {
       _meditationMinutes += minutes;
     });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -320,6 +323,16 @@ class MeditationTab extends StatefulWidget {
   State<MeditationTab> createState() => _MeditationTabState();
 }
 
+// Meditation Tab
+class MeditationTab extends StatefulWidget {
+  final Function(int)? onSessionComplete;
+
+  const MeditationTab({super.key, this.onSessionComplete});
+
+  @override
+  State<MeditationTab> createState() => _MeditationTabState();
+}
+
 class _MeditationTabState extends State<MeditationTab> {
   int _selectedDuration = 5;
   bool _isMeditating = false;
@@ -327,12 +340,21 @@ class _MeditationTabState extends State<MeditationTab> {
   Timer? _timer;
 
   void _startMeditation() {
+    // FIX 1: Prevent timer leaks by cancelling existing timer
+    _timer?.cancel();
+    
     setState(() {
       _isMeditating = true;
       _remainingSeconds = _selectedDuration * 60;
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // FIX 2: Check if widget is still mounted before updating state
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
@@ -345,34 +367,64 @@ class _MeditationTabState extends State<MeditationTab> {
   }
 
   void _completeMeditation() {
+    // FIX 3: Ensure timer is cancelled in completion
     _timer?.cancel();
-    setState(() {
-      _isMeditating = false;
-    });
-
+    
+    // FIX 4: Check mounted before setState
+    if (mounted) {
+      setState(() {
+        _isMeditating = false;
+      });
+    }
+    
     widget.onSessionComplete?.call(_selectedDuration);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Meditation Complete! 🎉'),
-        content: Text(
-            'Great job completing your $_selectedDuration minute session.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+    
+    // FIX 5: Add error boundary for dialog with mounted check
+    try {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Meditation Complete! 🎉'),
+            content: Text('Great job completing your $_selectedDuration minute session.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // FIX 6: Optional - reset timer state after dialog close
+                  if (mounted) {
+                    setState(() {
+                      _selectedDuration = 5; // Reset to default
+                    });
+                  }
+                },
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      }
+    } catch (e) {
+      // FIX 7: Fallback if dialog fails
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Meditation completed! $_selectedDuration minutes'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _stopMeditation() {
+    // FIX 8: Safe timer cancellation with mounted check
     _timer?.cancel();
-    setState(() {
-      _isMeditating = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isMeditating = false;
+      });
+    }
   }
 
   String _formatTime(int seconds) {
@@ -383,6 +435,7 @@ class _MeditationTabState extends State<MeditationTab> {
 
   @override
   void dispose() {
+    // FIX 9: Critical - ensure timer is disposed when widget is destroyed
     _timer?.cancel();
     super.dispose();
   }
