@@ -53,17 +53,7 @@ class NotificationService extends ChangeNotifier {
       tz.initializeTimeZones();
 
       // Android notification channel
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        _channelId,
-        _channelName,
-        description: _channelDescription,
-        importance: Importance.high,
-        priority: Priority.high,
-        enableVibration: true,
-        enableLights: true,
-        showBadge: true,
-        playSound: true,
-      );
+    
 
       // Create notification channel for Android 8.0+
       final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
@@ -77,7 +67,7 @@ class NotificationService extends ChangeNotifier {
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
-        onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
+       // onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
       );
 
       // Android initialization settings

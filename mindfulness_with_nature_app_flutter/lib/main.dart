@@ -218,31 +218,22 @@ class MyApp extends StatelessWidget {
           
           // Card Theme
           cardTheme: CardTheme(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            margin: EdgeInsets.zero,
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
+          margin: EdgeInsets.zero,
+        ).copyWith(),
           
           // Dialog Theme
           dialogTheme: DialogTheme(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            elevation: 0,
-            titleTextStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF36454F),
-            ),
-            contentTextStyle: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF708090),
-            ),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
+          elevation: 0,
+        ).copyWith(),
           
           // Bottom Navigation Bar Theme
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
