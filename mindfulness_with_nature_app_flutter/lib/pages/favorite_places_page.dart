@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/favorite_place.dart';
 import '../services/places_service.dart';
 import '../services/auth_service.dart';
@@ -20,8 +21,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   LatLng? _selectedLocation;
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  bool _isLoading = true;
 
+  // Default to a central, nature-rich area (e.g., Golden Gate Park vicinity)
   static const CameraPosition _defaultLocation = CameraPosition(
     target: LatLng(37.7749, -122.4194), // San Francisco
     zoom: 12,
@@ -30,21 +31,16 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   @override
   void initState() {
     super.initState();
-    _initializeMap();
-  }
-
-  void _initializeMap() async {
-    await Future.delayed(Duration(milliseconds: 500));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-      _loadSavedPlaces();
-    }
+    // Use the listener to load places when the service changes (on initial load or update)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PlacesService>(context, listen: false).addListener(_loadSavedPlaces);
+    });
   }
 
   @override
   void dispose() {
+    // IMPORTANT: Remove listener when widget is disposed
+    Provider.of<PlacesService>(context, listen: false).removeListener(_loadSavedPlaces);
     _nameController.dispose();
     _descriptionController.dispose();
     _mapController.dispose();
@@ -53,9 +49,13 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    _loadSavedPlaces();
   }
 
+  // Reloads markers from the service data and updates the map
   void _loadSavedPlaces() {
+    // Check if the widget is mounted before calling setState (can happen after async calls)
+    if (!mounted) return;
     final placesService = Provider.of<PlacesService>(context, listen: false);
     setState(() {
       _markers.clear();
@@ -68,7 +68,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               title: place.name,
               snippet: place.description,
             ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+            // Custom marker icon for better aesthetic
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
             onTap: () => _showPlaceDetails(place),
           ),
         );
@@ -76,106 +77,96 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
     });
   }
 
+  // Handles map taps to select a location for a new marker
   void _onMapTap(LatLng location) {
+    // Clear any existing temporary "new_place" marker
+    _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
+
     setState(() {
       _selectedLocation = location;
-      // Clear previous selection markers
-      _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
+      // Add a temporary marker (using a distinctive color, e.g., Green)
       _markers.add(
         Marker(
           markerId: const MarkerId('new_place'),
           position: location,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-          infoWindow: const InfoWindow(title: 'New Mindfulness Spot'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         ),
       );
     });
+    // Immediately prompt the user to name the spot
     _showAddPlaceDialog(location);
   }
 
+  // Dialog to add a new place
   void _showAddPlaceDialog(LatLng location) {
+    final theme = Theme.of(context);
+    
+    // Clear controllers before showing the dialog
+    _nameController.clear();
+    _descriptionController.clear();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        // REQ-008: Use a themed background and text style
+        backgroundColor: theme.colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Add Mindfulness Spot',
-          style: TextStyle(
-            color: Color(0xFF2E5E3A), // Deep Forest
-            fontWeight: FontWeight.w600,
+          'Add New Mindfulness Spot',
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onBackground,
           ),
         ),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Tap on the map to select a peaceful location for your mindfulness practice',
-                  style: TextStyle(
-                    color: Color(0xFF708090), // Slate
-                    fontSize: 14,
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Location Name',
+                  // REQ-008: Themed border/focus style
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
                   ),
                 ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Location Name',
-                    prefixIcon: Icon(Icons.place, color: Color(0xFF87A96B)),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Color(0xFF87A96B), width: 2),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name for this location';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: InputDecoration(
-                    labelText: 'Why is this place peaceful?',
-                    prefixIcon: Icon(Icons.description, color: Color(0xFF87A96B)),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Color(0xFF87A96B), width: 2),
-                    ),
-                  ),
-                  maxLines: 3,
-                ),
-              ],
-            ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                    labelText: 'Description (optional)'),
+                maxLines: 3,
+              ),
+            ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
-              _nameController.clear();
-              _descriptionController.clear();
+              // Remove the temporary marker if canceled
+              _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
               Navigator.pop(context);
             },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF708090)),
-            ),
+            // REQ-008: Use muted text color
+            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7))),
           ),
           ElevatedButton(
             onPressed: () => _savePlace(location),
+            // REQ-008: Use primary theme button style
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF87A96B), // Sage Green
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
-            child: const Text('Save Location'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -187,327 +178,188 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
       final authService = Provider.of<AuthService>(context, listen: false);
       final placesService = Provider.of<PlacesService>(context, listen: false);
 
+      // Ensure the user is authenticated before saving
+      final userId = authService.currentUser?.uid;
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('You must be logged in to save a place.'),
+            backgroundColor: Colors.red.shade400,
+          ),
+        );
+        Navigator.pop(context);
+        return;
+      }
+
+      const uuid = Uuid();
       final newPlace = FavoritePlace(
-        id: const Uuid().v4(),
+        id: uuid.v4(),
         name: _nameController.text.trim(),
         latitude: location.latitude,
         longitude: location.longitude,
         description: _descriptionController.text.trim(),
         addedAt: DateTime.now(),
-        userId: authService.userEmail!,
+        userId: userId,
       );
 
       placesService.addPlace(newPlace);
-      _nameController.clear();
-      _descriptionController.clear();
+      // Remove the temporary marker after successful save
+      _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
 
+      // Closes the dialog
       Navigator.pop(context);
-      _loadSavedPlaces();
+      
+      // Load saved places is automatically called via the listener, but an immediate
+      // refresh can be triggered if needed, though usually the listener is sufficient.
+      // _loadSavedPlaces(); 
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${newPlace.name} saved to your mindfulness spots!'),
-          backgroundColor: Color(0xFF87A96B), // Sage Green
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: Text('${newPlace.name} saved!'),
+          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
         ),
       );
     }
   }
 
+  // Shows details and delete option for an existing place
   void _showPlaceDetails(FavoritePlace place) {
-    _mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(
-        LatLng(place.latitude, place.longitude),
-        15,
-      ),
-    );
-
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.colorScheme.surface, // REQ-008: Off-White Surface
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10,
-              offset: Offset(0, 4),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              place.name,
+              style: GoogleFonts.lora(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onBackground,
+              ),
+            ),
+            if (place.description != null && place.description!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                place.description!,
+                style: TextStyle(
+                  color: theme.colorScheme.onBackground.withOpacity(0.8),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            Text(
+              'Added on: ${place.addedAt.day}/${place.addedAt.month}/${place.addedAt.year}',
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Close',
+                    style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    // Delete logic
+                    Provider.of<PlacesService>(context, listen: false)
+                        .deletePlace(place.id);
+                    Navigator.pop(context);
+                    // _loadSavedPlaces() is called via listener
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${place.name} deleted'),
+                        backgroundColor: Colors.red.shade400,
+                      ),
+                    );
+                  },
+                  // REQ-008: Use Red for destructive action, but a muted shade
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade400,
+                    foregroundColor: Colors.white,
+                    elevation: 1,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF87A96B).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.place, color: Color(0xFF87A96B), size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      place.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2E5E3A), // Deep Forest
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (place.description != null && place.description!.isNotEmpty) ...[
-                Text(
-                  place.description!,
-                  style: TextStyle(
-                    color: Color(0xFF708090), // Slate
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              Text(
-                'Added ${_formatDate(place.addedAt)}',
-                style: TextStyle(
-                  color: Color(0xFFB8B8B8), // Stone
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF708090),
-                    ),
-                    child: const Text('Close'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      _deletePlace(place);
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFDC2626), // Red
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Delete'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
-    );
-  }
-
-  void _deletePlace(FavoritePlace place) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Delete Location',
-          style: TextStyle(color: Color(0xFF2E5E3A)),
-        ),
-        content: Text(
-          'Are you sure you want to remove "${place.name}" from your mindfulness spots?',
-          style: TextStyle(color: Color(0xFF708090)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF708090)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Provider.of<PlacesService>(context, listen: false).deletePlace(place.id);
-              Navigator.pop(context);
-              _loadSavedPlaces();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('"${place.name}" removed'),
-                  backgroundColor: Color(0xFF87A96B),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFDC2626),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return 'today';
-    } else if (difference.inDays == 1) {
-      return 'yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return 'on ${date.day}/${date.month}/${date.year}';
-    }
-  }
-
-  void _centerOnUserLocation() {
-    // For now, center on default location. In a real app, you'd use geolocation
-    _mapController.animateCamera(
-      CameraUpdate.newCameraPosition(_defaultLocation),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Color(0xFFF8F4E9), // Pale Sand
       appBar: AppBar(
+        // REQ-008: Use primary color for App Bar background (Sage Green)
+        backgroundColor: theme.colorScheme.primary,
+        // REQ-008: Use onPrimary color for icons/text (Off-White)
+        foregroundColor: theme.colorScheme.onPrimary,
+        elevation: 1,
         title: Text(
-          'Mindfulness Spots',
-          style: TextStyle(
-            color: Color(0xFF2E5E3A), // Deep Forest
+          'My Mindfulness Spots',
+          style: GoogleFonts.lora(
             fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Color(0xFF87A96B), // Sage Green
-        actions: [
-          IconButton(
-            onPressed: _centerOnUserLocation,
-            icon: Icon(Icons.my_location),
-            tooltip: 'Center on location',
-          ),
-        ],
       ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF87A96B)),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Loading your mindfulness spots...',
-                    style: TextStyle(
-                      color: Color(0xFF708090), // Slate
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Stack(
-              children: [
-                GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: _defaultLocation,
-                  markers: _markers,
-                  onTap: _onMapTap,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
-                ),
-                Positioned(
-                  top: 16,
-                  left: 16,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      'Tap anywhere on the map to add a peaceful mindfulness spot',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF708090), // Slate
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: _defaultLocation,
+        // Listen to places changes to ensure markers are always up to date
+        markers: Provider.of<PlacesService>(context).places.map((place) => 
+           Marker(
+            markerId: MarkerId(place.id),
+            position: LatLng(place.latitude, place.longitude),
+            infoWindow: InfoWindow(
+              title: place.name,
+              snippet: place.description,
             ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _centerOnUserLocation,
-            backgroundColor: Colors.white,
-            foregroundColor: Color(0xFF87A96B),
-            child: Icon(Icons.my_location),
-            mini: true,
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton.extended(
-            onPressed: () {
-              if (_selectedLocation != null) {
-                _showAddPlaceDialog(_selectedLocation!);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Tap a location on the map first to add it'),
-                    backgroundColor: Color(0xFF87A96B),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                );
-              }
-            },
-            label: Text(
-              'Add Spot',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            icon: Icon(Icons.add_location_alt),
-            backgroundColor: Color(0xFF87A96B), // Sage Green
-            foregroundColor: Colors.white,
-          ),
-        ],
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+            onTap: () => _showPlaceDetails(place),
+          )
+        ).toSet(),
+        onTap: _onMapTap,
       ),
+      // REQ-008: Use themed Floating Action Button
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // If no location is selected, explain how to select one
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Tap a spot on the map to mark it as a new Favorite Place!'),
+              backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
+            ),
+          );
+        },
+        label: const Text('Tap to Add'),
+        icon: const Icon(Icons.add_location_alt_outlined),
+        backgroundColor: theme.colorScheme.secondary, // Secondary color (darker green/brown)
+        foregroundColor: theme.colorScheme.onSecondary, // Off-White text
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
