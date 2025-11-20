@@ -31,38 +31,60 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final success = await authService.login(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
+      try {
+        final authService = Provider.of<AuthService>(context, listen: false);
+        final success = await authService.login(
+          _emailController.text,
+          _passwordController.text,
+        );
 
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
 
-        if (success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const DashboardPage()),
-          );
-        } else {
+          if (success) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardPage()),
+            );
+          } else {
+            // Enhanced error messaging
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Login failed. Please check your credentials and try again.',
+                  style: TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.red[700],
+                duration: const Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+                action: SnackBarAction(
+                  label: 'OK',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                ),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        // Comprehensive error handling
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
-                'Login failed. Please check your email and password.',
+                'An unexpected error occurred. Please try again.',
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: Colors.red[700],
+              backgroundColor: Colors.orange[700],
               duration: const Duration(seconds: 3),
-              action: SnackBarAction(
-                label: 'OK',
-                textColor: Colors.white,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                },
-              ),
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -102,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 60),
 
-                // Email field
+                // Email field - Now using AuthService validator
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -111,24 +133,15 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    final email = value.trim();
-                    final emailRe = RegExp(
-                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                    if (!emailRe.hasMatch(email)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
+                  validator: AuthService.validateEmail, // Consistent validation
                 ),
                 const SizedBox(height: 20),
 
-                // Password field
+                // Password field - Now using AuthService validator
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
@@ -137,17 +150,11 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 8) {
-                      return 'Password must be at least 8 characters';
-                    }
-                    return null;
-                  },
+                  validator: AuthService.validatePassword, // Consistent validation
                 ),
                 const SizedBox(height: 30),
 
@@ -163,6 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 2,
                     ),
                     child: _isLoading
                         ? const SizedBox(
@@ -191,7 +199,6 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: _isLoading
                         ? null
                         : () {
-                            // Navigate to signup page
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -203,6 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         color: Colors.green[700],
                         fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
