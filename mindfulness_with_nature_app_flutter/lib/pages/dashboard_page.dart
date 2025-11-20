@@ -312,17 +312,6 @@ class HomeTab extends StatelessWidget {
     );
   }
 }
-
-// Meditation Tab
-class MeditationTab extends StatefulWidget {
-  final Function(int)? onSessionComplete;
-
-  const MeditationTab({super.key, this.onSessionComplete});
-
-  @override
-  State<MeditationTab> createState() => _MeditationTabState();
-}
-
 // Meditation Tab
 class MeditationTab extends StatefulWidget {
   final Function(int)? onSessionComplete;
