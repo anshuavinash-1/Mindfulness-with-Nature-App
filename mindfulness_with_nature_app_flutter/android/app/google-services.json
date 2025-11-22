@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789510951855",
+    "project_id": "mindfulness-with-nature-2025",
+    "storage_bucket": "mindfulness-with-nature-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789510951855:android:9bc2624bfa2540c0e7955a",
+        "android_client_info": {
+          "package_name": "com.example.mindfulness_with_nature_app_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdv0kxCdnFNvNjBuVwq87msskdYmKK7P8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
