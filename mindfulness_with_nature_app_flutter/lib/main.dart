@@ -1,6 +1,9 @@
 // main.dart
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'services/auth_service.dart';
+import 'pages/login_page.dart';
+import 'pages/dashboard_page.dart';
 
 // REQ-008: Muted, Earthy Color Palette Definition
 
@@ -59,7 +62,7 @@ final ThemeData calmTheme = ThemeData(
   ),
   
   // Style for Cards/Containers
-  cardTheme: CardThemeData( // Changed CardTheme to CardThemeData
+  cardTheme: CardTheme(
     color: surfaceOffWhite,
     elevation: 2, // Minimal, soft shadow
     margin: EdgeInsets.all(16.0),
@@ -78,14 +81,57 @@ class MindfulnessApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mindfulness with Nature App',
-      // REQUIRED: Apply the custom theme to implement REQ-008
-      theme: calmTheme, 
-      
-      // Home is where your initial screen will go
-      home: const HomeScreen(), 
-      debugShowCheckedModeBanner: false,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+        // Add other providers here as needed:
+        // ChangeNotifierProvider<MoodService>(create: (_) => MoodService()),
+        // ChangeNotifierProvider<PlaceService>(create: (_) => PlaceService()),
+      ],
+      child: MaterialApp(
+        title: 'Mindfulness with Nature App',
+        // REQUIRED: Apply the custom theme to implement REQ-008
+        theme: calmTheme, 
+        
+        // Use AuthWrapper to handle authentication state
+        home: const AuthWrapper(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+// --- Auth Wrapper to handle authentication state ---
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    
+    return StreamBuilder<User?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        // Show loading while checking auth state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        
+        // If user is logged in, go to dashboard
+        if (snapshot.hasData && snapshot.data != null) {
+          return DashboardPage(user: snapshot.data!);
+        }
+        
+        // If no user, show login page
+        return const LoginPage();
+      },
     );
   }
 }

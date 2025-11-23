@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../services/auth_service.dart';
+import '../models/user_model.dart';
 import 'login_page.dart';
 import 'notification_settings_page.dart';
 import 'mood_tracking_page.dart';
 
 // REQ-008: Dashboard Page
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  final User user;
+  
+  const DashboardPage({super.key, required this.user});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -61,12 +64,25 @@ class _DashboardPageState extends State<DashboardPage> {
             tooltip: 'Reminder Settings',
           ),
           IconButton(
-            onPressed: () {
-              authService.logout();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false,
-              );
+            onPressed: () async {
+              try {
+                await authService.signOut();
+                if (mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error signing out: ${e.toString()}'),
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  );
+                }
+              }
             },
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
@@ -76,11 +92,11 @@ class _DashboardPageState extends State<DashboardPage> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          const HomeTab(),
+          HomeTab(user: widget.user),
           MeditationTab(onSessionComplete: _addMeditationSession),
           // Assuming these pages are styled with the theme too
           const MoodTrackingPage(),
-          ProgressTab(totalMinutes: _meditationMinutes), 
+          ProgressTab(totalMinutes: _meditationMinutes, user: widget.user), 
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -118,11 +134,12 @@ class _DashboardPageState extends State<DashboardPage> {
 
 // Home Tab - Refactored for REQ-008
 class HomeTab extends StatelessWidget {
-  const HomeTab({super.key});
+  final User user;
+  
+  const HomeTab({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -165,7 +182,14 @@ class HomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Logged in as: ${authService.userEmail ?? "(not available)"}',
+                  'Logged in as: ${user.email}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onBackground.withOpacity(0.5),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Member since: ${_formatDate(user.createdAt)}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onBackground.withOpacity(0.5),
                   ),
@@ -233,9 +257,9 @@ class HomeTab extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          // Today's Focus Heading
+          // User Preferences Section
           Text(
-            'Today\'s Focus',
+            'Your Preferences',
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.colorScheme.onBackground,
               fontWeight: FontWeight.bold,
@@ -243,7 +267,7 @@ class HomeTab extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Today's Focus Container
+          // Preferences Container
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -253,22 +277,27 @@ class HomeTab extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // Keep a contrasting color for the 'tip' icon
-                Icon(Icons.emoji_objects_outlined, color: Colors.amber[700], size: 40), 
+                Icon(Icons.settings_outlined, color: theme.colorScheme.primary, size: 40),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Daily Mindfulness',
+                        'Theme: ${user.preferences.theme}',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onBackground,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        'Take 5 minutes to focus on your breath',
+                        'Notifications: ${user.preferences.notificationsEnabled ? 'On' : 'Off'}',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onBackground.withOpacity(0.7),
+                        ),
+                      ),
+                      Text(
+                        'Font Scale: ${user.preferences.fontScale}x',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onBackground.withOpacity(0.7),
                         ),
@@ -283,6 +312,10 @@ class HomeTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
   }
 
   // Helper method updated to use theme colors and minimal elevation
@@ -551,8 +584,9 @@ class _MeditationTabState extends State<MeditationTab> {
 // Progress Tab - Refactored for REQ-008
 class ProgressTab extends StatelessWidget {
   final int totalMinutes;
+  final User user;
 
-  const ProgressTab({super.key, required this.totalMinutes});
+  const ProgressTab({super.key, required this.totalMinutes, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -590,11 +624,26 @@ class ProgressTab extends StatelessWidget {
                   children: [
                     _buildStatItem(
                         context, 'Total Minutes', '$totalMinutes', Icons.timer_outlined),
-                    _buildStatItem('Sessions', '${(totalMinutes / 5).ceil()}',
+                    _buildStatItem(context, 'Sessions', '${(totalMinutes / 5).ceil()}',
                         Icons.self_improvement_outlined),
-                    _buildStatItem(
+                    _buildStatItem(context,
                         'Current Streak', '1 day', Icons.local_fire_department),
                   ],
+                ),
+                const SizedBox(height: 16),
+                Divider(color: theme.colorScheme.onBackground.withOpacity(0.2)),
+                const SizedBox(height: 8),
+                Text(
+                  'Account Created: ${_formatDate(user.createdAt)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                  ),
+                ),
+                Text(
+                  'Last Login: ${_formatDate(user.lastLogin)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                  ),
                 ),
               ],
             ),
@@ -663,6 +712,10 @@ class ProgressTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
   }
 
   // Helper method for stats updated for REQ-008

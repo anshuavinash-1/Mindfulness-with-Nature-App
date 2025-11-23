@@ -18,6 +18,7 @@ class _SignupPageState extends State<SignupPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +40,13 @@ class _SignupPageState extends State<SignupPage> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                            },
                       // REQ-008: Use theme's primary color (Sage Green) for navigation icon
-                      icon: Icon(Icons.arrow_back, color: theme.colorScheme.primary), 
+                      icon: Icon(Icons.arrow_back, color: theme.colorScheme.primary),
                     ),
                     const Spacer(),
                     Text(
@@ -115,18 +118,8 @@ class _SignupPageState extends State<SignupPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters long';
-                          }
-                          bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
-                          bool hasDigits = value.contains(RegExp(r'[0-9]'));
-                          bool hasSpecialCharacters =
-                              value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-
-                          if (!hasUppercase ||
-                              !hasDigits ||
-                              !hasSpecialCharacters) {
-                            return 'Password must contain at least:\n• One uppercase letter\n• One number\n• One special character';
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters long';
                           }
                           return null;
                         },
@@ -155,68 +148,29 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 30),
 
                       // Signup Button
-                      Consumer<AuthService>(
-                        builder: (context, authService, child) {
-                          return authService.isLoading
-                              ? const CircularProgressIndicator()
-                              : ElevatedButton(
-                                  onPressed: () async {
-                                    final navigator = Navigator.of(context);
-                                    final messenger =
-                                        ScaffoldMessenger.of(context);
-
-                                    if (_formKey.currentState!.validate()) {
-                                      final success = await authService.signup(
-                                        _emailController.text,
-                                        _passwordController.text,
-                                        _confirmPasswordController.text,
-                                      );
-
-                                      if (!mounted) return;
-
-                                      if (success) {
-                                        navigator.pushReplacement(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const DashboardPage(),
-                                          ),
-                                        );
-                                      } else {
-                                        // REQ-008: Use a themed failure color
-                                        messenger.showSnackBar(
-                                          SnackBar(
-                                            content: const Text(
-                                                'Signup failed. Please try again.'),
-                                            backgroundColor: Colors.red.shade400,
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      // REQ-008: Use a themed warning color
-                                      messenger.showSnackBar(
-                                        SnackBar(
-                                          content: const Text(
-                                              'Please fix the errors in the form.'),
-                                          backgroundColor: Colors.orange.shade400,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  // REQ-008: Button inherits primary theme style
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize:
-                                        const Size(double.infinity, 55),
-                                    elevation: 2, // Muted elevation
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _signup,
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        theme.colorScheme.onPrimary),
                                   ),
-                                  child: Text(
-                                    'Create Account',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                )
+                              : Text(
+                                  'Create Account',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                );
-                        },
+                                ),
+                        ),
                       ),
                     ],
                   ),
@@ -236,19 +190,23 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
-                      },
+                      onTap: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                              );
+                            },
                       child: Text(
                         'Login',
                         style: GoogleFonts.inter(
                           // REQ-008: Use primary color (Sage Green) for the link
-                          color: theme.colorScheme.primary,
+                          color: _isLoading
+                              ? theme.colorScheme.onBackground.withOpacity(0.3)
+                              : theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -258,6 +216,76 @@ class _SignupPageState extends State<SignupPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signup() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final authService = Provider.of<AuthService>(context, listen: false);
+      
+      try {
+        // Use the new signUpWithEmail method
+        final user = await authService.signUpWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          if (user != null) {
+            // Navigate to dashboard with user data
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DashboardPage(user: user),
+              ),
+            );
+          } else {
+            _showErrorSnackBar('Signup failed. Please try again.');
+          }
+        }
+      } on AuthException catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar(e.message);
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('An unexpected error occurred. Please try again.');
+        }
+      }
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red.shade400,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
         ),
       ),
     );
