@@ -28,12 +28,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _addMeditationSession(int minutes) {
-    // Check mounted for safe state updates
-    if (mounted) {
-      setState(() {
-        _meditationMinutes += minutes;
-      });
-    }
+    setState(() {
+      _meditationMinutes += minutes;
+    });
   }
 
   @override
@@ -366,7 +363,7 @@ class HomeTab extends StatelessWidget {
   }
 }
 
-// Meditation Tab - Refactored for REQ-008
+// Meditation Tab
 class MeditationTab extends StatefulWidget {
   final Function(int)? onSessionComplete;
 
@@ -383,19 +380,12 @@ class _MeditationTabState extends State<MeditationTab> {
   Timer? _timer;
 
   void _startMeditation() {
-    _timer?.cancel();
-    
     setState(() {
       _isMeditating = true;
       _remainingSeconds = _selectedDuration * 60;
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
@@ -408,55 +398,32 @@ class _MeditationTabState extends State<MeditationTab> {
   }
 
   void _completeMeditation() {
+    // FIX 3: Ensure timer is cancelled in completion
     _timer?.cancel();
-    
-    if (mounted) {
-      setState(() {
-        _isMeditating = false;
-      });
-    }
-    
+    setState(() {
+      _isMeditating = false;
+    });
+
     widget.onSessionComplete?.call(_selectedDuration);
-    
-    try {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Meditation Complete! 🎉'),
-            content: Text('Great job completing your $_selectedDuration minute session.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  if (mounted) {
-                    setState(() {
-                      _selectedDuration = 5; 
-                    });
-                  }
-                },
-                child: Text(
-                  'OK',
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary), // Use Sage Green accent
-                ),
-              ),
-            ],
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Meditation Complete! 🎉'),
+        content: Text(
+            'Great job completing your $_selectedDuration minute session.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Meditation completed! $_selectedDuration minutes'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
+        ],
+      ),
+    );
   }
 
   void _stopMeditation() {
+    // FIX 8: Safe timer cancellation with mounted check
     _timer?.cancel();
     if (mounted) {
       setState(() {
@@ -473,6 +440,7 @@ class _MeditationTabState extends State<MeditationTab> {
 
   @override
   void dispose() {
+    // FIX 9: Critical - ensure timer is disposed when widget is destroyed
     _timer?.cancel();
     super.dispose();
   }
