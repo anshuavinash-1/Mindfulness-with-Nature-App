@@ -7,7 +7,8 @@ class NotificationSettingsPage extends StatelessWidget {
   const NotificationSettingsPage({super.key});
 
   // Helper method to show Time Picker with consistent theming
-  Future<TimeOfDay?> _showStyledTimePicker(BuildContext context, TimeOfDay initialTime) async {
+  Future<TimeOfDay?> _showStyledTimePicker(
+      BuildContext context, TimeOfDay initialTime) async {
     final theme = Theme.of(context);
     return showTimePicker(
       context: context,
@@ -18,13 +19,15 @@ class NotificationSettingsPage extends StatelessWidget {
             // REQ-008: Style Time Picker to match the theme
             colorScheme: theme.colorScheme.copyWith(
               primary: theme.colorScheme.primary, // Sage Green header/accent
-              onPrimary: theme.colorScheme.onPrimary, // Off-White text on accent
+              onPrimary:
+                  theme.colorScheme.onPrimary, // Off-White text on accent
               surface: theme.colorScheme.surface, // Off-White background
-              onSurface: theme.colorScheme.onBackground, // Charcoal text
+              onSurface: theme.colorScheme.onSurface, // Charcoal text
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary, // Sage Green buttons
+                foregroundColor:
+                    theme.colorScheme.primary, // Sage Green buttons
               ),
             ),
           ),
@@ -70,18 +73,19 @@ class NotificationSettingsPage extends StatelessWidget {
                     style: GoogleFonts.lora(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onBackground,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   subtitle: Text(
                     'Receive a daily reminder to check in with your mood',
                     style: TextStyle(
-                      color: theme.colorScheme.onBackground.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface
+                          .withAlpha((0.7 * 255).round()),
                     ),
                   ),
                   value: notificationService.isReminderEnabled,
                   // REQ-008: Use themed colors for the Switch
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (bool value) async {
                     if (value &&
                         !await notificationService
@@ -102,7 +106,8 @@ class NotificationSettingsPage extends StatelessWidget {
                     if (value && notificationService.reminderTime == null) {
                       // If enabling reminders but no time is set, show time picker
                       if (context.mounted) {
-                        final TimeOfDay? selectedTime = await _showStyledTimePicker(
+                        final TimeOfDay? selectedTime =
+                            await _showStyledTimePicker(
                           context,
                           TimeOfDay.now(),
                         );
@@ -122,7 +127,7 @@ class NotificationSettingsPage extends StatelessWidget {
                     }
                   },
                 ),
-                
+
                 // Reminder Time Setting
                 if (notificationService.isReminderEnabled) ...[
                   const Divider(height: 24),
@@ -133,22 +138,24 @@ class NotificationSettingsPage extends StatelessWidget {
                       style: GoogleFonts.lora(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.onBackground,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     subtitle: Text(
                       notificationService.reminderTime?.format(context) ??
                           'Not set',
                       style: TextStyle(
-                        color: theme.colorScheme.onBackground.withOpacity(0.7),
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.7 * 255).round()),
                       ),
                     ),
                     trailing: Icon(
-                      Icons.access_time, 
+                      Icons.access_time,
                       color: theme.colorScheme.primary,
                     ),
                     onTap: () async {
-                      final TimeOfDay? selectedTime = await _showStyledTimePicker(
+                      final TimeOfDay? selectedTime =
+                          await _showStyledTimePicker(
                         context,
                         notificationService.reminderTime ?? TimeOfDay.now(),
                       );
@@ -162,14 +169,15 @@ class NotificationSettingsPage extends StatelessWidget {
                     },
                   ),
                 ],
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Descriptive text
                 Text(
                   'Daily reminders can help you maintain a consistent mindfulness practice and track your mood patterns over time.',
                   style: TextStyle(
-                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.6 * 255).round()),
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
                   ),
