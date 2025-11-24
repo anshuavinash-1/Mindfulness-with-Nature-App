@@ -10,7 +10,7 @@ import 'mood_tracking_page.dart';
 // REQ-008: Dashboard Page
 class DashboardPage extends StatefulWidget {
   final User user;
-  
+
   const DashboardPage({super.key, required this.user});
 
   @override
@@ -41,11 +41,11 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       // REQ-008: Use theme background (Sand/Beige)
       backgroundColor: theme.scaffoldBackgroundColor,
-      
+
       appBar: AppBar(
         // REQ-008: AppBar inherits from theme (Off-White/low elevation)
         // Explicitly setting foreground color to Charcoal for contrast
-        foregroundColor: theme.colorScheme.onBackground,
+        foregroundColor: theme.colorScheme.onSurface,
         title: const Text('Mindfulness Dashboard'),
         actions: [
           IconButton(
@@ -57,28 +57,27 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               );
             },
-            icon: const Icon(Icons.notifications_none), // Use outline icon for minimalism
+            icon: const Icon(
+                Icons.notifications_none), // Use outline icon for minimalism
             tooltip: 'Reminder Settings',
           ),
           IconButton(
             onPressed: () async {
               try {
                 await authService.signOut();
-                if (mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    (route) => false,
-                  );
-                }
+                if (!context.mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error signing out: ${e.toString()}'),
-                      backgroundColor: Colors.red.shade400,
-                    ),
-                  );
-                }
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error signing out: ${e.toString()}'),
+                    backgroundColor: Colors.red.shade400,
+                  ),
+                );
               }
             },
             icon: const Icon(Icons.logout),
@@ -93,16 +92,17 @@ class _DashboardPageState extends State<DashboardPage> {
           MeditationTab(onSessionComplete: _addMeditationSession),
           // Assuming these pages are styled with the theme too
           const MoodTrackingPage(),
-          ProgressTab(totalMinutes: _meditationMinutes, user: widget.user), 
+          ProgressTab(totalMinutes: _meditationMinutes, user: widget.user),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         // REQ-008: Use Sage Green for selected item
-        selectedItemColor: theme.colorScheme.primary, 
+        selectedItemColor: theme.colorScheme.primary,
         // REQ-008: Muted Charcoal for unselected items
-        unselectedItemColor: theme.colorScheme.onBackground.withOpacity(0.6), 
+        unselectedItemColor:
+            theme.colorScheme.onSurface.withAlpha((0.6 * 255).round()),
         backgroundColor: theme.colorScheme.surface, // Off-White background
         elevation: 0, // Minimalist, flat appearance
         type: BottomNavigationBarType.fixed,
@@ -132,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
 // Home Tab - Refactored for REQ-008
 class HomeTab extends StatelessWidget {
   final User user;
-  
+
   const HomeTab({super.key, required this.user});
 
   @override
@@ -154,7 +154,8 @@ class HomeTab extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   // REQ-008: Soft, subtle shadow
-                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  color:
+                      theme.colorScheme.primary.withAlpha((0.1 * 255).round()),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -167,28 +168,31 @@ class HomeTab extends StatelessWidget {
                   'Welcome back! 👋',
                   style: theme.textTheme.titleLarge?.copyWith(
                     // REQ-008: Use Charcoal for bold text
-                    color: theme.colorScheme.onBackground,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Ready for your mindful moment?',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.7 * 255).round()),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Logged in as: ${user.email}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.5 * 255).round()),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Member since: ${_formatDate(user.createdAt)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.5 * 255).round()),
                   ),
                 ),
               ],
@@ -200,12 +204,12 @@ class HomeTab extends StatelessWidget {
           Text(
             'Quick Actions',
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onBackground,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Quick Actions Grid
           GridView.count(
             shrinkWrap: true,
@@ -235,7 +239,8 @@ class HomeTab extends StatelessWidget {
                 context,
                 icon: Icons.cloud_outlined,
                 title: 'Breathing Exercise',
-                accentColor: theme.colorScheme.primary.withOpacity(0.7), // Muted Secondary
+                accentColor: theme.colorScheme.primary
+                    .withAlpha((0.7 * 255).round()), // Muted Secondary
                 onTap: () {
                   _showComingSoon(context);
                 },
@@ -244,7 +249,8 @@ class HomeTab extends StatelessWidget {
                 context,
                 icon: Icons.nights_stay_outlined,
                 title: 'Sleep Stories',
-                accentColor: theme.colorScheme.onBackground.withOpacity(0.5), // Muted Accent
+                accentColor: theme.colorScheme.onSurface
+                    .withAlpha((0.5 * 255).round()), // Muted Accent
                 onTap: () {
                   _showComingSoon(context);
                 },
@@ -258,23 +264,26 @@ class HomeTab extends StatelessWidget {
           Text(
             'Your Preferences',
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onBackground,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Preferences Container
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface, // Off-White
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)), // Soft Sage Border
+              border: Border.all(
+                  color: theme.colorScheme.primary
+                      .withAlpha((0.3 * 255).round())), // Soft Sage Border
             ),
             child: Row(
               children: [
-                Icon(Icons.settings_outlined, color: theme.colorScheme.primary, size: 40),
+                Icon(Icons.settings_outlined,
+                    color: theme.colorScheme.primary, size: 40),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -283,26 +292,29 @@ class HomeTab extends StatelessWidget {
                       Text(
                         'Theme: ${user.preferences.theme}',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onBackground,
+                          color: theme.colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'Notifications: ${user.preferences.notificationsEnabled ? 'On' : 'Off'}',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onBackground.withOpacity(0.7),
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.7 * 255).round()),
                         ),
                       ),
                       Text(
                         'Font Scale: ${user.preferences.fontScale}x',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onBackground.withOpacity(0.7),
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.7 * 255).round()),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, color: theme.colorScheme.primary, size: 16),
+                Icon(Icons.arrow_forward_ios,
+                    color: theme.colorScheme.primary, size: 16),
               ],
             ),
           ),
@@ -325,7 +337,7 @@ class HomeTab extends StatelessWidget {
   }) {
     // REQ-008: Card uses theme surface color and minimal elevation
     return Card(
-      elevation: 2, 
+      elevation: 2,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -342,9 +354,9 @@ class HomeTab extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onBackground,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
               ),
             ],
           ),
@@ -456,22 +468,26 @@ class _MeditationTabState extends State<MeditationTab> {
         children: [
           if (!_isMeditating) ...[
             // REQ-008: Use Sage Green for primary icon
-            Icon(Icons.self_improvement_outlined, size: 80, color: theme.colorScheme.primary),
+            Icon(Icons.self_improvement_outlined,
+                size: 80, color: theme.colorScheme.primary),
             const SizedBox(height: 20),
             Text('Meditation Timer',
                 style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary)), // REQ-008: Sage Green title
+                    color: theme
+                        .colorScheme.primary)), // REQ-008: Sage Green title
             const SizedBox(height: 10),
             Text('Choose your meditation duration',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface
+                      .withAlpha((0.6 * 255).round()),
                 )),
             const SizedBox(height: 40),
             Text('$_selectedDuration minutes',
                 style: theme.textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onBackground)), // REQ-008: Charcoal text
+                    color:
+                        theme.colorScheme.onSurface)), // REQ-008: Charcoal text
             const SizedBox(height: 20),
             Slider(
               value: _selectedDuration.toDouble(),
@@ -481,7 +497,8 @@ class _MeditationTabState extends State<MeditationTab> {
               label: '$_selectedDuration minutes',
               onChanged: (value) =>
                   setState(() => _selectedDuration = value.toInt()),
-              activeColor: theme.colorScheme.primary, // REQ-008: Sage Green slider
+              activeColor:
+                  theme.colorScheme.primary, // REQ-008: Sage Green slider
             ),
             const SizedBox(height: 40),
             // REQ-008: Button uses theme elevated button style (Sage Green)
@@ -505,9 +522,11 @@ class _MeditationTabState extends State<MeditationTab> {
                     value: _remainingSeconds / (_selectedDuration * 60),
                     strokeWidth: 8,
                     // REQ-008: Muted green/sand background for the track
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.15), 
+                    backgroundColor: theme.colorScheme.primary
+                        .withAlpha((0.15 * 255).round()),
                     // REQ-008: Sage Green progress
-                    valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        theme.colorScheme.primary),
                   ),
                 ),
                 Column(
@@ -515,11 +534,12 @@ class _MeditationTabState extends State<MeditationTab> {
                     Text(_formatTime(_remainingSeconds),
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onBackground,
+                          color: theme.colorScheme.onSurface,
                         )),
                     Text('minutes remaining',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onBackground.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.6 * 255).round()),
                         )),
                   ],
                 ),
@@ -529,14 +549,14 @@ class _MeditationTabState extends State<MeditationTab> {
             Text('Focus on your breath...',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontStyle: FontStyle.italic,
-                  color: theme.colorScheme.onBackground,
+                  color: theme.colorScheme.onSurface,
                 )),
             const SizedBox(height: 40),
             // Red is retained for this action as it's a stopping/warning action
             ElevatedButton(
               onPressed: _stopMeditation,
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade400, 
+                  backgroundColor: Colors.red.shade400,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 16)),
@@ -554,12 +574,13 @@ class ProgressTab extends StatelessWidget {
   final int totalMinutes;
   final User user;
 
-  const ProgressTab({super.key, required this.totalMinutes, required this.user});
+  const ProgressTab(
+      {super.key, required this.totalMinutes, required this.user});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -574,10 +595,10 @@ class ProgressTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  // REQ-008: Soft, subtle shadow
-                  color: theme.colorScheme.primary.withOpacity(0.1), 
-                  blurRadius: 8
-                )
+                    // REQ-008: Soft, subtle shadow
+                    color: theme.colorScheme.primary
+                        .withAlpha((0.1 * 255).round()),
+                    blurRadius: 8)
               ],
             ),
             child: Column(
@@ -585,50 +606,61 @@ class ProgressTab extends StatelessWidget {
                 Text('Your Mindfulness Journey',
                     style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onBackground)), // Charcoal Text
+                        color: theme.colorScheme.onSurface)), // Charcoal Text
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    _buildStatItem(context, 'Total Minutes', '$totalMinutes',
+                        Icons.timer_outlined),
                     _buildStatItem(
-                        context, 'Total Minutes', '$totalMinutes', Icons.timer_outlined),
-                    _buildStatItem(context, 'Sessions', '${(totalMinutes / 5).ceil()}',
+                        context,
+                        'Sessions',
+                        '${(totalMinutes / 5).ceil()}',
                         Icons.self_improvement_outlined),
-                    _buildStatItem(context,
-                        'Current Streak', '1 day', Icons.local_fire_department),
+                    _buildStatItem(context, 'Current Streak', '1 day',
+                        Icons.local_fire_department),
                   ],
                 ),
                 const SizedBox(height: 16),
-                Divider(color: theme.colorScheme.onBackground.withOpacity(0.2)),
+                Divider(
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.2 * 255).round())),
                 const SizedBox(height: 8),
                 Text(
                   'Account Created: ${_formatDate(user.createdAt)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.6 * 255).round()),
                   ),
                 ),
                 Text(
                   'Last Login: ${_formatDate(user.lastLogin)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.6 * 255).round()),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Achievement/Goal Container
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.background, // REQ-008: Sand/Beige background
+              color:
+                  theme.colorScheme.surface, // REQ-008: Sand/Beige background
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)), // Soft Sage Border
+              border: Border.all(
+                  color: theme.colorScheme.primary
+                      .withAlpha((0.3 * 255).round())), // Soft Sage Border
             ),
             child: Row(
               children: [
-                Icon(Icons.emoji_events_outlined, color: Colors.amber[700], size: 40),
+                Icon(Icons.emoji_events_outlined,
+                    color: Colors.amber[700], size: 40),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -637,15 +669,15 @@ class ProgressTab extends StatelessWidget {
                       Text('Great Start!',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onBackground,
+                            color: theme.colorScheme.onSurface,
                           )),
                       Text(
                         totalMinutes == 0
                             ? 'Start your first meditation session to begin your journey!'
                             : 'You\'ve meditated for $totalMinutes minutes. Keep going!',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onBackground.withOpacity(0.7)
-                        ),
+                            color: theme.colorScheme.onSurface
+                                .withAlpha((0.7 * 255).round())),
                       ),
                     ],
                   ),
@@ -654,12 +686,12 @@ class ProgressTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Recent Activity Section
           Text('Recent Activity',
               style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onBackground)), // Charcoal Text
+                  color: theme.colorScheme.onSurface)), // Charcoal Text
           const SizedBox(height: 16),
           Expanded(
             child: ListView(
@@ -669,8 +701,8 @@ class ProgressTab extends StatelessWidget {
                 _buildActivityItem(
                     context, 'Focus Session', '10 min', 'Yesterday, 7:30 PM'),
                 if (totalMinutes == 0) ...[
-                  _buildActivityItem(
-                      context, 'Evening Relaxation', '15 min', 'Nov 8, 6:00 PM'),
+                  _buildActivityItem(context, 'Evening Relaxation', '15 min',
+                      'Nov 8, 6:00 PM'),
                   _buildActivityItem(
                       context, 'Breathing Exercise', '8 min', 'Nov 7, 9:00 AM'),
                 ],
@@ -687,35 +719,42 @@ class ProgressTab extends StatelessWidget {
   }
 
   // Helper method for stats updated for REQ-008
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildStatItem(
+      BuildContext context, String label, String value, IconData icon) {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Icon(icon, size: 30, color: theme.colorScheme.primary), // REQ-008: Sage Green Icon
+        Icon(icon,
+            size: 30,
+            color: theme.colorScheme.primary), // REQ-008: Sage Green Icon
         const SizedBox(height: 8),
         Text(value,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        Text(label, 
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onBackground.withOpacity(0.6)
-          )
-        ),
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold)),
+        Text(label,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface
+                    .withAlpha((0.6 * 255).round()))),
       ],
     );
   }
 
   // Helper method for activity list updated for REQ-008
-  Widget _buildActivityItem(BuildContext context, String title, String duration, String time) {
+  Widget _buildActivityItem(
+      BuildContext context, String title, String duration, String time) {
     final theme = Theme.of(context);
     return Card(
       // Inherits theme styling (Off-White, minimal elevation)
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Icon(Icons.self_improvement_outlined, color: theme.colorScheme.primary), // Sage Green
+        leading: Icon(Icons.self_improvement_outlined,
+            color: theme.colorScheme.primary), // Sage Green
         title: Text(title, style: theme.textTheme.titleSmall),
         subtitle: Text(duration),
-        trailing:
-            Text(time, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onBackground.withOpacity(0.5))),
+        trailing: Text(time,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface
+                    .withAlpha((0.5 * 255).round()))),
       ),
     );
   }

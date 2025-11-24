@@ -1,4 +1,6 @@
-// models/user_model.dart
+// Canonical user model kept in `user_mode.dart` per project preference.
+// This file contains the concrete implementation. `user_model.dart` is a
+// compatibility re-export so existing imports continue to work.
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
@@ -19,13 +21,14 @@ class User {
   });
 
   factory User.fromMap(Map<String, dynamic> data) {
+    final prefsData = data['preferences'] ?? {};
     return User(
       uid: data['uid'] ?? '',
       email: data['email'] ?? '',
       displayName: data['displayName'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastLogin: (data['lastLogin'] as Timestamp).toDate(),
-      preferences: UserPreferences.fromMap(data['preferences'] ?? {}),
+      preferences: UserPreferences.fromMap(Map<String, dynamic>.from(prefsData)),
     );
   }
 

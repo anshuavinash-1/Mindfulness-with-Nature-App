@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       final authService = Provider.of<AuthService>(context, listen: false);
-      
+
       try {
         // Use the new signInWithEmail method
         final user = await authService.signInWithEmail(
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     // REQ-008: Use theme's primary text color (Charcoal)
-                    color: theme.colorScheme.onBackground,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -127,7 +127,8 @@ class _LoginPageState extends State<LoginPage> {
                   style: GoogleFonts.lora(
                     fontSize: 18,
                     // REQ-008: Muted color for secondary text
-                    color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.7 * 255).round()),
                   ),
                 ),
                 const SizedBox(height: 60),
@@ -137,17 +138,25 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.email,
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.5 * 255).round())),
                     // REQ-008: Minimalistic input border with theme primary color on focus
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.3 * 255).round())),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2), // Sage Green focus border
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 2), // Sage Green focus border
                     ),
-                    labelStyle: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.8 * 255).round())),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
@@ -170,17 +179,25 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.lock,
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.5 * 255).round())),
                     // REQ-008: Minimalistic input border with theme primary color on focus
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.3 * 255).round())),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2), // Sage Green focus border
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 2), // Sage Green focus border
                     ),
-                    labelStyle: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.8 * 255).round())),
                   ),
                   obscureText: true,
                   validator: (value) {
@@ -209,8 +226,8 @@ class _LoginPageState extends State<LoginPage> {
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               // REQ-008: Use theme's color for the loader
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(theme.colorScheme.onPrimary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  theme.colorScheme.onPrimary),
                             ),
                           )
                         : Text(
@@ -274,16 +291,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _showForgotPasswordDialog() {
+  Future<void> _showForgotPasswordDialog() async {
     final emailController = TextEditingController();
-    final theme = Theme.of(context);
+    final stateContext = context;
+    final theme = Theme.of(stateContext);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+    // The dialog returns an email string; we immediately check `mounted` after the await
+    // to ensure State is still valid. The analyzer can be conservative about
+    // dialogs and contexts; suppress the specific lint here.
+    // ignore: use_build_context_synchronously
+    final result = await showDialog<String?>(
+      context: stateContext,
+      builder: (dialogContext) => AlertDialog(
         title: Text(
           'Reset Password',
-          style: TextStyle(color: theme.colorScheme.onBackground),
+          style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         content: TextFormField(
           controller: emailController,
@@ -303,41 +325,47 @@ class _LoginPageState extends State<LoginPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onBackground)),
+            onPressed: () =>
+                Navigator.of(stateContext, rootNavigator: true).pop(null),
+            child: Text('Cancel',
+                style: TextStyle(color: theme.colorScheme.onSurface)),
           ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
-
-              final authService = Provider.of<AuthService>(context, listen: false);
-              try {
-                await authService.resetPassword(email);
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Password reset email sent to $email'),
-                      backgroundColor: Colors.green.shade400,
-                    ),
-                  );
-                }
-              } on AuthException catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.message),
-                      backgroundColor: Colors.red.shade400,
-                    ),
-                  );
-                }
-              }
+              Navigator.of(stateContext, rootNavigator: true).pop(email);
             },
             child: const Text('Send Reset Link'),
           ),
         ],
       ),
     );
+
+    if (!mounted) return;
+    if (result == null || result.isEmpty) return;
+
+    // ignore: use_build_context_synchronously
+    final authService = Provider.of<AuthService>(stateContext, listen: false);
+    try {
+      await authService.resetPassword(result);
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(stateContext).showSnackBar(
+        SnackBar(
+          content: Text('Password reset email sent to $result'),
+          backgroundColor: Colors.green.shade400,
+        ),
+      );
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(stateContext).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red.shade400,
+        ),
+      );
+    }
   }
 }

@@ -46,7 +46,8 @@ class _SignupPageState extends State<SignupPage> {
                               Navigator.pop(context);
                             },
                       // REQ-008: Use theme's primary color (Sage Green) for navigation icon
-                      icon: Icon(Icons.arrow_back, color: theme.colorScheme.primary),
+                      icon: Icon(Icons.arrow_back,
+                          color: theme.colorScheme.primary),
                     ),
                     const Spacer(),
                     Text(
@@ -55,7 +56,7 @@ class _SignupPageState extends State<SignupPage> {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         // REQ-008: Use theme's onBackground color (Charcoal)
-                        color: theme.colorScheme.onBackground,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     const Spacer(),
@@ -67,12 +68,14 @@ class _SignupPageState extends State<SignupPage> {
                 // Signup Form Container
                 Container(
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface, // REQ-008: Off-White Surface
+                    color:
+                        theme.colorScheme.surface, // REQ-008: Off-White Surface
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         // REQ-008: Soft, subtle shadow using primary color tint
-                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        color: theme.colorScheme.primary
+                            .withAlpha((0.1 * 255).round()),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -104,7 +107,7 @@ class _SignupPageState extends State<SignupPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Password field
                       TextFormField(
                         controller: _passwordController,
@@ -185,9 +188,9 @@ class _SignupPageState extends State<SignupPage> {
                     Text(
                       'Already have an account? ',
                       style: GoogleFonts.inter(
-                        // REQ-008: Muted color for static text
-                        color: theme.colorScheme.onBackground.withOpacity(0.7)
-                      ),
+                          // REQ-008: Muted color for static text
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.7 * 255).round())),
                     ),
                     GestureDetector(
                       onTap: _isLoading
@@ -205,7 +208,8 @@ class _SignupPageState extends State<SignupPage> {
                         style: GoogleFonts.inter(
                           // REQ-008: Use primary color (Sage Green) for the link
                           color: _isLoading
-                              ? theme.colorScheme.onBackground.withOpacity(0.3)
+                              ? theme.colorScheme.onSurface
+                                  .withAlpha((0.3 * 255).round())
                               : theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -228,7 +232,7 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       final authService = Provider.of<AuthService>(context, listen: false);
-      
+
       try {
         // Use the new signUpWithEmail method
         final user = await authService.signUpWithEmail(
@@ -297,12 +301,15 @@ class _SignupPageState extends State<SignupPage> {
     final theme = Theme.of(context);
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: theme.colorScheme.primary), // Sage Green icon
-      labelStyle: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+      prefixIcon:
+          Icon(icon, color: theme.colorScheme.primary), // Sage Green icon
+      labelStyle: TextStyle(
+          color: theme.colorScheme.onSurface.withAlpha((0.8 * 255).round())),
       // Default border (Muted/faint)
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+        borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withAlpha((0.3 * 255).round())),
       ),
       // Focused border (Sage Green accent)
       focusedBorder: OutlineInputBorder(
