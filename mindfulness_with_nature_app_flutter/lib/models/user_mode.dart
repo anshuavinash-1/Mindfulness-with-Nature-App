@@ -28,7 +28,8 @@ class User {
       displayName: data['displayName'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastLogin: (data['lastLogin'] as Timestamp).toDate(),
-      preferences: UserPreferences.fromMap(Map<String, dynamic>.from(prefsData)),
+      preferences:
+          UserPreferences.fromMap(Map<String, dynamic>.from(prefsData)),
     );
   }
 

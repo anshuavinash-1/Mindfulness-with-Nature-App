@@ -1,12 +1,12 @@
-/// Unit tests for PlacesService.
-/// 
-/// PlacesService manages favorite nature locations using local storage (SharedPreferences).
-/// These tests verify:
-/// - Adding, updating, and deleting favorite places
-/// - Geolocation calculations using the Haversine formula
-/// - Finding places within a radius of a given location
-/// - Data persistence through SharedPreferences
-/// - Immutability of exposed data
+// Unit tests for PlacesService.
+// 
+// PlacesService manages favorite nature locations using local storage (SharedPreferences).
+// These tests verify:
+// - Adding, updating, and deleting favorite places
+// - Geolocation calculations using the Haversine formula
+// - Finding places within a radius of a given location
+// - Data persistence through SharedPreferences
+// - Immutability of exposed data
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mindfulness_with_nature_app_flutter/services/place_service.dart';

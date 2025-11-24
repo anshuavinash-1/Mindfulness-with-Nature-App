@@ -1,12 +1,12 @@
-/// Unit tests for MoodService.
-/// 
-/// MoodService manages mood and stress tracking using local storage (SharedPreferences).
-/// These tests verify:
-/// - Adding and deleting mood entries
-/// - Filtering entries by date range
-/// - Calculating average mood and stress levels
-/// - Data persistence through SharedPreferences
-/// - Immutability of exposed data
+// Unit tests for MoodService.
+// 
+// MoodService manages mood and stress tracking using local storage (SharedPreferences).
+// These tests verify:
+// - Adding and deleting mood entries
+// - Filtering entries by date range
+// - Calculating average mood and stress levels
+// - Data persistence through SharedPreferences
+// - Immutability of exposed data
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mindfulness_with_nature_app_flutter/services/mood_service.dart';

@@ -1,11 +1,11 @@
-/// Unit tests for User and UserPreferences models.
-/// 
-/// These tests verify:
-/// - Object construction with required and optional fields
-/// - Firestore data serialization/deserialization (toMap/fromMap)
-/// - Timestamp conversion between Firestore and DateTime
-/// - Immutable object copying with copyWith pattern
-/// - Null handling and default values
+// Unit tests for User and UserPreferences models.
+// 
+// These tests verify:
+// - Object construction with required and optional fields
+// - Firestore data serialization/deserialization (toMap/fromMap)
+// - Timestamp conversion between Firestore and DateTime
+// - Immutable object copying with copyWith pattern
+// - Null handling and default values
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindfulness_with_nature_app_flutter/models/user_model.dart';
