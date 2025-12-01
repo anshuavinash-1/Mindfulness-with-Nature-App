@@ -8,7 +8,7 @@ import '../models/user_model.dart';
 class AuthService with ChangeNotifier implements AuthServiceContract {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   String? _userEmail;
   bool _isLoading = false;
   User? _currentUser;
@@ -41,14 +41,14 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
         email: email,
         password: password,
       );
-      
+
       // Update last login
       await _updateLastLogin(userCredential.user!.uid);
-      
+
       final user = await _getUserFromFirebaseUser(userCredential.user!);
       _userEmail = user?.email;
       _currentUser = user;
-      
+
       _isLoading = false;
       notifyListeners();
       return user;
@@ -69,14 +69,14 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
         email: email,
         password: password,
       );
-      
+
       // Create user document in Firestore
       await _createUserDocument(userCredential.user!);
-      
+
       final user = await _getUserFromFirebaseUser(userCredential.user!);
       _userEmail = user?.email;
       _currentUser = user;
-      
+
       _isLoading = false;
       notifyListeners();
       return user;
@@ -98,11 +98,12 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
   }
 
   // Keep your existing simple signup method for backward compatibility
-  Future<bool> signup(String email, String password, String confirmPassword) async {
+  Future<bool> signup(
+      String email, String password, String confirmPassword) async {
     if (password != confirmPassword || password.length < 6) {
       return false;
     }
-    
+
     try {
       final user = await signUpWithEmail(email, password);
       return user != null;
@@ -154,7 +155,8 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
   // Helper Methods
   Future<User?> _getUserFromFirebaseUser(User firebaseUser) async {
     try {
-      final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final doc =
+          await _firestore.collection('users').doc(firebaseUser.uid).get();
       if (doc.exists) {
         return User.fromMap(doc.data()!);
       }
@@ -180,7 +182,10 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
       ),
     );
 
-    await _firestore.collection('users').doc(firebaseUser.uid).set(user.toMap());
+    await _firestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .set(user.toMap());
   }
 
   Future<void> _updateLastLogin(String uid) async {
@@ -211,7 +216,7 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
 class AuthException implements Exception {
   final String message;
   AuthException(this.message);
-  
+
   @override
   String toString() => message;
 }

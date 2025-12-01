@@ -18,44 +18,35 @@ class User {
     required this.preferences,
   });
 
-  factory User.fromMap(Map<String, dynamic> data) {
+  factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      uid: data['uid'] ?? '',
-      email: data['email'] ?? '',
-      displayName: data['displayName'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      lastLogin: (data['lastLogin'] as Timestamp).toDate(),
-      preferences: UserPreferences.fromMap(data['preferences'] ?? {}),
+      uid: map['uid'],
+      email: map['email'],
+      displayName: map['displayName'],
+      createdAt: DateTime.parse(map['createdAt']),
+      lastLogin: DateTime.parse(map['lastLogin']),
+      preferences: UserPreferences(
+        theme: map['preferences']?['theme'] ?? 'forest',
+        notificationsEnabled: map['preferences']?['notificationsEnabled'] ?? true,
+        fontScale: (map['preferences']?['fontScale'] ?? 1.0).toDouble(),
+      ),
     );
   }
+
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'lastLogin': Timestamp.fromDate(lastLogin),
-      'preferences': preferences.toMap(),
+      'createdAt': createdAt.toIso8601String(),
+      'lastLogin': lastLogin.toIso8601String(),
+      'preferences': {
+        'theme': preferences.theme,
+        'notificationsEnabled': preferences.notificationsEnabled,
+        'fontScale': preferences.fontScale,
+      },
     };
-  }
-
-  User copyWith({
-    String? uid,
-    String? email,
-    String? displayName,
-    DateTime? createdAt,
-    DateTime? lastLogin,
-    UserPreferences? preferences,
-  }) {
-    return User(
-      uid: uid ?? this.uid,
-      email: email ?? this.email,
-      displayName: displayName ?? this.displayName,
-      createdAt: createdAt ?? this.createdAt,
-      lastLogin: lastLogin ?? this.lastLogin,
-      preferences: preferences ?? this.preferences,
-    );
   }
 }
 
@@ -65,10 +56,11 @@ class UserPreferences {
   final double fontScale;
 
   UserPreferences({
-    required this.theme,
-    required this.notificationsEnabled,
-    required this.fontScale,
+    this.theme = 'forest',
+    this.notificationsEnabled = true,
+    this.fontScale = 1.0,
   });
+}
 
   factory UserPreferences.fromMap(Map<String, dynamic> data) {
     return UserPreferences(

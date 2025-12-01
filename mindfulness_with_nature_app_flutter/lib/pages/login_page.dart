@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       final authService = Provider.of<AuthService>(context, listen: false);
-      
+
       try {
         // Use the new signInWithEmail method
         final user = await authService.signInWithEmail(
@@ -137,17 +137,22 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.email,
+                        color: theme.colorScheme.onSurface.withOpacity(0.5)),
                     // REQ-008: Minimalistic input border with theme primary color on focus
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.onSurface.withOpacity(0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2), // Sage Green focus border
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 2), // Sage Green focus border
                     ),
-                    labelStyle: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onBackground.withOpacity(0.8)),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
@@ -170,17 +175,22 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.lock,
+                        color: theme.colorScheme.onSurface.withOpacity(0.5)),
                     // REQ-008: Minimalistic input border with theme primary color on focus
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.onSurface.withOpacity(0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2), // Sage Green focus border
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 2), // Sage Green focus border
                     ),
-                    labelStyle: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onBackground.withOpacity(0.8)),
                   ),
                   obscureText: true,
                   validator: (value) {
@@ -209,8 +219,8 @@ class _LoginPageState extends State<LoginPage> {
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               // REQ-008: Use theme's color for the loader
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(theme.colorScheme.onPrimary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  theme.colorScheme.onPrimary),
                             ),
                           )
                         : Text(
@@ -304,14 +314,16 @@ class _LoginPageState extends State<LoginPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onBackground)),
+            child: Text('Cancel',
+                style: TextStyle(color: theme.colorScheme.onBackground)),
           ),
           ElevatedButton(
             onPressed: () async {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
 
-              final authService = Provider.of<AuthService>(context, listen: false);
+              final authService =
+                  Provider.of<AuthService>(context, listen: false);
               try {
                 await authService.resetPassword(email);
                 if (mounted) {

@@ -1,7 +1,7 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
+import 'models/user_model.dart'; 
 import 'pages/login_page.dart';
 import 'pages/dashboard_page.dart';
 
@@ -18,21 +18,21 @@ final Color textCharcoal = Color(0xFF36454F); // Primary text color (not pure bl
 final ThemeData calmTheme = ThemeData(
   // Global Scaffold Background
   scaffoldBackgroundColor: backgroundSand,
-  
+
   // Define the core color scheme based on the earthy palette
   colorScheme: ColorScheme.light(
     primary: primarySageGreen,
     secondary: accentSoftSkyBlue,
     background: backgroundSand,
     surface: surfaceOffWhite,
-    onPrimary: Colors.white,      // Text/Icons on primary color
-    onBackground: textCharcoal,   // Text/Icons on background color
-    onSurface: textCharcoal,      // Text/Icons on surface color
+    onPrimary: Colors.white,
+    onSecondary: Colors.white,
+    onBackground: textCharcoal,
+    onSurface: textCharcoal,
   ),
 
   // Apply typography consistency
   textTheme: TextTheme(
-    // Use the deep charcoal for all main text styles
     bodyLarge: TextStyle(color: textCharcoal),
     bodyMedium: TextStyle(color: textCharcoal),
     titleLarge: TextStyle(color: textCharcoal, fontWeight: FontWeight.w600),
@@ -41,8 +41,8 @@ final ThemeData calmTheme = ThemeData(
 
   // Minimize visual clutter and shadows (minimalistic aesthetic)
   appBarTheme: AppBarTheme(
-    color: surfaceOffWhite,
-    elevation: 0, // Flat design
+    backgroundColor: surfaceOffWhite,
+    elevation: 0,
     iconTheme: IconThemeData(color: textCharcoal),
     titleTextStyle: TextStyle(
       color: textCharcoal,
@@ -57,20 +57,18 @@ final ThemeData calmTheme = ThemeData(
       backgroundColor: primarySageGreen,
       foregroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 1, // Subtle lift
+      elevation: 1,
     ),
   ),
-  
+
   // Style for Cards/Containers
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     color: surfaceOffWhite,
-    elevation: 2, // Minimal, soft shadow
+    elevation: 2,
     margin: EdgeInsets.all(16.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  )
+  ),
 );
-
-// --- Main Application Entry Point ---
 
 void main() {
   runApp(const MindfulnessApp());
@@ -86,16 +84,10 @@ class MindfulnessApp extends StatelessWidget {
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
-        // Add other providers here as needed:
-        // ChangeNotifierProvider<MoodService>(create: (_) => MoodService()),
-        // ChangeNotifierProvider<PlaceService>(create: (_) => PlaceService()),
       ],
       child: MaterialApp(
         title: 'Mindfulness with Nature App',
-        // REQUIRED: Apply the custom theme to implement REQ-008
-        theme: calmTheme, 
-        
-        // Use AuthWrapper to handle authentication state
+        theme: calmTheme,
         home: const AuthWrapper(),
         debugShowCheckedModeBanner: false,
       ),
@@ -103,47 +95,43 @@ class MindfulnessApp extends StatelessWidget {
   }
 }
 
-// --- Auth Wrapper to handle authentication state ---
-
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
+
     return StreamBuilder<User?>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
-        // Show loading while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: backgroundSand,
             body: Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(primarySageGreen),
+              ),
             ),
           );
         }
-        
-        // If user is logged in, go to dashboard
+
         if (snapshot.hasData && snapshot.data != null) {
           return DashboardPage(user: snapshot.data!);
         }
-        
-        // If no user, show login page
+
         return const LoginPage();
       },
     );
   }
 }
 
-// --- Example Screen Utilizing the Theme ---
-
+// Optional: Keep or remove this example screen
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Theme colors are automatically inherited by widgets
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nature Sessions'),
@@ -152,7 +140,6 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // The Card uses surfaceOffWhite for background and textCharcoal for text
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -163,22 +150,17 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            // The Button uses primarySageGreen
             ElevatedButton(
-              onPressed: () {
-                // Start session logic
-              },
+              onPressed: () {},
               child: const Text('Start Mindfulness'),
             ),
           ],
         ),
       ),
-      // The FloatingActionButton uses primarySageGreen
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to profile or settings
-        },
-        child: const Icon(Icons.person_outline),
+        onPressed: () {},
+        backgroundColor: primarySageGreen,
+        child: const Icon(Icons.person_outline, color: Colors.white),
       ),
     );
   }
