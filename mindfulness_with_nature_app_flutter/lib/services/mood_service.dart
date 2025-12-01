@@ -3,15 +3,19 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/mood_entry.dart';
 
+// The MoodService manages the persistent storage and retrieval of
+// mood and stress entries, as well as providing analytical calculations.
 class MoodService with ChangeNotifier {
   static const String _storageKey = 'mood_entries';
   final SharedPreferences _prefs;
   List<MoodEntry> _entries = [];
 
+  // Constructor loads existing data immediately upon instantiation.
   MoodService(this._prefs) {
     _loadEntries();
   }
 
+  // Getter for the mood entries, returns an unmodifiable list for safety.
   List<MoodEntry> get entries => List.unmodifiable(_entries);
 
   // Load entries from storage
@@ -20,8 +24,9 @@ class MoodService with ChangeNotifier {
       debugPrint('MoodService: Loading entries from storage');
       final String? entriesJson = _prefs.getString(_storageKey);
       if (entriesJson != null) {
-        debugPrint('MoodService: Found stored entries: $entriesJson');
+        debugPrint('MoodService: Found stored entries.');
         final List<dynamic> decoded = jsonDecode(entriesJson);
+        // Map decoded JSON back to MoodEntry objects
         _entries = decoded.map((item) => MoodEntry.fromJson(item)).toList();
         debugPrint('MoodService: Loaded ${_entries.length} entries');
       } else {
@@ -31,7 +36,7 @@ class MoodService with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('MoodService: Error loading entries - $e');
-      _entries = [];
+      _entries = []; // Clear list on error to prevent bad state
       notifyListeners();
     }
   }
@@ -39,6 +44,7 @@ class MoodService with ChangeNotifier {
   // Save entries to storage
   Future<void> _saveEntries() async {
     try {
+      // Encode the list of entries to a JSON string
       final String encoded =
           jsonEncode(_entries.map((e) => e.toJson()).toList());
       final success = await _prefs.setString(_storageKey, encoded);
@@ -51,12 +57,15 @@ class MoodService with ChangeNotifier {
 
   // Add a new mood entry
   Future<void> addEntry(MoodEntry entry) async {
+    // Add the new entry to the list
     _entries.add(entry);
+    // Persist the updated list
     await _saveEntries();
+    // Notify listeners (UI widgets) that data has changed
     notifyListeners();
   }
 
-  // Get entries for a date range
+  // Get entries for a specific date range (exclusive of the end date)
   List<MoodEntry> getEntriesForRange(DateTime start, DateTime end) {
     return _entries
         .where((entry) =>
@@ -64,7 +73,7 @@ class MoodService with ChangeNotifier {
         .toList();
   }
 
-  // Get average mood and stress levels for a date range
+  // Calculate average mood and stress levels for a date range
   Map<String, double> getAveragesForRange(DateTime start, DateTime end) {
     final entriesInRange = getEntriesForRange(start, end);
     if (entriesInRange.isEmpty) {
@@ -74,18 +83,20 @@ class MoodService with ChangeNotifier {
       };
     }
 
+    // Calculate sum of mood and stress levels using fold
     final moodSum =
         entriesInRange.fold<int>(0, (sum, entry) => sum + entry.moodLevel);
     final stressSum =
         entriesInRange.fold<int>(0, (sum, entry) => sum + entry.stressLevel);
 
+    // Return averages
     return {
       'moodAverage': moodSum / entriesInRange.length,
       'stressAverage': stressSum / entriesInRange.length,
     };
   }
 
-  // Delete an entry
+  // Delete an entry (currently based on exact timestamp and userId match)
   Future<void> deleteEntry(MoodEntry entry) async {
     _entries.removeWhere(
         (e) => e.timestamp == entry.timestamp && e.userId == entry.userId);

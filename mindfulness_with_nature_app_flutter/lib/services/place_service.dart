@@ -4,28 +4,40 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/favorite_place.dart';
 
+// The PlacesService manages the CRUD operations and distance calculations
+// for the user's favorite nature places. It uses SharedPreferences for persistence.
 class PlacesService with ChangeNotifier {
   static const String _storageKey = 'favorite_places';
   final SharedPreferences _prefs;
   List<FavoritePlace> _places = [];
 
+  // Constructor requires SharedPreferences instance and immediately loads data
   PlacesService(this._prefs) {
     _loadPlaces();
   }
 
+  // Getter for the list of places, returns an unmodifiable list for safety
   List<FavoritePlace> get places => List.unmodifiable(_places);
 
   // Load places from storage
   Future<void> _loadPlaces() async {
     final String? placesJson = _prefs.getString(_storageKey);
     if (placesJson != null) {
-      final List<dynamic> decoded = jsonDecode(placesJson);
-      _places = decoded.map((item) => FavoritePlace.fromJson(item)).toList();
-      notifyListeners();
+      try {
+        final List<dynamic> decoded = jsonDecode(placesJson);
+        _places = decoded.map((item) => FavoritePlace.fromJson(item)).toList();
+        notifyListeners();
+      } catch (e) {
+        // Handle potential parsing errors from corrupted data
+        if (kDebugMode) {
+          print('Error loading places from storage: $e');
+        }
+        _places = []; // Clear data if loading fails
+      }
     }
   }
 
-  // Save places to storage
+  // Save places to storage (JSON encoding)
   Future<void> _savePlaces() async {
     final String encoded = jsonEncode(_places.map((p) => p.toJson()).toList());
     await _prefs.setString(_storageKey, encoded);
@@ -48,14 +60,14 @@ class PlacesService with ChangeNotifier {
     }
   }
 
-  // Delete a place
+  // Delete a place by its ID
   Future<void> deletePlace(String placeId) async {
     _places.removeWhere((p) => p.id == placeId);
     await _savePlaces();
     notifyListeners();
   }
 
-  // Get places near a location
+  // Get places near a location (geospatial query)
   List<FavoritePlace> getPlacesNearLocation(
       double lat, double lng, double radiusKm) {
     return _places.where((place) {
@@ -82,6 +94,7 @@ class PlacesService with ChangeNotifier {
     return earthRadius * c;
   }
 
+  // Helper to convert degrees to radians
   double _toRadians(double degree) {
     return degree * (pi / 180);
   }

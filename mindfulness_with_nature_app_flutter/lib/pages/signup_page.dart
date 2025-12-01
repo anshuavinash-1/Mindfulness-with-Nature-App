@@ -18,11 +18,15 @@ class _SignupPageState extends State<SignupPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.green[50],
+      // REQ-008: Use theme's scaffold background (Sand/Beige)
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -36,10 +40,14 @@ class _SignupPageState extends State<SignupPage> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.arrow_back, color: Colors.green[700]),
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                            },
+                      // REQ-008: Use theme's primary color (Sage Green) for navigation icon
+                      icon: Icon(Icons.arrow_back,
+                          color: theme.colorScheme.primary),
                     ),
                     const Spacer(),
                     Text(
@@ -47,7 +55,8 @@ class _SignupPageState extends State<SignupPage> {
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
+                        // REQ-008: Use theme's onBackground color (Charcoal)
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     const Spacer(),
@@ -56,44 +65,39 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // Signup Form
+                // Signup Form Container
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color:
+                        theme.colorScheme.surface, // REQ-008: Off-White Surface
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.green[100]!,
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
+                        // REQ-008: Soft, subtle shadow using primary color tint
+                        color: theme.colorScheme.primary
+                            .withAlpha((0.1 * 255).round()),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
+                      // Email field
                       TextFormField(
                         controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon:
-                              Icon(Icons.email, color: Colors.green[700]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.green[700]!),
-                          ),
+                        decoration: _buildInputDecoration(
+                          context,
+                          'Email',
+                          Icons.email,
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          // Trim whitespace before validation
                           final email = value.trim();
-                          // Comprehensive email validation regex
                           final emailRe = RegExp(
                               r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                           if (!emailRe.hasMatch(email)) {
@@ -103,56 +107,35 @@ class _SignupPageState extends State<SignupPage> {
                         },
                       ),
                       const SizedBox(height: 20),
+
+                      // Password field
                       TextFormField(
                         controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon:
-                              Icon(Icons.lock, color: Colors.green[700]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.green[700]!),
-                          ),
+                        decoration: _buildInputDecoration(
+                          context,
+                          'Password',
+                          Icons.lock,
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters long';
-                          }
-                          // Check for password complexity
-                          bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
-                          bool hasDigits = value.contains(RegExp(r'[0-9]'));
-                          bool hasSpecialCharacters =
-                              value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-
-                          if (!hasUppercase ||
-                              !hasDigits ||
-                              !hasSpecialCharacters) {
-                            return 'Password must contain at least:\n• One uppercase letter\n• One number\n• One special character';
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters long';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 20),
+
+                      // Confirm Password field
                       TextFormField(
                         controller: _confirmPasswordController,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          prefixIcon: Icon(Icons.lock_outline,
-                              color: Colors.green[700]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.green[700]!),
-                          ),
+                        decoration: _buildInputDecoration(
+                          context,
+                          'Confirm Password',
+                          Icons.lock_outline,
                         ),
                         obscureText: true,
                         validator: (value) {
@@ -166,73 +149,31 @@ class _SignupPageState extends State<SignupPage> {
                         },
                       ),
                       const SizedBox(height: 30),
-                      Consumer<AuthService>(
-                        builder: (context, authService, child) {
-                          return authService.isLoading
-                              ? const CircularProgressIndicator()
-                              : ElevatedButton(
-                                  onPressed: () async {
-                                    // Capture context-dependent objects before the async gap
-                                    final navigator = Navigator.of(context);
-                                    final messenger =
-                                        ScaffoldMessenger.of(context);
 
-                                    if (_formKey.currentState!.validate()) {
-                                      final success = await authService.signup(
-                                        _emailController.text,
-                                        _passwordController.text,
-                                        _confirmPasswordController.text,
-                                      );
-
-                                      // Immediately bail if the widget was removed while waiting.
-                                      if (!mounted) return;
-
-                                      if (success) {
-                                        navigator.pushReplacement(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const DashboardPage(),
-                                          ),
-                                        );
-                                      } else {
-                                        messenger.showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                                'Signup failed. Please try again.'),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      // Show a short message so the user knows validation failed
-                                      messenger.showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Please fix the errors in the form.'),
-                                          backgroundColor: Colors.orange,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green[700],
-                                    foregroundColor: Colors.white,
-                                    minimumSize:
-                                        const Size(double.infinity, 55),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 5,
+                      // Signup Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _signup,
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        theme.colorScheme.onPrimary),
                                   ),
-                                  child: Text(
-                                    'Create Account',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                )
+                              : Text(
+                                  'Create Account',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                );
-                        },
+                                ),
+                        ),
                       ),
                     ],
                   ),
@@ -246,21 +187,30 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.inter(color: Colors.grey[600]),
+                      style: GoogleFonts.inter(
+                          // REQ-008: Muted color for static text
+                          color: theme.colorScheme.onSurface
+                              .withAlpha((0.7 * 255).round())),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
-                      },
+                      onTap: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                              );
+                            },
                       child: Text(
                         'Login',
                         style: GoogleFonts.inter(
-                          color: Colors.green[700],
+                          // REQ-008: Use primary color (Sage Green) for the link
+                          color: _isLoading
+                              ? theme.colorScheme.onSurface
+                                  .withAlpha((0.3 * 255).round())
+                              : theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -271,6 +221,100 @@ class _SignupPageState extends State<SignupPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _signup() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final authService = Provider.of<AuthService>(context, listen: false);
+
+      try {
+        // Use the new signUpWithEmail method
+        final user = await authService.signUpWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          if (user != null) {
+            // Navigate to dashboard with user data
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DashboardPage(user: user),
+              ),
+            );
+          } else {
+            _showErrorSnackBar('Signup failed. Please try again.');
+          }
+        }
+      } on AuthException catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar(e.message);
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('An unexpected error occurred. Please try again.');
+        }
+      }
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red.shade400,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  // Helper method for consistent input decoration styling (REQ-008)
+  InputDecoration _buildInputDecoration(
+      BuildContext context, String label, IconData icon) {
+    final theme = Theme.of(context);
+    return InputDecoration(
+      labelText: label,
+      prefixIcon:
+          Icon(icon, color: theme.colorScheme.primary), // Sage Green icon
+      labelStyle: TextStyle(
+          color: theme.colorScheme.onSurface.withAlpha((0.8 * 255).round())),
+      // Default border (Muted/faint)
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withAlpha((0.3 * 255).round())),
+      ),
+      // Focused border (Sage Green accent)
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
       ),
     );
   }
