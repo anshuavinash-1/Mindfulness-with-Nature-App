@@ -5,6 +5,8 @@ ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 
 # Flutter/Dart
+.dart_tool/
+.flutter-plugins-dependencies
 *.iml
 *.iws
 .idea/
@@ -45,14 +47,14 @@ macos/Runner/GoogleService-Info.plist
 /ios/**/.symlinks/
 /ios/**/profile
 /ios/**/xcuserdata
-/ios/.generated/
-/ios/Flutter/App.framework
-/ios/Flutter/Flutter.framework
-/ios/Flutter/Flutter.podspec
-/ios/Flutter/Generated.xcconfig
-/ios/Flutter/ephemeral/
-/ios/ServiceDefinitions.json
-/ios/Runner/GeneratedPluginRegistrant.*
+ios/.generated/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
 
 # macOS
 /macos/.symlinks/
@@ -64,5 +66,6 @@ macos/Runner/GoogleService-Info.plist
 
 # Builds
 /build/
-.dart_tool/
-.flutter-plugins-dependencies
+
+# Local Netlify folder
+.netlify
