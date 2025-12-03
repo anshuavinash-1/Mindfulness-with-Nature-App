@@ -1,37 +1,42 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+
+// Services
 import 'services/auth_service.dart';
-import 'models/user_model.dart'; 
+
+// Pages
 import 'pages/login_page.dart';
 import 'pages/dashboard_page.dart';
 
-// REQ-008: Muted, Earthy Color Palette Definition
+// -----------------------------------------------------------
+// THEME
+// -----------------------------------------------------------
 
-// Core Colors
-final Color primarySageGreen = Color(0xFF8FBC8F); // Primary button, active states
-final Color accentSoftSkyBlue = Color(0xFFADD8E6); // Secondary accent, highlights
-final Color backgroundSand = Color(0xFFF5F5DC); // Main screen background
-final Color surfaceOffWhite = Color(0xFFFAF0E6); // Card/container surface
-final Color textCharcoal = Color(0xFF36454F); // Primary text color (not pure black)
+final Color primarySageGreen = const Color(0xFF8FBC8F);
+final Color accentSoftSkyBlue = const Color(0xFFADD8E6);
+final Color backgroundSand = const Color(0xFFF5F5DC);
+final Color surfaceOffWhite = const Color(0xFFFAF0E6);
+final Color textCharcoal = const Color(0xFF36454F);
 
-// REQ-008: Calm, Minimalistic ThemeData
 final ThemeData calmTheme = ThemeData(
-  // Global Scaffold Background
   scaffoldBackgroundColor: backgroundSand,
 
-  // Define the core color scheme based on the earthy palette
   colorScheme: ColorScheme.light(
     primary: primarySageGreen,
     secondary: accentSoftSkyBlue,
     background: backgroundSand,
     surface: surfaceOffWhite,
     onPrimary: Colors.white,
-    onSecondary: Colors.white,
     onBackground: textCharcoal,
     onSurface: textCharcoal,
   ),
 
-  // Apply typography consistency
   textTheme: TextTheme(
     bodyLarge: TextStyle(color: textCharcoal),
     bodyMedium: TextStyle(color: textCharcoal),
@@ -39,9 +44,8 @@ final ThemeData calmTheme = ThemeData(
     headlineMedium: TextStyle(color: textCharcoal, fontWeight: FontWeight.w500),
   ),
 
-  // Minimize visual clutter and shadows (minimalistic aesthetic)
   appBarTheme: AppBarTheme(
-    backgroundColor: surfaceOffWhite,
+    color: surfaceOffWhite,
     elevation: 0,
     iconTheme: IconThemeData(color: textCharcoal),
     titleTextStyle: TextStyle(
@@ -51,7 +55,6 @@ final ThemeData calmTheme = ThemeData(
     ),
   ),
 
-  // Use subtle borders/shapes for buttons
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: primarySageGreen,
@@ -61,16 +64,25 @@ final ThemeData calmTheme = ThemeData(
     ),
   ),
 
-  // Style for Cards/Containers
   cardTheme: CardThemeData(
     color: surfaceOffWhite,
     elevation: 2,
-    margin: EdgeInsets.all(16.0),
+    margin: const EdgeInsets.all(16.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
 );
 
-void main() {
+// -----------------------------------------------------------
+// MAIN
+// -----------------------------------------------------------
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MindfulnessApp());
 }
 
@@ -86,7 +98,7 @@ class MindfulnessApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Mindfulness with Nature App',
+        title: 'Mindfulness with Nature',
         theme: calmTheme,
         home: const AuthWrapper(),
         debugShowCheckedModeBanner: false,
@@ -95,6 +107,10 @@ class MindfulnessApp extends StatelessWidget {
   }
 }
 
+// -----------------------------------------------------------
+// AUTH WRAPPER
+// -----------------------------------------------------------
+
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -102,66 +118,24 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
-    return StreamBuilder<User?>(
-      stream: authService.authStateChanges,
+    return StreamBuilder<fb.User?>(
+      stream: authService.authStateChanges, // FIXED
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            backgroundColor: backgroundSand,
-            body: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(primarySageGreen),
-              ),
-            ),
-          );
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   return const Scaffold(
+        //     body: Center(child: CircularProgressIndicator()),
+        //   );
+        // }
+
+        final user = snapshot.data;
+
+        if (user == null) {
+          return const LoginPage();
         }
 
-        if (snapshot.hasData && snapshot.data != null) {
-          return DashboardPage(user: snapshot.data!);
-        }
-
-        return const LoginPage();
+        return DashboardPage(user: user); // FIXED
       },
     );
-  }
-}
 
-// Optional: Keep or remove this example screen
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nature Sessions'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Breathe in the Forest Air',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Start Mindfulness'),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: primarySageGreen,
-        child: const Icon(Icons.person_outline, color: Colors.white),
-      ),
-    );
   }
 }

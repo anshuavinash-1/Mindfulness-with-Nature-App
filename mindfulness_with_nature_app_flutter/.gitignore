@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+
+# Local Netlify folder
+.netlify
+mindfulness-with-nature-2025-8c65c2dad868.json
+=======
 # Miscellaneous
 *.class
 *.log
@@ -44,3 +50,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+>>>>>>> fad3250 (Firebase fixes)

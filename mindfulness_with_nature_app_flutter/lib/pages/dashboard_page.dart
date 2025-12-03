@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'tabs/home_tab.dart';
-import 'tabs/meditation_timer_tab.dart';
-import 'tabs/progress_tab.dart';
-import '../mood_tracking_page.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+
+import 'bottom_nav.dart';
+import 'home_screen.dart';
+import 'activities_page.dart';
+import 'mood_page.dart';
+import 'transfarmation.dart';
+import 'community_page.dart';
+
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  final fb.User user;
+
+  const DashboardPage({super.key, required this.user});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -13,52 +20,34 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
+  late List<Widget> _tabs;
 
-  final List<Widget> _tabs = [
-    const HomeTab(),
-    const MeditationTimerTab(),
-    const ProgressTab(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final email = widget.user.email ?? "User";
+
+    _tabs = [
+      HomeScreen(userName: email),
+      const ActivitiesPage(),
+      const MoodSettingsPage(),
+      const TransformationPage(),
+      const CommunityPage()
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mindfulness with Nature'),
-        backgroundColor: Colors.green[800],
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.emoji_emotions_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MoodTrackingPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Colors.black,
       body: _tabs[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
+
+      // Dynamic + external
+      bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.timer),
-            label: 'Meditate',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.insights),
-            label: 'Progress',
-          ),
-        ],
+        onTap: (index) {
+          setState(() => _currentIndex = index);
+        },
       ),
     );
   }

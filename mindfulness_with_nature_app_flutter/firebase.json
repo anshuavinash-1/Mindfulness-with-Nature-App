@@ -1,4 +1,42 @@
 {
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "mindfulness-with-nature-2025",
+          "configurations": {
+            "android": "1:789510951855:android:9bc2624bfa2540c0e7955a",
+            "ios": "1:789510951855:ios:7bf25be1bc8fed13e7955a",
+            "macos": "1:789510951855:ios:7bf25be1bc8fed13e7955a",
+            "web": "1:789510951855:web:eb390e365b08d69fe7955a"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "mindfulness-with-nature-2025",
+          "appId": "1:789510951855:android:9bc2624bfa2540c0e7955a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "mindfulness-with-nature-2025",
+          "appId": "1:789510951855:ios:7bf25be1bc8fed13e7955a",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "mindfulness-with-nature-2025",
+          "appId": "1:789510951855:ios:7bf25be1bc8fed13e7955a",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  },
   "hosting": {
     "public": "build/web",
     "ignore": [

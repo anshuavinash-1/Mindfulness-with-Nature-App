@@ -1,178 +1,159 @@
 // services/auth_service.dart
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../contracts/auth_service_contract.dart';
-import '../models/user_model.dart';
 
-class AuthService with ChangeNotifier implements AuthServiceContract {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../models/user_model.dart'; // AppUser model
+
+class AuthService with ChangeNotifier {
+  final fb.FirebaseAuth _auth = fb.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? _userEmail;
   bool _isLoading = false;
-  User? _currentUser;
+  AppUser? _currentUser;
 
+  // Getters
   String? get userEmail => _userEmail;
   bool get isLoading => _isLoading;
-  bool get isLoggedIn => _userEmail != null;
-  User? get currentUser => _currentUser;
+  AppUser? get currentUser => _currentUser;
 
-  @override
-  Stream<User?> get authStateChanges {
-    return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) {
+  // -----------------------------------------------------
+  //  FIX OPTION 2 – This stream MUST return fb.User?
+  // -----------------------------------------------------
+  Stream<fb.User?> get authStateChanges {
+    return _auth.authStateChanges().map((firebaseUser) {
       if (firebaseUser == null) {
-        _userEmail = null;
         _currentUser = null;
+        _userEmail = null;
         notifyListeners();
         return null;
       }
-      return _getUserFromFirebaseUser(firebaseUser);
+
+      // Load Firestore data in background (non-blocking)
+      _loadUserModel(firebaseUser);
+
+      return firebaseUser; // <--- FIXED: return fb.User NOT AppUser
     });
   }
 
-  @override
-  Future<User?> signInWithEmail(String email, String password) async {
-    _isLoading = true;
+  // Background loader (non-blocking)
+  Future<void> _loadUserModel(fb.User fbUser) async {
+    final model = await _getUserModel(fbUser);
+    _currentUser = model;
+    _userEmail = model?.email;
     notifyListeners();
+  }
+
+  // -----------------------------------------------------
+  //  LOGIN
+  // -----------------------------------------------------
+  Future<void> signInWithEmail(String email, String password) async {
+    _setLoading(true);
 
     try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      final cred = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Update last login
-      await _updateLastLogin(userCredential.user!.uid);
+      await _updateLastLogin(cred.user!.uid);
 
-      final user = await _getUserFromFirebaseUser(userCredential.user!);
-      _userEmail = user?.email;
-      _currentUser = user;
-
-      _isLoading = false;
-      notifyListeners();
-      return user;
-    } on FirebaseAuthException catch (e) {
-      _isLoading = false;
-      notifyListeners();
+      // Firestore model loads automatically from stream
+    } on fb.FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
+    } finally {
+      _setLoading(false);
     }
   }
 
-  @override
-  Future<User?> signUpWithEmail(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
+  // -----------------------------------------------------
+  //  SIGNUP
+  // -----------------------------------------------------
+  Future<void> signUpWithEmail(String email, String password) async {
+    _setLoading(true);
 
     try {
-      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      final cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Create user document in Firestore
-      await _createUserDocument(userCredential.user!);
+      await _createUserDocument(cred.user!);
 
-      final user = await _getUserFromFirebaseUser(userCredential.user!);
-      _userEmail = user?.email;
-      _currentUser = user;
+      // Firestore model loads automatically
+    } on fb.FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-      _isLoading = false;
-      notifyListeners();
-      return user;
-    } on FirebaseAuthException catch (e) {
-      _isLoading = false;
-      notifyListeners();
+  // -----------------------------------------------------
+  //  PASSWORD RESET
+  // -----------------------------------------------------
+  Future<void> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on fb.FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     }
   }
 
-  // Keep your existing simple login method for backward compatibility
-  Future<bool> login(String email, String password) async {
-    try {
-      final user = await signInWithEmail(email, password);
-      return user != null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Keep your existing simple signup method for backward compatibility
-  Future<bool> signup(
-      String email, String password, String confirmPassword) async {
-    if (password != confirmPassword || password.length < 6) {
-      return false;
-    }
-
-    try {
-      final user = await signUpWithEmail(email, password);
-      return user != null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  @override
+  // -----------------------------------------------------
+  //  SIGN OUT
+  // -----------------------------------------------------
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await _auth.signOut();
     _userEmail = null;
     _currentUser = null;
     notifyListeners();
   }
 
-  // Keep your existing logout method
-  void logout() {
-    signOut();
-  }
-
-  @override
-  Future<void> resetPassword(String email) async {
-    try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
-    }
-  }
-
-  @override
+  // -----------------------------------------------------
+  //  DELETE ACCOUNT
+  // -----------------------------------------------------
   Future<void> deleteAccount() async {
     try {
-      final user = _firebaseAuth.currentUser;
+      final user = _auth.currentUser;
+
       if (user != null) {
-        // Delete user document from Firestore
         await _firestore.collection('users').doc(user.uid).delete();
-        // Delete auth account
         await user.delete();
+
         _userEmail = null;
         _currentUser = null;
         notifyListeners();
       }
-    } on FirebaseAuthException catch (e) {
+    } on fb.FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     }
   }
 
-  // Helper Methods
-  Future<User?> _getUserFromFirebaseUser(User firebaseUser) async {
-    try {
-      final doc =
-          await _firestore.collection('users').doc(firebaseUser.uid).get();
-      if (doc.exists) {
-        return User.fromMap(doc.data()!);
-      }
-      return null;
-    } catch (e) {
-      print('Error getting user data: $e');
-      return null;
+  // -----------------------------------------------------
+  //  FIRESTORE HELPERS
+  // -----------------------------------------------------
+
+  Future<AppUser?> _getUserModel(fb.User firebaseUser) async {
+    final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+
+    if (!doc.exists) {
+      await _createUserDocument(firebaseUser);
+      final newDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      return AppUser.fromMap(newDoc.data()!);
     }
+
+    return AppUser.fromMap(doc.data()!);
   }
 
-  Future<void> _createUserDocument(User firebaseUser) async {
+  Future<void> _createUserDocument(fb.User firebaseUser) async {
     final now = DateTime.now();
-    final user = User(
+
+    final user = AppUser(
       uid: firebaseUser.uid,
       email: firebaseUser.email!,
-      displayName: firebaseUser.displayName,
+      displayName: firebaseUser.displayName ?? "",
       createdAt: now,
       lastLogin: now,
       preferences: UserPreferences(
@@ -182,10 +163,7 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
       ),
     );
 
-    await _firestore
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .set(user.toMap());
+    await _firestore.collection('users').doc(firebaseUser.uid).set(user.toMap());
   }
 
   Future<void> _updateLastLogin(String uid) async {
@@ -194,29 +172,38 @@ class AuthService with ChangeNotifier implements AuthServiceContract {
     });
   }
 
-  AuthException _handleAuthException(FirebaseAuthException e) {
+  // -----------------------------------------------------
+  //  ERROR HANDLER
+  // -----------------------------------------------------
+  AuthException _handleAuthException(fb.FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
         return AuthException('No user found with this email.');
       case 'wrong-password':
         return AuthException('Incorrect password.');
       case 'email-already-in-use':
-        return AuthException('An account already exists with this email.');
+        return AuthException('Email already exists.');
       case 'weak-password':
         return AuthException('Password is too weak.');
       case 'invalid-email':
-        return AuthException('Email address is invalid.');
+        return AuthException('Invalid email format.');
       default:
-        return AuthException('An unexpected error occurred. Please try again.');
+        return AuthException('Unexpected error. Try again.');
     }
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 }
 
-// Custom exception class
+// ---------------------------------------------------------
+//  CUSTOM EXCEPTION
+// ---------------------------------------------------------
 class AuthException implements Exception {
   final String message;
   AuthException(this.message);
-
   @override
   String toString() => message;
 }

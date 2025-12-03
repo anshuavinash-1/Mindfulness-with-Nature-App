@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/favorite_place.dart';
-import '../services/places_service.dart';
+import '../services/place_service.dart';
 import '../services/auth_service.dart';
 
 class FavoritePlacesPage extends StatefulWidget {

@@ -1,7 +1,7 @@
-// models/user_model.dart
+// models/app_user.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class AppUser {
   final String uid;
   final String email;
   final String? displayName;
@@ -9,7 +9,7 @@ class User {
   final DateTime lastLogin;
   final UserPreferences preferences;
 
-  User({
+  AppUser({
     required this.uid,
     required this.email,
     this.displayName,
@@ -18,34 +18,29 @@ class User {
     required this.preferences,
   });
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
+  factory AppUser.fromMap(Map<String, dynamic> map) {
+    return AppUser(
       uid: map['uid'],
       email: map['email'],
       displayName: map['displayName'],
-      createdAt: DateTime.parse(map['createdAt']),
-      lastLogin: DateTime.parse(map['lastLogin']),
-      preferences: UserPreferences(
-        theme: map['preferences']?['theme'] ?? 'forest',
-        notificationsEnabled: map['preferences']?['notificationsEnabled'] ?? true,
-        fontScale: (map['preferences']?['fontScale'] ?? 1.0).toDouble(),
-      ),
+      createdAt: map['createdAt'] is Timestamp
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.parse(map['createdAt']),
+      lastLogin: map['lastLogin'] is Timestamp
+          ? (map['lastLogin'] as Timestamp).toDate()
+          : DateTime.parse(map['lastLogin']),
+      preferences: UserPreferences.fromMap(map['preferences'] ?? {}),
     );
   }
-
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'createdAt': createdAt.toIso8601String(),
-      'lastLogin': lastLogin.toIso8601String(),
-      'preferences': {
-        'theme': preferences.theme,
-        'notificationsEnabled': preferences.notificationsEnabled,
-        'fontScale': preferences.fontScale,
-      },
+      'createdAt': Timestamp.fromDate(createdAt),
+      'lastLogin': Timestamp.fromDate(lastLogin),
+      'preferences': preferences.toMap(),
     };
   }
 }
@@ -60,7 +55,6 @@ class UserPreferences {
     this.notificationsEnabled = true,
     this.fontScale = 1.0,
   });
-}
 
   factory UserPreferences.fromMap(Map<String, dynamic> data) {
     return UserPreferences(
@@ -76,17 +70,5 @@ class UserPreferences {
       'notificationsEnabled': notificationsEnabled,
       'fontScale': fontScale,
     };
-  }
-
-  UserPreferences copyWith({
-    String? theme,
-    bool? notificationsEnabled,
-    double? fontScale,
-  }) {
-    return UserPreferences(
-      theme: theme ?? this.theme,
-      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      fontScale: fontScale ?? this.fontScale,
-    );
   }
 }
