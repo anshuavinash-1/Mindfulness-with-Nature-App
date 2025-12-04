@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/favorite_place.dart';
-import '../services/places_service.dart';
+import '../services/place_service.dart';
 import '../services/auth_service.dart';
 
 class FavoritePlacesPage extends StatefulWidget {
@@ -18,7 +18,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   final _formKey = GlobalKey<FormState>();
   late GoogleMapController _mapController;
   final Set<Marker> _markers = {};
-  LatLng? _selectedLocation;
+  // _selectedLocation was previously used for temporary selection; it's not read elsewhere
+  // so we remove it to avoid unused_field analyzer warnings.
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -33,14 +34,16 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
     super.initState();
     // Use the listener to load places when the service changes (on initial load or update)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PlacesService>(context, listen: false).addListener(_loadSavedPlaces);
+      Provider.of<PlacesService>(context, listen: false)
+          .addListener(_loadSavedPlaces);
     });
   }
 
   @override
   void dispose() {
     // IMPORTANT: Remove listener when widget is disposed
-    Provider.of<PlacesService>(context, listen: false).removeListener(_loadSavedPlaces);
+    Provider.of<PlacesService>(context, listen: false)
+        .removeListener(_loadSavedPlaces);
     _nameController.dispose();
     _descriptionController.dispose();
     _mapController.dispose();
@@ -69,7 +72,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               snippet: place.description,
             ),
             // Custom marker icon for better aesthetic
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueAzure),
             onTap: () => _showPlaceDetails(place),
           ),
         );
@@ -83,13 +87,13 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
     _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
 
     setState(() {
-      _selectedLocation = location;
       // Add a temporary marker (using a distinctive color, e.g., Green)
       _markers.add(
         Marker(
           markerId: const MarkerId('new_place'),
           position: location,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         ),
       );
     });
@@ -100,7 +104,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
   // Dialog to add a new place
   void _showAddPlaceDialog(LatLng location) {
     final theme = Theme.of(context);
-    
+
     // Clear controllers before showing the dialog
     _nameController.clear();
     _descriptionController.clear();
@@ -115,7 +119,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
           'Add New Mindfulness Spot',
           style: GoogleFonts.lora(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         content: Form(
@@ -129,7 +133,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
                   labelText: 'Location Name',
                   // REQ-008: Themed border/focus style
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    borderSide:
+                        BorderSide(color: theme.colorScheme.primary, width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -142,8 +147,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                    labelText: 'Description (optional)'),
+                decoration:
+                    const InputDecoration(labelText: 'Description (optional)'),
                 maxLines: 3,
               ),
             ],
@@ -153,11 +158,15 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
           TextButton(
             onPressed: () {
               // Remove the temporary marker if canceled
-              _markers.removeWhere((marker) => marker.markerId.value == 'new_place');
+              _markers.removeWhere(
+                  (marker) => marker.markerId.value == 'new_place');
               Navigator.pop(context);
             },
             // REQ-008: Use muted text color
-            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7))),
+            child: Text('Cancel',
+                style: TextStyle(
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.7 * 255).round()))),
           ),
           ElevatedButton(
             onPressed: () => _savePlace(location),
@@ -208,15 +217,18 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
 
       // Closes the dialog
       Navigator.pop(context);
-      
+
       // Load saved places is automatically called via the listener, but an immediate
       // refresh can be triggered if needed, though usually the listener is sufficient.
-      // _loadSavedPlaces(); 
+      // _loadSavedPlaces();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${newPlace.name} saved!'),
-          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          backgroundColor: Theme.of(context)
+              .colorScheme
+              .primary
+              .withAlpha((0.8 * 255).round()),
         ),
       );
     }
@@ -242,7 +254,7 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               style: GoogleFonts.lora(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onBackground,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             if (place.description != null && place.description!.isNotEmpty) ...[
@@ -250,7 +262,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               Text(
                 place.description!,
                 style: TextStyle(
-                  color: theme.colorScheme.onBackground.withOpacity(0.8),
+                  color: theme.colorScheme.onSurface
+                      .withAlpha((0.8 * 255).round()),
                 ),
               ),
             ],
@@ -260,7 +273,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color:
+                    theme.colorScheme.onSurface.withAlpha((0.6 * 255).round()),
               ),
             ),
             const SizedBox(height: 24),
@@ -271,7 +285,9 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Close',
-                    style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    style: TextStyle(
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.7 * 255).round())),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -328,18 +344,20 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
         onMapCreated: _onMapCreated,
         initialCameraPosition: _defaultLocation,
         // Listen to places changes to ensure markers are always up to date
-        markers: Provider.of<PlacesService>(context).places.map((place) => 
-           Marker(
-            markerId: MarkerId(place.id),
-            position: LatLng(place.latitude, place.longitude),
-            infoWindow: InfoWindow(
-              title: place.name,
-              snippet: place.description,
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-            onTap: () => _showPlaceDetails(place),
-          )
-        ).toSet(),
+        markers: Provider.of<PlacesService>(context)
+            .places
+            .map((place) => Marker(
+                  markerId: MarkerId(place.id),
+                  position: LatLng(place.latitude, place.longitude),
+                  infoWindow: InfoWindow(
+                    title: place.name,
+                    snippet: place.description,
+                  ),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueAzure),
+                  onTap: () => _showPlaceDetails(place),
+                ))
+            .toSet(),
         onTap: _onMapTap,
       ),
       // REQ-008: Use themed Floating Action Button
@@ -348,14 +366,17 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
           // If no location is selected, explain how to select one
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Tap a spot on the map to mark it as a new Favorite Place!'),
-              backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
+              content: const Text(
+                  'Tap a spot on the map to mark it as a new Favorite Place!'),
+              backgroundColor:
+                  theme.colorScheme.primary.withAlpha((0.8 * 255).round()),
             ),
           );
         },
         label: const Text('Tap to Add'),
         icon: const Icon(Icons.add_location_alt_outlined),
-        backgroundColor: theme.colorScheme.secondary, // Secondary color (darker green/brown)
+        backgroundColor:
+            theme.colorScheme.secondary, // Secondary color (darker green/brown)
         foregroundColor: theme.colorScheme.onSecondary, // Off-White text
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),

@@ -1,91 +1,128 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'services/auth_service.dart';
+import 'models/user_model.dart';
 import 'pages/login_page.dart';
 import 'pages/dashboard_page.dart';
+import 'firebase_options.dart';
 
 // REQ-008: Muted, Earthy Color Palette Definition
 
 // Core Colors
-final Color primarySageGreen = Color(0xFF8FBC8F); // Primary button, active states
-final Color accentSoftSkyBlue = Color(0xFFADD8E6); // Secondary accent, highlights
-final Color backgroundSand = Color(0xFFF5F5DC); // Main screen background
-final Color surfaceOffWhite = Color(0xFFFAF0E6); // Card/container surface
-final Color textCharcoal = Color(0xFF36454F); // Primary text color (not pure black)
+const Color primarySageGreen =
+    Color(0xFF8FBC8F); // Primary button, active states
+const Color accentSoftSkyBlue =
+    Color(0xFFADD8E6); // Secondary accent, highlights
+const Color backgroundSand = Color(0xFFF5F5DC); // Main screen background
+const Color surfaceOffWhite = Color(0xFFFAF0E6); // Card/container surface
+const Color textCharcoal =
+    Color(0xFF36454F); // Primary text color (not pure black)
 
 // REQ-008: Calm, Minimalistic ThemeData
 final ThemeData calmTheme = ThemeData(
-  // Global Scaffold Background
-  scaffoldBackgroundColor: backgroundSand,
-  
-  // Define the core color scheme based on the earthy palette
-  colorScheme: ColorScheme.light(
-    primary: primarySageGreen,
-    secondary: accentSoftSkyBlue,
-    background: backgroundSand,
-    surface: surfaceOffWhite,
-    onPrimary: Colors.white,      // Text/Icons on primary color
-    onBackground: textCharcoal,   // Text/Icons on background color
-    onSurface: textCharcoal,      // Text/Icons on surface color
-  ),
+    // Global Scaffold Background
+    scaffoldBackgroundColor: backgroundSand,
 
-  // Apply typography consistency
-  textTheme: TextTheme(
-    // Use the deep charcoal for all main text styles
-    bodyLarge: TextStyle(color: textCharcoal),
-    bodyMedium: TextStyle(color: textCharcoal),
-    titleLarge: TextStyle(color: textCharcoal, fontWeight: FontWeight.w600),
-    headlineMedium: TextStyle(color: textCharcoal, fontWeight: FontWeight.w500),
-  ),
-
-  // Minimize visual clutter and shadows (minimalistic aesthetic)
-  appBarTheme: AppBarTheme(
-    color: surfaceOffWhite,
-    elevation: 0, // Flat design
-    iconTheme: IconThemeData(color: textCharcoal),
-    titleTextStyle: TextStyle(
-      color: textCharcoal,
-      fontSize: 20,
-      fontWeight: FontWeight.w600,
+    // Define the core color scheme based on the earthy palette
+    colorScheme: const ColorScheme.light(
+      primary: primarySageGreen,
+      secondary: accentSoftSkyBlue,
+      surface: surfaceOffWhite,
+      onPrimary: Colors.white, // Text/Icons on background color
+      onSurface: textCharcoal, // Text/Icons on surface color
     ),
-  ),
 
-  // Use subtle borders/shapes for buttons
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: primarySageGreen,
-      foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 1, // Subtle lift
+    // Apply typography consistency
+    textTheme: const TextTheme(
+      // Use the deep charcoal for all main text styles
+      bodyLarge: TextStyle(color: textCharcoal),
+      bodyMedium: TextStyle(color: textCharcoal),
+      titleLarge: TextStyle(color: textCharcoal, fontWeight: FontWeight.w600),
+      headlineMedium:
+          TextStyle(color: textCharcoal, fontWeight: FontWeight.w500),
     ),
-  ),
-  
-  // Style for Cards/Containers
-  cardTheme: CardTheme(
-    color: surfaceOffWhite,
-    elevation: 2, // Minimal, soft shadow
-    margin: EdgeInsets.all(16.0),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  )
-);
+
+    // Minimize visual clutter and shadows (minimalistic aesthetic)
+    appBarTheme: const AppBarTheme(
+      backgroundColor: surfaceOffWhite,
+      elevation: 0, // Flat design
+      iconTheme: IconThemeData(color: textCharcoal),
+      titleTextStyle: TextStyle(
+        color: textCharcoal,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+
+    // Use subtle borders/shapes for buttons
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primarySageGreen,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 1, // Subtle lift
+      ),
+    ),
+
+    // Style for Cards/Containers
+    cardTheme: CardThemeData(
+      color: surfaceOffWhite,
+      elevation: 2, // Minimal, soft shadow
+      margin: const EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ));
 
 // --- Main Application Entry Point ---
 
-void main() {
-  runApp(const MindfulnessApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Sample DB Usage
+  // await FirebaseFirestore.instance.collection('test').add({
+  //   'message': 'Hello World',
+  //   'timestamp': Timestamp.now(),
+  // });
+
+  runApp(MyApp(prefs: prefs));
+
+  var firebaseInitialized = false;
+  try {
+    // Try to initialize Firebase. This will throw on platforms that are not
+    // configured (no google-services.json / firebase_options). We catch and
+    // continue so the app can run in a degraded mode while you finish setup.
+    await firebase_core.Firebase.initializeApp();
+    firebaseInitialized = true;
+  } catch (e, st) {
+    // Do not crash the app if Firebase configuration is missing. Log for
+    // visibility and continue with a non-Firebase fallback service.
+    debugPrint('Firebase.initializeApp() failed: $e\n$st');
+  }
+
+  runApp(MindfulnessApp(firebaseInitialized: firebaseInitialized));
 }
 
 class MindfulnessApp extends StatelessWidget {
-  const MindfulnessApp({super.key});
+  final bool firebaseInitialized;
+
+  const MindfulnessApp({super.key, this.firebaseInitialized = false});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthService>(
-          create: (_) => AuthService(),
-        ),
+        // Provide the AuthService. AuthService is resilient when Firebase
+        // isn't initialized and will operate in a degraded mode.
+        ChangeNotifierProvider(create: (_) => AuthService()),
         // Add other providers here as needed:
         // ChangeNotifierProvider<MoodService>(create: (_) => MoodService()),
         // ChangeNotifierProvider<PlaceService>(create: (_) => PlaceService()),
@@ -93,8 +130,8 @@ class MindfulnessApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Mindfulness with Nature App',
         // REQUIRED: Apply the custom theme to implement REQ-008
-        theme: calmTheme, 
-        
+        theme: calmTheme,
+
         // Use AuthWrapper to handle authentication state
         home: const AuthWrapper(),
         debugShowCheckedModeBanner: false,
@@ -111,7 +148,7 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
+
     return StreamBuilder<User?>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
@@ -123,12 +160,12 @@ class AuthWrapper extends StatelessWidget {
             ),
           );
         }
-        
+
         // If user is logged in, go to dashboard
         if (snapshot.hasData && snapshot.data != null) {
           return DashboardPage(user: snapshot.data!);
         }
-        
+
         // If no user, show login page
         return const LoginPage();
       },
