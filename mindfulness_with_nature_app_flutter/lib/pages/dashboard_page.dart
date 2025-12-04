@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:async';
-import '../services/auth_service.dart';
-import '../models/user_model.dart';
-import 'login_page.dart';
-import 'notification_settings_page.dart';
-import 'mood_tracking_page.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 
-// REQ-008: Dashboard Page
+import 'bottom_nav.dart';
+import 'home_screen.dart';
+import 'activities_page.dart';
+import 'mood_page.dart';
+import 'transfarmation.dart';
+import 'community_page.dart';
+
+
 class DashboardPage extends StatefulWidget {
+<<<<<<< HEAD
   final User user;
+=======
+  final fb.User user;
+>>>>>>> origin/main
 
   const DashboardPage({super.key, required this.user});
 
@@ -18,27 +23,27 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  int _selectedIndex = 0;
-  int _meditationMinutes = 0;
+  int _currentIndex = 0;
+  late List<Widget> _tabs;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  @override
+  void initState() {
+    super.initState();
+    final email = widget.user.email ?? "User";
 
-  void _addMeditationSession(int minutes) {
-    setState(() {
-      _meditationMinutes += minutes;
-    });
+    _tabs = [
+      HomeScreen(userName: email),
+      const ActivitiesPage(),
+      const MoodSettingsPage(),
+      const TransformationPage(),
+      const CommunityPage()
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final theme = Theme.of(context);
-
     return Scaffold(
+<<<<<<< HEAD
       // REQ-008: Use theme background (Sand/Beige)
       backgroundColor: theme.scaffoldBackgroundColor,
 
@@ -124,10 +129,22 @@ class _DashboardPageState extends State<DashboardPage> {
             label: 'Progress',
           ),
         ],
+=======
+      backgroundColor: Colors.black,
+      body: _tabs[_currentIndex],
+
+      // Dynamic + external
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() => _currentIndex = index);
+        },
+>>>>>>> origin/main
       ),
     );
   }
 }
+<<<<<<< HEAD
 
 // Home Tab - Refactored for REQ-008
 class HomeTab extends StatelessWidget {
@@ -759,3 +776,5 @@ class ProgressTab extends StatelessWidget {
     );
   }
 }
+=======
+>>>>>>> origin/main
