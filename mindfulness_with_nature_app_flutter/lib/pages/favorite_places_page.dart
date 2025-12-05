@@ -165,12 +165,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
             // REQ-008: Use muted text color
             child: Text('Cancel',
                 style: TextStyle(
-<<<<<<< HEAD
                     color: theme.colorScheme.onSurface
                         .withAlpha((0.7 * 255).round()))),
-=======
-                    color: theme.colorScheme.onSurface.withOpacity(0.7))),
->>>>>>> origin/main
           ),
           ElevatedButton(
             onPressed: () => _savePlace(location),
@@ -229,15 +225,10 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${newPlace.name} saved!'),
-<<<<<<< HEAD
           backgroundColor: Theme.of(context)
               .colorScheme
               .primary
               .withAlpha((0.8 * 255).round()),
-=======
-          backgroundColor:
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
->>>>>>> origin/main
         ),
       );
     }
@@ -295,12 +286,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
                   child: Text(
                     'Close',
                     style: TextStyle(
-<<<<<<< HEAD
                         color: theme.colorScheme.onSurface
                             .withAlpha((0.7 * 255).round())),
-=======
-                        color: theme.colorScheme.onSurface.withOpacity(0.7)),
->>>>>>> origin/main
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -381,12 +368,8 @@ class _FavoritePlacesPageState extends State<FavoritePlacesPage> {
             SnackBar(
               content: const Text(
                   'Tap a spot on the map to mark it as a new Favorite Place!'),
-<<<<<<< HEAD
               backgroundColor:
                   theme.colorScheme.primary.withAlpha((0.8 * 255).round()),
-=======
-              backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
->>>>>>> origin/main
             ),
           );
         },

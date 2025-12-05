@@ -2,33 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:provider/provider.dart';
-<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'services/auth_service.dart';
 import 'models/user_model.dart';
-=======
-
-// Firebase
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
-
-// Services
-import 'services/auth_service.dart';
-
-// Pages
->>>>>>> origin/main
 import 'pages/login_page.dart';
 import 'pages/dashboard_page.dart';
 import 'firebase_options.dart';
 
-// -----------------------------------------------------------
-// THEME
-// -----------------------------------------------------------
+// REQ-008: Muted, Earthy Color Palette Definition
 
-<<<<<<< HEAD
 // Core Colors
 const Color primarySageGreen =
     Color(0xFF8FBC8F); // Primary button, active states
@@ -38,16 +22,9 @@ const Color backgroundSand = Color(0xFFF5F5DC); // Main screen background
 const Color surfaceOffWhite = Color(0xFFFAF0E6); // Card/container surface
 const Color textCharcoal =
     Color(0xFF36454F); // Primary text color (not pure black)
-=======
-final Color primarySageGreen = const Color(0xFF8FBC8F);
-final Color accentSoftSkyBlue = const Color(0xFFADD8E6);
-final Color backgroundSand = const Color(0xFFF5F5DC);
-final Color surfaceOffWhite = const Color(0xFFFAF0E6);
-final Color textCharcoal = const Color(0xFF36454F);
->>>>>>> origin/main
 
+// REQ-008: Calm, Minimalistic ThemeData
 final ThemeData calmTheme = ThemeData(
-<<<<<<< HEAD
     // Global Scaffold Background
     scaffoldBackgroundColor: backgroundSand,
 
@@ -58,38 +35,8 @@ final ThemeData calmTheme = ThemeData(
       surface: surfaceOffWhite,
       onPrimary: Colors.white, // Text/Icons on background color
       onSurface: textCharcoal, // Text/Icons on surface color
-=======
-  scaffoldBackgroundColor: backgroundSand,
-
-  colorScheme: ColorScheme.light(
-    primary: primarySageGreen,
-    secondary: accentSoftSkyBlue,
-    background: backgroundSand,
-    surface: surfaceOffWhite,
-    onPrimary: Colors.white,
-    onBackground: textCharcoal,
-    onSurface: textCharcoal,
-  ),
-
-  textTheme: TextTheme(
-    bodyLarge: TextStyle(color: textCharcoal),
-    bodyMedium: TextStyle(color: textCharcoal),
-    titleLarge: TextStyle(color: textCharcoal, fontWeight: FontWeight.w600),
-    headlineMedium: TextStyle(color: textCharcoal, fontWeight: FontWeight.w500),
-  ),
-
-  appBarTheme: AppBarTheme(
-    color: surfaceOffWhite,
-    elevation: 0,
-    iconTheme: IconThemeData(color: textCharcoal),
-    titleTextStyle: TextStyle(
-      color: textCharcoal,
-      fontSize: 20,
-      fontWeight: FontWeight.w600,
->>>>>>> origin/main
     ),
 
-<<<<<<< HEAD
     // Apply typography consistency
     textTheme: const TextTheme(
       // Use the deep charcoal for all main text styles
@@ -129,37 +76,9 @@ final ThemeData calmTheme = ThemeData(
       margin: const EdgeInsets.all(16.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ));
-=======
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: primarySageGreen,
-      foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 1,
-    ),
-  ),
 
-  cardTheme: CardThemeData(
-    color: surfaceOffWhite,
-    elevation: 2,
-    margin: const EdgeInsets.all(16.0),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  ),
-);
->>>>>>> origin/main
+// --- Main Application Entry Point ---
 
-// -----------------------------------------------------------
-// MAIN
-// -----------------------------------------------------------
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-<<<<<<< HEAD
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
@@ -190,9 +109,6 @@ Future<void> main() async {
   }
 
   runApp(MindfulnessApp(firebaseInitialized: firebaseInitialized));
-=======
-  runApp(const MindfulnessApp());
->>>>>>> origin/main
 }
 
 class MindfulnessApp extends StatelessWidget {
@@ -204,7 +120,6 @@ class MindfulnessApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-<<<<<<< HEAD
         // Provide the AuthService. AuthService is resilient when Firebase
         // isn't initialized and will operate in a degraded mode.
         ChangeNotifierProvider(create: (_) => AuthService()),
@@ -218,15 +133,6 @@ class MindfulnessApp extends StatelessWidget {
         theme: calmTheme,
 
         // Use AuthWrapper to handle authentication state
-=======
-        ChangeNotifierProvider<AuthService>(
-          create: (_) => AuthService(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Mindfulness with Nature',
-        theme: calmTheme,
->>>>>>> origin/main
         home: const AuthWrapper(),
         debugShowCheckedModeBanner: false,
       ),
@@ -234,9 +140,7 @@ class MindfulnessApp extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------
-// AUTH WRAPPER
-// -----------------------------------------------------------
+// --- Auth Wrapper to handle authentication state ---
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -245,27 +149,18 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
-<<<<<<< HEAD
     return StreamBuilder<User?>(
       stream: authService.authStateChanges,
-=======
-    return StreamBuilder<fb.User?>(
-      stream: authService.authStateChanges, // FIXED
->>>>>>> origin/main
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return const Scaffold(
-        //     body: Center(child: CircularProgressIndicator()),
-        //   );
-        // }
-
-        final user = snapshot.data;
-
-        if (user == null) {
-          return const LoginPage();
+        // Show loading while checking auth state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
-<<<<<<< HEAD
         // If user is logged in, go to dashboard
         if (snapshot.hasData && snapshot.data != null) {
           return DashboardPage(user: snapshot.data!);
@@ -273,15 +168,10 @@ class AuthWrapper extends StatelessWidget {
 
         // If no user, show login page
         return const LoginPage();
-=======
-        return DashboardPage(user: user); // FIXED
->>>>>>> origin/main
       },
     );
-
   }
 }
-<<<<<<< HEAD
 
 // --- Example Screen Utilizing the Theme ---
 
@@ -330,5 +220,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-=======
->>>>>>> origin/main

@@ -19,7 +19,6 @@ class NotificationService with ChangeNotifier {
     // TODO: Integrate with flutter_local_notifications / permission_handler
     return true;
   }
-<<<<<<< HEAD
 
   /// Save settings (in-memory for this placeholder).
   Future<void> saveSettings({required bool isEnabled, TimeOfDay? time}) async {
@@ -27,6 +26,4 @@ class NotificationService with ChangeNotifier {
     _reminderTime = time;
     notifyListeners();
   }
-=======
->>>>>>> origin/main
 }
