@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
-import 'dashboard_page.dart';
+import 'bottom_nav_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,9 +10,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isObscured = true;
   bool _isLoading = false;
 
   @override
@@ -25,347 +22,194 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  void _handleLogin() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-      final authService = Provider.of<AuthService>(context, listen: false);
-
-      try {
-        // Use the new signInWithEmail method
-        final user = await authService.signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
-
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-
-          if (user != null) {
-            // Navigate to dashboard with user data
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DashboardPage(user: user),
-              ),
-            );
-          } else {
-            _showErrorSnackBar('Login failed. Please try again.');
-          }
-        }
-      } on AuthException catch (e) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          _showErrorSnackBar(e.message);
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          _showErrorSnackBar('An unexpected error occurred. Please try again.');
-        }
-      }
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
     }
-  }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white),
+    if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    // Simulate login delay
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() => _isLoading = false);
+      
+      // Navigate to home
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => BottomNavPage(userName: email.split('@')[0]),
         ),
-        backgroundColor: Colors.red.shade400,
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'DISMISS',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
-    );
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // REQ-008: Use theme's scaffold background (Sand/Beige)
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: const Color(0xffdde3c2),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-                // Welcome text
+                const SizedBox(height: 80),
+
+                /// App Title
                 Text(
-                  'Welcome to\nMindfulness with Nature',
-                  style: GoogleFonts.lora(
-                    fontSize: 32,
+                  'Mindfulness with Nature',
+                  style: TextStyle(
+                    fontSize: size.width < 600 ? 28 : 36,
                     fontWeight: FontWeight.bold,
-                    // REQ-008: Use theme's primary text color (Charcoal)
-                    color: theme.colorScheme.onSurface,
+                    color: const Color(0xFF374834),
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 16),
+
                 Text(
-                  'Find your inner peace',
-                  style: GoogleFonts.lora(
-                    fontSize: 18,
-                    // REQ-008: Muted color for secondary text
-                    color: theme.colorScheme.onSurface
-                        .withAlpha((0.7 * 255).round()),
+                  'Discover peace through nature',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: const Color(0xFF556B2F),
                   ),
+                  textAlign: TextAlign.center,
                 ),
+
                 const SizedBox(height: 60),
 
-                // Email field
-                TextFormField(
+                /// Email Field
+                TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email,
-                        color: theme.colorScheme.onSurface
-                            .withAlpha((0.5 * 255).round())),
-                    // REQ-008: Minimalistic input border with theme primary color on focus
+                    hintText: 'Email',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIconColor: const Color(0xFF556B2F),
+                    filled: true,
+                    fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: theme.colorScheme.onSurface
-                              .withAlpha((0.3 * 255).round())),
+                      borderSide: BorderSide.none,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 2), // Sage Green focus border
-                    ),
-                    labelStyle: TextStyle(
-                        color: theme.colorScheme.onSurface
-                            .withAlpha((0.8 * 255).round())),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    final email = value.trim();
-                    final emailRe = RegExp(
-                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                    if (!emailRe.hasMatch(email)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 20),
 
-                // Password field
-                TextFormField(
+                const SizedBox(height: 16),
+
+                /// Password Field
+                TextField(
                   controller: _passwordController,
+                  obscureText: _isObscured,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock,
-                        color: theme.colorScheme.onSurface
-                            .withAlpha((0.5 * 255).round())),
-                    // REQ-008: Minimalistic input border with theme primary color on focus
+                    hintText: 'Password',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    prefixIconColor: const Color(0xFF556B2F),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isObscured ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() => _isObscured = !_isObscured);
+                      },
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: theme.colorScheme.onSurface
-                              .withAlpha((0.3 * 255).round())),
+                      borderSide: BorderSide.none,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 2), // Sage Green focus border
-                    ),
-                    labelStyle: TextStyle(
-                        color: theme.colorScheme.onSurface
-                            .withAlpha((0.8 * 255).round())),
                   ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 30),
 
-                // Login button
+                const SizedBox(height: 40),
+
+                /// Sign In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
-                  // REQ-008: Use theme's default Elevated Button style (Sage Green)
+                  height: 54,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
+                    onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7A9F5A),
+                      disabledBackgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     child: _isLoading
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              // REQ-008: Use theme's color for the loader
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                  theme.colorScheme.onPrimary),
+                                Colors.white,
+                              ),
                             ),
                           )
-                        : Text(
-                            'Login',
-                            style: GoogleFonts.lora(
-                              fontSize: 18,
+                        : const Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
+                              color: Colors.white,
                             ),
                           ),
                   ),
                 ),
-                const SizedBox(height: 20),
 
-                // Forgot password link
-                Center(
-                  child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () {
-                            _showForgotPasswordDialog();
-                          },
-                    child: Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        // REQ-008: Use primary color (Sage Green) for the link
-                        color: theme.colorScheme.primary,
-                        fontSize: 16,
+                const SizedBox(height: 24),
+
+                /// Sign Up Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an account? ",
+                      style: TextStyle(color: Color(0xFF556B2F)),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SignupPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          color: Color(0xFF7A9F5A),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
 
-                // Sign up link
-                Center(
-                  child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () {
-                            // Navigate to signup page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SignupPage()),
-                            );
-                          },
-                    child: Text(
-                      "Don't have an account? Sign up",
-                      style: TextStyle(
-                        // REQ-008: Use primary color (Sage Green) for the link
-                        color: theme.colorScheme.primary,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 80),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-
-  Future<void> _showForgotPasswordDialog() async {
-    final emailController = TextEditingController();
-    final stateContext = context;
-    final theme = Theme.of(stateContext);
-
-    // The dialog returns an email string; we immediately check `mounted` after the await
-    // to ensure State is still valid. The analyzer can be conservative about
-    // dialogs and contexts; suppress the specific lint here.
-    // ignore: use_build_context_synchronously
-    final result = await showDialog<String?>(
-      context: stateContext,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          'Reset Password',
-          style: TextStyle(color: theme.colorScheme.onSurface),
-        ),
-        content: TextFormField(
-          controller: emailController,
-          decoration: InputDecoration(
-            labelText: 'Enter your email',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your email';
-            }
-            return null;
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                Navigator.of(stateContext, rootNavigator: true).pop(null),
-            child: Text('Cancel',
-                style: TextStyle(color: theme.colorScheme.onSurface)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final email = emailController.text.trim();
-              if (email.isEmpty) return;
-              Navigator.of(stateContext, rootNavigator: true).pop(email);
-            },
-            child: const Text('Send Reset Link'),
-          ),
-        ],
-      ),
-    );
-
-    if (!mounted) return;
-    if (result == null || result.isEmpty) return;
-
-    // ignore: use_build_context_synchronously
-    final authService = Provider.of<AuthService>(stateContext, listen: false);
-    try {
-      await authService.resetPassword(result);
-      if (!mounted) return;
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(stateContext).showSnackBar(
-        SnackBar(
-          content: Text('Password reset email sent to $result'),
-          backgroundColor: Colors.green.shade400,
-        ),
-      );
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(stateContext).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
-          backgroundColor: Colors.red.shade400,
-        ),
-      );
-    }
   }
 }

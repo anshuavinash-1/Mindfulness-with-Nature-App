@@ -1,0 +1,633 @@
+import 'dart:async';
+import 'dart:math';
+import 'package:flutter/material.dart';
+import '../widgets/positive_feedback.dart';
+import '../utils/feedback_utils.dart';
+
+class ActivitiesPage extends StatefulWidget {
+  const ActivitiesPage({super.key});
+
+  @override
+  State<ActivitiesPage> createState() => _ActivitiesPageState();
+}
+
+class _ActivitiesPageState extends State<ActivitiesPage> {
+  // Activities list
+  final List<String> activities = [
+    "Being Present",
+    "Feeling Lighter",
+    "Connecting with Nature",
+    "Gratitude",
+    "Gentle Movements",
+    "Feeling Grounded",
+    "Joyfulness",
+    "Playfulness",
+    "Practice Indoors",
+  ];
+
+  String? selectedActivity;
+
+  // Slider state
+  double duration = 20; // default
+  Timer? timer;
+  int remainingSeconds = 1200;
+  bool isSessionActive = false;
+  bool showCompletionFeedback = false;
+
+  // Add this at the top of the class
+  final Random _random = Random();
+  FeedbackType? _lastFeedbackType;
+
+  @override
+  void initState() {
+    super.initState();
+    remainingSeconds = (duration * 60).toInt();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  void startSession() {
+    // Reset state
+    setState(() {
+      isSessionActive = true;
+      showCompletionFeedback = false;
+      remainingSeconds = (duration * 60).toInt();
+    });
+
+    timer?.cancel();
+
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (remainingSeconds <= 0) {
+        timer?.cancel();
+        _onSessionComplete();
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+      }
+    });
+  }
+
+  void stopSession() {
+    timer?.cancel();
+    setState(() {
+      isSessionActive = false;
+    });
+  }
+
+  void _onSessionComplete() {
+    // Generate random feedback type
+    final types = FeedbackType.values
+        .where((type) => type != FeedbackType.random)
+        .toList();
+    _lastFeedbackType = types[_random.nextInt(types.length)];
+
+    setState(() {
+      isSessionActive = false;
+      showCompletionFeedback = true;
+    });
+
+    // Show the micro-interaction feedback
+    _showCompletionFeedback();
+
+    // Optionally save session data here
+    _saveSessionData();
+  }
+
+  void _showCompletionFeedback() {
+    // Nature micro-interaction (REQ-006)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder: (_) => const NatureCompletionFeedback(),
+    );
+
+    // Completion dialog after animation
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierColor: Colors.black.withOpacity(0.4),
+        barrierDismissible: false,
+        builder: (_) => _buildCompletionDialog(),
+      );
+    });
+  }
+
+
+  Widget _buildCompletionDialog() {
+    return Dialog(
+      backgroundColor: const Color(0xFF0A1E2C).withOpacity(0.95),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Mini feedback animation in dialog
+            SizedBox(
+              width: 100,
+              height: 100,
+              child: PositiveFeedback(
+                type: _lastFeedbackType ?? FeedbackType.leaf,
+                size: 80,
+                onComplete: null,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Text(
+              'Session Complete! 🌿',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            if (selectedActivity != null)
+              Text(
+                '"$selectedActivity"',
+                style: const TextStyle(
+                  color: Color(0xFF4CAF50),
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              '${duration.toInt()} minutes of mindfulness',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Mood check button
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close this dialog
+                    _navigateToMoodPage();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.mood, size: 20),
+                      SizedBox(width: 8),
+                      Text('Log Mood'),
+                    ],
+                  ),
+                ),
+
+                // Close button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      showCompletionFeedback = false;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continue',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveSessionData() {
+    // Save session to progress tracking
+    print('Session saved: $selectedActivity for $duration minutes');
+    // Here you would typically save to database or shared preferences
+  }
+
+  void _navigateToMoodPage() {
+    // Navigate to mood page
+    // Assuming you have a MoodPage in your pages
+    Navigator.pushNamed(context, '/mood');
+  }
+
+  String formatTime(int sec) {
+    final min = (sec ~/ 60).toString().padLeft(2, '0');
+    final s = (sec % 60).toString().padLeft(2, '0');
+    return "$min:$s";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: const Color(0xffdde3c2),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Activities",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF374834),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    "What do you need today?",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF374834),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // -------------------------
+                  // Activity Chips
+                  // -------------------------
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: activities.map((label) {
+                      bool isSelected = selectedActivity == label;
+
+                      return ChoiceChip(
+                        label: Text(label),
+                        selected: isSelected,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontSize: 16,
+                        ),
+                        selectedColor: const Color(0xFF556B2F),
+                        backgroundColor: const Color(0xfff3f0d8),
+                        onSelected: (_) {
+                          setState(() => selectedActivity = label);
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Duration label
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Duration",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF374834),
+                      ),
+                    ),
+                  ),
+
+                  // Slider
+                  Slider(
+                    value: duration,
+                    min: 1 / 60,
+                    max: 45,
+                    activeColor: const Color(0xFF374834),
+                    inactiveColor: const Color(0xFF556B2F).withOpacity(0.3),
+                    onChanged: isSessionActive
+                        ? null // Disable during session
+                        : (value) {
+                            setState(() {
+                              duration = value;
+                              remainingSeconds = (duration * 60).toInt();
+                            });
+                          },
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text("5 MIN"),
+                        Text("45 MIN"),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // -------------------------
+                  // Timer Box
+                  // -------------------------
+                  Container(
+                    width: size.width,
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    decoration: BoxDecoration(
+                      color: const Color(0xfff3f0d8),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSessionActive
+                            ? const Color(0xFF4CAF50)
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        // Animated icon during session
+                        if (isSessionActive && remainingSeconds > 0)
+                          const Icon(
+                            Icons.self_improvement,
+                            size: 80,
+                            color: Color(0xFF4CAF50),
+                          )
+                        else if (showCompletionFeedback)
+                          const Icon(
+                            Icons.check_circle,
+                            size: 80,
+                            color: Color(0xFF4CAF50),
+                          )
+                        else
+                          const Icon(
+                            Icons.hourglass_bottom,
+                            size: 80,
+                            color: Color(0xFF374834),
+                          ),
+
+                        const SizedBox(height: 10),
+                        Text(
+                          formatTime(remainingSeconds),
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            color: isSessionActive
+                                ? const Color(0xFF4CAF50)
+                                : const Color(0xFF374834),
+                          ),
+                        ),
+
+                        // Session status text
+                        if (isSessionActive)
+                          const SizedBox(height: 8),
+                        if (isSessionActive)
+                          const Text(
+                            'Session in progress...',
+                            style: TextStyle(
+                              color: Color(0xFF4CAF50),
+                              fontSize: 14,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // -------------------------
+                  // Session Control Buttons
+                  // -------------------------
+                  if (!isSessionActive && !showCompletionFeedback)
+                    _buildStartButton(size),
+
+                  if (isSessionActive)
+                    _buildStopButton(size),
+
+                  if (showCompletionFeedback && !isSessionActive)
+                    _buildNewSessionButton(size),
+
+                  const SizedBox(height: 50),
+                ],
+              ),
+            ),
+
+            // Overlay for feedback (handled by FeedbackUtils)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStartButton(Size size) {
+    return GestureDetector(
+      onTap: selectedActivity == null
+          ? null // Disable if no activity selected
+          : startSession,
+      child: Container(
+        width: size.width * 0.8,
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        decoration: BoxDecoration(
+          color: selectedActivity == null
+              ? const Color(0xFF556B2F).withOpacity(0.5)
+              : const Color(0xFF556B2F),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Text(
+            selectedActivity == null
+                ? "Select an activity to begin"
+                : "Start Session",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: selectedActivity == null ? 16 : 20,
+              fontWeight: selectedActivity == null
+                  ? FontWeight.normal
+                  : FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStopButton(Size size) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: stopSession,
+          child: Container(
+            width: size.width * 0.8,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE57373),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Center(
+              child: Text(
+                "Stop Session",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Meditating on "$selectedActivity"',
+          style: const TextStyle(
+            color: Color(0xFF374834),
+            fontSize: 16,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNewSessionButton(Size size) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              showCompletionFeedback = false;
+            });
+          },
+          child: Container(
+            width: size.width * 0.8,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFF374834),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Center(
+              child: Text(
+                "Start New Session",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Great job completing your session!',
+          style: TextStyle(
+            color: Color(0xFF4CAF50),
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+
+}
+
+class NatureCompletionFeedback extends StatefulWidget {
+  const NatureCompletionFeedback({super.key});
+
+  @override
+  State<NatureCompletionFeedback> createState() =>
+      _NatureCompletionFeedbackState();
+}
+
+class _NatureCompletionFeedbackState extends State<NatureCompletionFeedback>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
+    _scale = Tween<double>(begin: 0.85, end: 1.05).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) Navigator.of(context).pop();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FadeTransition(
+        opacity: _opacity,
+        child: ScaleTransition(
+          scale: _scale,
+          child: Icon(
+            Icons.eco, // leaf
+            size: 140,
+            color: Colors.green.shade400,
+          ),
+        ),
+      ),
+    );
+  }
+}
