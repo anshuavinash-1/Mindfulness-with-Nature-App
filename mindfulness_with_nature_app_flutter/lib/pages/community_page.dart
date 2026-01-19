@@ -12,7 +12,6 @@ class CommunityPage extends StatelessWidget {
           children: [
             // Status Bar
 
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -263,7 +262,8 @@ class CommunityPage extends StatelessWidget {
             ),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(20),
@@ -341,7 +341,6 @@ class CommunityPage extends StatelessWidget {
       ),
     );
   }
-
 
   // Build navigation item
   Widget _buildNavItem({

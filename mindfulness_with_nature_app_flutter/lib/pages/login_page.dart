@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
     // Simulate login delay
     Future.delayed(const Duration(seconds: 1), () {
       setState(() => _isLoading = false);
-      
+
       // Navigate to home
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

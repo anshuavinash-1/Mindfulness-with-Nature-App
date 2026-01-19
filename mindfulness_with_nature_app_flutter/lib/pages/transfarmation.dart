@@ -26,8 +26,10 @@ class _TransformationPageState extends State<TransformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<double> activeData = selectedChartType == 'stress' ? stressData : moodData;
-    int? selectedIndex = selectedChartType == 'stress' ? selectedStressIndex : selectedMoodIndex;
+    List<double> activeData =
+        selectedChartType == 'stress' ? stressData : moodData;
+    int? selectedIndex =
+        selectedChartType == 'stress' ? selectedStressIndex : selectedMoodIndex;
 
     return Scaffold(
       backgroundColor: const Color(0xffdde3c2),
@@ -108,7 +110,9 @@ class _TransformationPageState extends State<TransformationPage> {
                         stressAfter = value;
                         // Add new data point when after rating is set
                         if (stressData.length < 10) {
-                          double reduction = (stressBefore - stressAfter).clamp(1, 10).toDouble();
+                          double reduction = (stressBefore - stressAfter)
+                              .clamp(1, 10)
+                              .toDouble();
                           stressData.add(reduction);
                           moodData.add(moodAfter);
                           dayLabels.add('Today');
@@ -185,10 +189,10 @@ class _TransformationPageState extends State<TransformationPage> {
                       setState(() {
                         if (selectedChartType == 'stress') {
                           selectedStressIndex =
-                          selectedStressIndex == index ? null : index;
+                              selectedStressIndex == index ? null : index;
                         } else {
                           selectedMoodIndex =
-                          selectedMoodIndex == index ? null : index;
+                              selectedMoodIndex == index ? null : index;
                         }
                       });
                     },
@@ -205,7 +209,8 @@ class _TransformationPageState extends State<TransformationPage> {
   }
 
   // Helper method to build section container
-  Widget _buildSection({required String title, required List<Widget> children}) {
+  Widget _buildSection(
+      {required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -266,7 +271,8 @@ class _TransformationPageState extends State<TransformationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: const Color(0xFF556B2F),
                       borderRadius: BorderRadius.circular(20),
@@ -389,7 +395,9 @@ class _TransformationPageState extends State<TransformationPage> {
         children: [
           // Chart Title
           Text(
-            selectedChartType == 'stress' ? "Stress Over Time" : "Mood Over Time",
+            selectedChartType == 'stress'
+                ? "Stress Over Time"
+                : "Mood Over Time",
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -417,9 +425,12 @@ class _TransformationPageState extends State<TransformationPage> {
                       // Value label (only show when selected)
                       if (isSelected)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: chartType == 'stress' ? Colors.red : Colors.green,
+                            color: chartType == 'stress'
+                                ? Colors.red
+                                : Colors.green,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -440,10 +451,12 @@ class _TransformationPageState extends State<TransformationPage> {
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? (chartType == 'stress' ? Colors.red : Colors.green)
+                              ? (chartType == 'stress'
+                                  ? Colors.red
+                                  : Colors.green)
                               : (chartType == 'stress'
-                              ? Colors.red.withOpacity(0.6)
-                              : Colors.green.withOpacity(0.6)),
+                                  ? Colors.red.withOpacity(0.6)
+                                  : Colors.green.withOpacity(0.6)),
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(6),
                             topRight: Radius.circular(6),
@@ -456,8 +469,11 @@ class _TransformationPageState extends State<TransformationPage> {
                         labels[index],
                         style: TextStyle(
                           fontSize: 12,
-                          color: isSelected ? const Color(0xFF556B2F) : Colors.grey[700],
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? const Color(0xFF556B2F)
+                              : Colors.grey[700],
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ],

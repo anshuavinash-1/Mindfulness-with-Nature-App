@@ -89,8 +89,7 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                   child: _buildChips(
                     options: sounds,
                     selectedValue: selectedSound,
-                    onSelected: (val) =>
-                        setState(() => selectedSound = val),
+                    onSelected: (val) => setState(() => selectedSound = val),
                   ),
                 ),
 
