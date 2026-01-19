@@ -183,7 +183,16 @@ class AuthService with ChangeNotifier {
       final doc =
           await _firestore!.collection('users').doc(firebaseUser.uid).get();
       if (doc.exists) {
-        return app_model.User.fromMap(doc.data()!);
+        final user = app_model.User.fromMap(doc.data()!);
+        // If displayName is null in Firestore, fall back to Firebase Auth displayName
+        if (user.displayName == null && firebaseUser.displayName != null) {
+          // Update Firestore with the displayName from Firebase Auth
+          await _firestore!.collection('users').doc(firebaseUser.uid).update({
+            'displayName': firebaseUser.displayName,
+          });
+          return user.copyWith(displayName: firebaseUser.displayName);
+        }
+        return user;
       }
       return null;
     } catch (e) {
@@ -197,7 +206,7 @@ class AuthService with ChangeNotifier {
     final user = app_model.User(
       uid: firebaseUser.uid,
       email: firebaseUser.email!,
-      displayName: displayName ?? firebaseUser.displayName,
+      displayName: displayName,
       createdAt: now,
       lastLogin: now,
       preferences: app_model.UserPreferences(

@@ -46,7 +46,7 @@ class _ProgressPageState extends State<ProgressPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               // Achievements section
               const Text(
                 "Achievements",
@@ -57,14 +57,14 @@ class _ProgressPageState extends State<ProgressPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Achievement cards with micro-interactions
               ...achievements.map((achievement) {
                 return _buildAchievementCard(achievement, context);
               }).toList(),
-              
+
               const SizedBox(height: 30),
-              
+
               // Test button for micro-interactions
               Center(
                 child: ElevatedButton(
@@ -73,8 +73,9 @@ class _ProgressPageState extends State<ProgressPage> {
                     final types = FeedbackType.values
                         .where((type) => type != FeedbackType.random)
                         .toList();
-                    final randomType = types[DateTime.now().millisecond % types.length];
-                    
+                    final randomType =
+                        types[DateTime.now().millisecond % types.length];
+
                     FeedbackUtils.showPositiveFeedback(
                       context,
                       type: randomType,
@@ -99,19 +100,21 @@ class _ProgressPageState extends State<ProgressPage> {
       ),
     );
   }
-  
+
   Widget _buildAchievementCard(
     Map<String, dynamic> achievement,
     BuildContext context,
   ) {
     bool completed = achievement['completed'] as bool;
     String type = achievement['type'] as String;
-    
+
     return GestureDetector(
-      onTap: completed ? () {
-        // Show micro-interaction when tapping completed achievements
-        _showAchievementFeedback(type, context);
-      } : null,
+      onTap: completed
+          ? () {
+              // Show micro-interaction when tapping completed achievements
+              _showAchievementFeedback(type, context);
+            }
+          : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(16),
@@ -119,8 +122,8 @@ class _ProgressPageState extends State<ProgressPage> {
           color: const Color(0xfff3f0d8),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: completed 
-                ? const Color(0xFF4CAF50) 
+            color: completed
+                ? const Color(0xFF4CAF50)
                 : const Color(0xFF374834).withOpacity(0.3),
             width: completed ? 2 : 1,
           ),
@@ -132,7 +135,7 @@ class _ProgressPageState extends State<ProgressPage> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: completed 
+                color: completed
                     ? const Color(0xFF4CAF50).withOpacity(0.2)
                     : const Color(0xFF374834).withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -151,7 +154,7 @@ class _ProgressPageState extends State<ProgressPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: completed 
+                      color: completed
                           ? const Color(0xFF374834)
                           : const Color(0xFF374834).withOpacity(0.6),
                     ),
@@ -161,7 +164,7 @@ class _ProgressPageState extends State<ProgressPage> {
                     completed ? 'Completed! 🎉' : 'Keep going...',
                     style: TextStyle(
                       fontSize: 14,
-                      color: completed 
+                      color: completed
                           ? const Color(0xFF4CAF50)
                           : const Color(0xFF374834).withOpacity(0.5),
                     ),
@@ -171,7 +174,7 @@ class _ProgressPageState extends State<ProgressPage> {
             ),
             Icon(
               completed ? Icons.check_circle : Icons.circle_outlined,
-              color: completed 
+              color: completed
                   ? const Color(0xFF4CAF50)
                   : const Color(0xFF374834).withOpacity(0.3),
             ),
@@ -180,13 +183,13 @@ class _ProgressPageState extends State<ProgressPage> {
       ),
     );
   }
-  
+
   Widget _getAchievementIcon(String type, {required bool completed}) {
     switch (type) {
       case 'leaf':
         return Icon(
           Icons.eco,
-          color: completed 
+          color: completed
               ? const Color(0xFF4CAF50)
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
@@ -194,7 +197,7 @@ class _ProgressPageState extends State<ProgressPage> {
       case 'sun':
         return Icon(
           Icons.wb_sunny,
-          color: completed 
+          color: completed
               ? Colors.amber
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
@@ -202,7 +205,7 @@ class _ProgressPageState extends State<ProgressPage> {
       case 'flower':
         return Icon(
           Icons.local_florist,
-          color: completed 
+          color: completed
               ? const Color(0xFFE91E63)
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
@@ -210,7 +213,7 @@ class _ProgressPageState extends State<ProgressPage> {
       case 'bird':
         return Icon(
           Icons.flight,
-          color: completed 
+          color: completed
               ? const Color(0xFF03A9F4)
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
@@ -218,7 +221,7 @@ class _ProgressPageState extends State<ProgressPage> {
       case 'ripple':
         return Icon(
           Icons.waves,
-          color: completed 
+          color: completed
               ? const Color(0xFF00BCD4)
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
@@ -226,26 +229,37 @@ class _ProgressPageState extends State<ProgressPage> {
       default:
         return Icon(
           Icons.emoji_events,
-          color: completed 
+          color: completed
               ? const Color(0xFFFFC107)
               : const Color(0xFF374834).withOpacity(0.5),
           size: 30,
         );
     }
   }
-  
+
   void _showAchievementFeedback(String type, BuildContext context) {
     FeedbackType feedbackType;
-    
+
     switch (type) {
-      case 'leaf': feedbackType = FeedbackType.leaf; break;
-      case 'sun': feedbackType = FeedbackType.sun; break;
-      case 'flower': feedbackType = FeedbackType.flower; break;
-      case 'bird': feedbackType = FeedbackType.bird; break;
-      case 'ripple': feedbackType = FeedbackType.ripple; break;
-      default: feedbackType = FeedbackType.sparkle;
+      case 'leaf':
+        feedbackType = FeedbackType.leaf;
+        break;
+      case 'sun':
+        feedbackType = FeedbackType.sun;
+        break;
+      case 'flower':
+        feedbackType = FeedbackType.flower;
+        break;
+      case 'bird':
+        feedbackType = FeedbackType.bird;
+        break;
+      case 'ripple':
+        feedbackType = FeedbackType.ripple;
+        break;
+      default:
+        feedbackType = FeedbackType.sparkle;
     }
-    
+
     FeedbackUtils.showPositiveFeedback(
       context,
       type: feedbackType,

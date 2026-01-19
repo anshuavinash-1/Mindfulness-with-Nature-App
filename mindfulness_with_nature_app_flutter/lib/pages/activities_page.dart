@@ -16,15 +16,39 @@ class _ActivitiesPageState extends State<ActivitiesPage>
     with TickerProviderStateMixin {
   // Activities list with icons
   final List<Map<String, dynamic>> activities = [
-    {"name": "Being Present", "icon": Icons.self_improvement, "color": Color(0xFF6B9080)},
+    {
+      "name": "Being Present",
+      "icon": Icons.self_improvement,
+      "color": Color(0xFF6B9080)
+    },
     {"name": "Feeling Lighter", "icon": Icons.air, "color": Color(0xFFA4C3B2)},
-    {"name": "Connecting with Nature", "icon": Icons.nature_people, "color": Color(0xFF88AB8E)},
+    {
+      "name": "Connecting with Nature",
+      "icon": Icons.nature_people,
+      "color": Color(0xFF88AB8E)
+    },
     {"name": "Gratitude", "icon": Icons.favorite, "color": Color(0xFFEAB8A3)},
-    {"name": "Gentle Movements", "icon": Icons.accessibility_new, "color": Color(0xFFB8A99A)},
-    {"name": "Feeling Grounded", "icon": Icons.landscape, "color": Color(0xFF8D9B6A)},
+    {
+      "name": "Gentle Movements",
+      "icon": Icons.accessibility_new,
+      "color": Color(0xFFB8A99A)
+    },
+    {
+      "name": "Feeling Grounded",
+      "icon": Icons.landscape,
+      "color": Color(0xFF8D9B6A)
+    },
     {"name": "Joyfulness", "icon": Icons.wb_sunny, "color": Color(0xFFFFD89C)},
-    {"name": "Playfulness", "icon": Icons.celebration, "color": Color(0xFFB5C99A)},
-    {"name": "Practice Indoors", "icon": Icons.home, "color": Color(0xFF9DB4AB)},
+    {
+      "name": "Playfulness",
+      "icon": Icons.celebration,
+      "color": Color(0xFFB5C99A)
+    },
+    {
+      "name": "Practice Indoors",
+      "icon": Icons.home,
+      "color": Color(0xFF9DB4AB)
+    },
   ];
 
   String? selectedActivity;
@@ -213,7 +237,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
 
             if (selectedActivity != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: selectedColor?.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
@@ -428,13 +453,13 @@ class _ActivitiesPageState extends State<ActivitiesPage>
             decoration: BoxDecoration(
               gradient: isSelected
                   ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  activity['color'],
-                  activity['color'].withOpacity(0.7),
-                ],
-              )
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        activity['color'],
+                        activity['color'].withOpacity(0.7),
+                      ],
+                    )
                   : null,
               color: isSelected ? null : Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(20),
@@ -468,9 +493,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     activity['name'],
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF2E7D32),
+                      color:
+                          isSelected ? Colors.white : const Color(0xFF2E7D32),
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
                       height: 1.2,
                     ),
                   ),
@@ -530,7 +557,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
               activeTrackColor: selectedColor ?? const Color(0xFF4CAF50),
               inactiveTrackColor: const Color(0xFF81C784).withOpacity(0.3),
               thumbColor: selectedColor ?? const Color(0xFF2E7D32),
-              overlayColor: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.2),
+              overlayColor:
+                  (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.2),
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
               trackHeight: 6,
             ),
@@ -541,11 +569,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
               onChanged: isSessionActive
                   ? null
                   : (value) {
-                setState(() {
-                  duration = value;
-                  remainingSeconds = (duration * 60).toInt();
-                });
-              },
+                      setState(() {
+                        duration = value;
+                        remainingSeconds = (duration * 60).toInt();
+                      });
+                    },
             ),
           ),
           Padding(
@@ -577,7 +605,9 @@ class _ActivitiesPageState extends State<ActivitiesPage>
 
   Widget _buildTimerDisplay(Size size) {
     return AnimatedBuilder(
-      animation: isSessionActive ? _breatheAnimation : const AlwaysStoppedAnimation(1.0),
+      animation: isSessionActive
+          ? _breatheAnimation
+          : const AlwaysStoppedAnimation(1.0),
       builder: (context, child) {
         return Transform.scale(
           scale: _breatheAnimation.value,
@@ -590,13 +620,15 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                 end: Alignment.bottomRight,
                 colors: isSessionActive
                     ? [
-                  selectedColor?.withOpacity(0.3) ?? const Color(0xFF81C784).withOpacity(0.3),
-                  selectedColor?.withOpacity(0.1) ?? const Color(0xFFA5D6A7).withOpacity(0.1),
-                ]
+                        selectedColor?.withOpacity(0.3) ??
+                            const Color(0xFF81C784).withOpacity(0.3),
+                        selectedColor?.withOpacity(0.1) ??
+                            const Color(0xFFA5D6A7).withOpacity(0.1),
+                      ]
                     : [
-                  Colors.white.withOpacity(0.7),
-                  Colors.white.withOpacity(0.5),
-                ],
+                        Colors.white.withOpacity(0.7),
+                        Colors.white.withOpacity(0.5),
+                      ],
               ),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
@@ -608,7 +640,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
               boxShadow: [
                 if (isSessionActive)
                   BoxShadow(
-                    color: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.3),
+                    color: (selectedColor ?? const Color(0xFF4CAF50))
+                        .withOpacity(0.3),
                     blurRadius: 30,
                     spreadRadius: 5,
                   ),
@@ -634,11 +667,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     size: 80,
                     color: const Color(0xFF2E7D32).withOpacity(0.6),
                   ),
-
                 const SizedBox(height: 16),
-
                 ScaleTransition(
-                  scale: isSessionActive ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
+                  scale: isSessionActive
+                      ? _pulseAnimation
+                      : const AlwaysStoppedAnimation(1.0),
                   child: Text(
                     formatTime(remainingSeconds),
                     style: TextStyle(
@@ -651,13 +684,14 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     ),
                   ),
                 ),
-
                 if (isSessionActive) ...[
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.2),
+                      color: (selectedColor ?? const Color(0xFF4CAF50))
+                          .withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -702,22 +736,24 @@ class _ActivitiesPageState extends State<ActivitiesPage>
             decoration: BoxDecoration(
               gradient: canStart
                   ? LinearGradient(
-                colors: [
-                  selectedColor ?? const Color(0xFF4CAF50),
-                  (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.7),
-                ],
-              )
+                      colors: [
+                        selectedColor ?? const Color(0xFF4CAF50),
+                        (selectedColor ?? const Color(0xFF4CAF50))
+                            .withOpacity(0.7),
+                      ],
+                    )
                   : null,
               color: canStart ? null : const Color(0xFF81C784).withOpacity(0.3),
               borderRadius: BorderRadius.circular(30),
               boxShadow: canStart
                   ? [
-                BoxShadow(
-                  color: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.4),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                ),
-              ]
+                      BoxShadow(
+                        color: (selectedColor ?? const Color(0xFF4CAF50))
+                            .withOpacity(0.4),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ]
                   : null,
             ),
             child: Row(
@@ -808,7 +844,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
             color: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.2),
             borderRadius: BorderRadius.circular(25),
             border: Border.all(
-              color: (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.3),
+              color:
+                  (selectedColor ?? const Color(0xFF4CAF50)).withOpacity(0.3),
               width: 2,
             ),
           ),
@@ -968,10 +1005,10 @@ class _FullScreenNatureAnimationState extends State<FullScreenNatureAnimation>
 
     for (int i = 0; i < 18; i++) {
       _leaves.add(AnimatedElement(
-          controller: AnimationController(
-              vsync: this,
-              duration: Duration(milliseconds: 2500 + _random.nextInt(2500)),
-          )..repeat(),
+        controller: AnimationController(
+          vsync: this,
+          duration: Duration(milliseconds: 2500 + _random.nextInt(2500)),
+        )..repeat(),
         startX: _random.nextDouble(),
         startY: -0.1,
         endX: _random.nextDouble(),
@@ -980,6 +1017,7 @@ class _FullScreenNatureAnimationState extends State<FullScreenNatureAnimation>
       ));
     }
   }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -991,6 +1029,7 @@ class _FullScreenNatureAnimationState extends State<FullScreenNatureAnimation>
     }
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -1010,50 +1049,64 @@ class _FullScreenNatureAnimationState extends State<FullScreenNatureAnimation>
           ),
         ),
       ),
-    );}
-  Widget _buildBird(AnimatedElement bird, Size size) {
-    return AnimatedBuilder(
-        animation: bird.controller,
-        builder: (context, child) {
-          final progress = bird.controller.value;
-          final curvedProgress = Curves.easeInOut.transform(progress);
-          final rotationProgress = sin(progress * 2 * pi) * 0.5;
-          final drift = sin(progress * 3 * pi) * 0.08;
-          return Positioned(
-            left: size.width * (bird.startX + (bird.endX - bird.startX) * curvedProgress + drift),
-            top: size.height * (bird.startY + (bird.endY - bird.startY) * curvedProgress),
-            child: Transform.rotate(
-              angle: bird.rotation + rotationProgress,
-              child: Icon(
-                Icons.eco,
-                size: 44 + _random.nextDouble() * 16,
-                color: Colors.green.shade300.withOpacity(0.6 + _random.nextDouble() * 0.4),
-              ),
-            ),
-          );
-        },
     );
   }
+
+  Widget _buildBird(AnimatedElement bird, Size size) {
+    return AnimatedBuilder(
+      animation: bird.controller,
+      builder: (context, child) {
+        final progress = bird.controller.value;
+        final curvedProgress = Curves.easeInOut.transform(progress);
+        final rotationProgress = sin(progress * 2 * pi) * 0.5;
+        final drift = sin(progress * 3 * pi) * 0.08;
+        return Positioned(
+          left: size.width *
+              (bird.startX +
+                  (bird.endX - bird.startX) * curvedProgress +
+                  drift),
+          top: size.height *
+              (bird.startY + (bird.endY - bird.startY) * curvedProgress),
+          child: Transform.rotate(
+            angle: bird.rotation + rotationProgress,
+            child: Icon(
+              Icons.eco,
+              size: 44 + _random.nextDouble() * 16,
+              color: Colors.green.shade300
+                  .withOpacity(0.6 + _random.nextDouble() * 0.4),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildLeaf(AnimatedElement leaf, Size size) {
     return AnimatedBuilder(
-        animation: leaf.controller,
-        builder: (context, child) {
-          final progress = leaf.controller.value;
-          final curvedProgress = Curves.easeInOut.transform(progress);
-          final verticalWave = sin(progress * 3 * pi) * 0.03;return Positioned(
-            left: size.width * (leaf.startX + (leaf.endX - leaf.startX) * curvedProgress),
-            top: size.height * (leaf.startY + (leaf.endY - leaf.startY) * curvedProgress + verticalWave),
-            child: Transform.rotate(
-              angle: (leaf.endX - leaf.startX) * 0.3 + sin(progress * 4 * pi) * 0.1,
-              child: Text(
-                '🌿',
-                style: TextStyle(
-                  fontSize: 48 + _random.nextDouble() * 12,
-                ),
+      animation: leaf.controller,
+      builder: (context, child) {
+        final progress = leaf.controller.value;
+        final curvedProgress = Curves.easeInOut.transform(progress);
+        final verticalWave = sin(progress * 3 * pi) * 0.03;
+        return Positioned(
+          left: size.width *
+              (leaf.startX + (leaf.endX - leaf.startX) * curvedProgress),
+          top: size.height *
+              (leaf.startY +
+                  (leaf.endY - leaf.startY) * curvedProgress +
+                  verticalWave),
+          child: Transform.rotate(
+            angle:
+                (leaf.endX - leaf.startX) * 0.3 + sin(progress * 4 * pi) * 0.1,
+            child: Text(
+              '🌿',
+              style: TextStyle(
+                fontSize: 48 + _random.nextDouble() * 12,
               ),
             ),
-          );
-        },
+          ),
+        );
+      },
     );
   }
 }

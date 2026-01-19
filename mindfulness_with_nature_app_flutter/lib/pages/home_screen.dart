@@ -21,8 +21,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _particleController;
@@ -147,7 +146,8 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  icon: const Icon(Icons.notifications_outlined,
+                      color: Colors.white),
                   onPressed: () {
                     debugPrint("Notifications clicked");
                   },
@@ -408,7 +408,9 @@ class _HomeScreenState extends State<HomeScreen>
           children: List.generate(15, (index) {
             final random = math.Random(index);
             final offsetX = random.nextDouble() * size.width;
-            final offsetY = ((_particleController.value + random.nextDouble()) % 1.0) * size.height;
+            final offsetY =
+                ((_particleController.value + random.nextDouble()) % 1.0) *
+                    size.height;
             final particleSize = 20.0 + random.nextDouble() * 30;
             final opacity = 0.3 + random.nextDouble() * 0.4;
 
@@ -720,7 +722,6 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
-
       ),
     );
   }
@@ -790,7 +791,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   /// Quick access grid for additional features
-  Widget _buildQuickAccessGrid(BuildContext context, Size size, bool isDesktop) {
+  Widget _buildQuickAccessGrid(
+      BuildContext context, Size size, bool isDesktop) {
     return Wrap(
       spacing: 15,
       runSpacing: 15,
@@ -914,7 +916,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   /// Circular icon container
-  Widget _buildIconCircle(IconData icon, {
+  Widget _buildIconCircle(
+    IconData icon, {
     required double size,
     double? iconSize,
   }) {
@@ -1000,7 +1003,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-
   void _navigateToEditProfile() {
     debugPrint("Navigate to Edit Profile");
     // TODO: Navigate to Edit Profile page
@@ -1081,12 +1083,13 @@ class _AnimatedButton extends StatefulWidget {
   final VoidCallback onTap;
 
   const _AnimatedButton({
-  required this.child,
+    required this.child,
     required this.onTap,
   });
   @override
   State<_AnimatedButton> createState() => _AnimatedButtonState();
 }
+
 class _AnimatedButtonState extends State<_AnimatedButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -1102,11 +1105,13 @@ class _AnimatedButtonState extends State<_AnimatedButton>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

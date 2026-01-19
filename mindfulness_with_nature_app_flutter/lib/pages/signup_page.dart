@@ -212,7 +212,8 @@ class _SignupPageState extends State<SignupPage> {
                             : Icons.visibility,
                       ),
                       onPressed: () {
-                        setState(() => _isConfirmObscured = !_isConfirmObscured);
+                        setState(
+                            () => _isConfirmObscured = !_isConfirmObscured);
                       },
                     ),
                     filled: true,
