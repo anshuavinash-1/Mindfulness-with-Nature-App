@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../service/auth_service.dart';
 import 'bottom_nav_page.dart';
 import 'signup_page.dart';
 
@@ -22,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -42,17 +44,24 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    // Simulate login delay
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _isLoading = false);
-
-      // Navigate to home
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => BottomNavPage(userName: email.split('@')[0]),
-        ),
+    try {
+      final authService = context.read<AuthService>();
+      final user = await authService.signInWithEmail(email, password);
+      if (user != null) {
+        // Navigate to home
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => BottomNavPage(userName: user.displayName ?? user.email.split('@')[0]),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
       );
-    });
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../service/auth_service.dart';
 import 'my_account_page.dart';
 import 'stories.dart';
 import 'progress_page.dart';
@@ -988,12 +990,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _navigateToMyAccount() {
+    final authService = context.read<AuthService>();
+    final user = authService.currentUser;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => MyAccountPage(
-          userName: widget.userName,
-          email: "user@email.com", // replace with real data
+          userName: user?.displayName ?? widget.userName,
+          email: user?.email ?? "user@email.com", // use real data if available
         ),
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../service/auth_service.dart';
 import 'login_page.dart';
 import 'bottom_nav_page.dart';
 
@@ -27,7 +29,7 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  void _handleSignup() {
+  void _handleSignup() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -63,23 +65,35 @@ class _SignupPageState extends State<SignupPage> {
 
     setState(() => _isLoading = true);
 
-    // Simulate signup delay
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _isLoading = false);
+    try {
+      final authService = context.read<AuthService>();
+      final user = await authService.signUpWithEmail(email, password, displayName: name);
+      if (user != null) {
+        // Update display name if provided
+        if (name.isNotEmpty) {
+          // Note: Firebase Auth display name update would go here if needed
+        }
 
-      // Show success message and navigate to home
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created successfully!')),
-      );
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => BottomNavPage(userName: name),
-          ),
+        // Show success message and navigate to home
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created successfully!')),
         );
-      });
-    });
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => BottomNavPage(userName: user?.displayName ?? name),
+            ),
+          );
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
