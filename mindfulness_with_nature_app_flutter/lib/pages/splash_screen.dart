@@ -20,7 +20,6 @@ class SplashScreen extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-
             // Background Image
             Image.asset(
               'assets/splash_bg.jpg',
@@ -63,4 +62,3 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
-

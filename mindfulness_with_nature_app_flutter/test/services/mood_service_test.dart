@@ -1,5 +1,5 @@
 // Unit tests for MoodService.
-// 
+//
 // MoodService manages mood and stress tracking using local storage (SharedPreferences).
 // These tests verify:
 // - Adding and deleting mood entries

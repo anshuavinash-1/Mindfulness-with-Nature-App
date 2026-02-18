@@ -11,7 +11,8 @@ class ProgressPage extends StatefulWidget {
   State<ProgressPage> createState() => _ProgressPageState();
 }
 
-class _ProgressPageState extends State<ProgressPage> with TickerProviderStateMixin {
+class _ProgressPageState extends State<ProgressPage>
+    with TickerProviderStateMixin {
   late AnimationController _celebrationController;
   late AnimationController _scaleController;
   bool _showCelebration = true;
@@ -125,7 +126,8 @@ class _ProgressPageState extends State<ProgressPage> with TickerProviderStateMix
                           _celebrationController.forward();
                           _scaleController.forward();
 
-                          Future.delayed(const Duration(milliseconds: 3500), () {
+                          Future.delayed(const Duration(milliseconds: 3500),
+                              () {
                             if (mounted) {
                               setState(() {
                                 _showCelebration = false;
@@ -187,17 +189,19 @@ class _ProgressPageState extends State<ProgressPage> with TickerProviderStateMix
   }
 
   Widget _buildAchievementCard(
-      Map<String, dynamic> achievement,
-      BuildContext context,
-      ) {
+    Map<String, dynamic> achievement,
+    BuildContext context,
+  ) {
     bool completed = achievement['completed'] as bool;
     String type = achievement['type'] as String;
 
     return GestureDetector(
-      onTap: completed ? () {
-        // Show micro-interaction when tapping completed achievements
-        _showAchievementFeedback(type, context);
-      } : null,
+      onTap: completed
+          ? () {
+              // Show micro-interaction when tapping completed achievements
+              _showAchievementFeedback(type, context);
+            }
+          : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(16),
@@ -324,12 +328,23 @@ class _ProgressPageState extends State<ProgressPage> with TickerProviderStateMix
     FeedbackType feedbackType;
 
     switch (type) {
-      case 'leaf': feedbackType = FeedbackType.leaf; break;
-      case 'sun': feedbackType = FeedbackType.sun; break;
-      case 'flower': feedbackType = FeedbackType.flower; break;
-      case 'bird': feedbackType = FeedbackType.bird; break;
-      case 'ripple': feedbackType = FeedbackType.ripple; break;
-      default: feedbackType = FeedbackType.sparkle;
+      case 'leaf':
+        feedbackType = FeedbackType.leaf;
+        break;
+      case 'sun':
+        feedbackType = FeedbackType.sun;
+        break;
+      case 'flower':
+        feedbackType = FeedbackType.flower;
+        break;
+      case 'bird':
+        feedbackType = FeedbackType.bird;
+        break;
+      case 'ripple':
+        feedbackType = FeedbackType.ripple;
+        break;
+      default:
+        feedbackType = FeedbackType.sparkle;
     }
 
     FeedbackUtils.showPositiveFeedback(
@@ -454,7 +469,8 @@ class CelebrationPainter extends CustomPainter {
 
       // Calculate particle position with gravity and deceleration
       final dx = particle.velocity.dx * t * (1 - t * 0.3);
-      final dy = particle.velocity.dy * t * (1 - t * 0.3) + (t * t * 200); // gravity
+      final dy =
+          particle.velocity.dy * t * (1 - t * 0.3) + (t * t * 200); // gravity
 
       final particlePos = center + Offset(dx, dy);
       final rotation = particle.rotation + particle.rotationSpeed * t * math.pi;
@@ -483,7 +499,8 @@ class CelebrationPainter extends CustomPainter {
       // Multiple glow layers for intensity
       for (int i = 0; i < 3; i++) {
         final glowPaint = Paint()
-          ..color = const Color(0xFF4CAF50).withOpacity((0.5 - i * 0.15) * (1 - glowProgress))
+          ..color = const Color(0xFF4CAF50)
+              .withOpacity((0.5 - i * 0.15) * (1 - glowProgress))
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 30.0 + i * 10);
 
         canvas.drawCircle(
@@ -529,10 +546,12 @@ class CelebrationPainter extends CustomPainter {
         canvas.drawCircle(center, radius, glowPaint);
 
         // Add nature elements around the rings
-        _drawRingNatureElements(canvas, center, radius, ringProgress, opacity, i);
+        _drawRingNatureElements(
+            canvas, center, radius, ringProgress, opacity, i);
       }
     }
   }
+
   void _drawParticle(Canvas canvas, String type, double size, Color color) {
     final paint = Paint()
       ..color = color
@@ -698,7 +717,8 @@ void _drawMiniElement(Canvas canvas, String type, double size, double opacity) {
       // Highlight
       final highlight = Paint()
         ..color = Colors.white.withOpacity(opacity * 0.5);
-      canvas.drawCircle(Offset(-size * 0.3, -size * 0.3), size * 0.3, highlight);
+      canvas.drawCircle(
+          Offset(-size * 0.3, -size * 0.3), size * 0.3, highlight);
       break;
 
     case 'sparkle':

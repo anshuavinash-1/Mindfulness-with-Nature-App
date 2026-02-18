@@ -30,7 +30,6 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-
           /// Dynamic Background Image
           Positioned.fill(
             child: Image.asset(
@@ -52,7 +51,6 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-
                   const SizedBox(height: 30),
 
                   /// Top App Title
@@ -126,7 +124,6 @@ class HomeScreen extends StatelessWidget {
       ),
 
       /// KEEP YOUR EXISTING BOTTOM NAVIGATION BAR HERE
-
     );
   }
 }

@@ -1,5 +1,5 @@
 // Unit tests for PlacesService.
-// 
+//
 // PlacesService manages favorite nature locations using local storage (SharedPreferences).
 // These tests verify:
 // - Adding, updating, and deleting favorite places
@@ -143,7 +143,8 @@ void main() {
 
         // Verify changes were persisted
         expect(placesService.places.first.name, equals('Updated Park'));
-        expect(placesService.places.first.description, equals('New description'));
+        expect(
+            placesService.places.first.description, equals('New description'));
       });
 
       // Test that updating a non-existent ID doesn't create a new place
@@ -193,9 +194,9 @@ void main() {
       test('should return places within radius', () {
         // Query from Portland with 50km radius
         final nearby = placesService.getPlacesNearLocation(
-          45.5,    // Portland latitude
-          -122.7,  // Portland longitude
-          50.0,    // 50 km radius
+          45.5, // Portland latitude
+          -122.7, // Portland longitude
+          50.0, // 50 km radius
         );
 
         // Should only find the nearby place (~1.5km), not Seattle (~234km)

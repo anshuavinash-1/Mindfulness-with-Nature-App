@@ -76,7 +76,8 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<app_model.User?> signUpWithEmail(String email, String password, {String? displayName}) async {
+  Future<app_model.User?> signUpWithEmail(String email, String password,
+      {String? displayName}) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -201,7 +202,8 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<void> _createUserDocument(fb.User firebaseUser, String? displayName) async {
+  Future<void> _createUserDocument(
+      fb.User firebaseUser, String? displayName) async {
     final now = DateTime.now();
     final user = app_model.User(
       uid: firebaseUser.uid,

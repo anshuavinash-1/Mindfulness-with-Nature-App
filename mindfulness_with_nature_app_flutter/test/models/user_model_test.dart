@@ -1,5 +1,5 @@
 // Unit tests for User and UserPreferences models.
-// 
+//
 // These tests verify:
 // - Object construction with required and optional fields
 // - Firestore data serialization/deserialization (toMap/fromMap)
