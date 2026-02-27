@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
     // Simulate login delay
     Future.delayed(const Duration(seconds: 1), () {
       setState(() => _isLoading = false);
-
+      
       // Navigate to home
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -65,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+
               const SizedBox(height: 40),
 
               /// Leaf Icon
@@ -123,6 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: Column(
                   children: [
+
                     const Text(
                       "Sign In",
                       style: TextStyle(
@@ -193,16 +195,16 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
+                          color: Colors.white,
+                        )
                             : const Text(
-                                "Login",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -245,4 +247,5 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullness/pages/login_page.dart';
 
-import 'home_screen.dart';
-import 'login_page.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -14,15 +13,16 @@ class SplashScreen extends StatelessWidget {
           // Navigate to next screen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+            MaterialPageRoute(builder: (_) => const LoginPage() ),
           );
         },
         child: Stack(
           fit: StackFit.expand,
           children: [
+
             // Background Image
             Image.asset(
-              'assets/splash_bg.jpg',
+              'assets/images/splash_bg.jpg',
               fit: BoxFit.cover,
             ),
 
@@ -62,3 +62,4 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
+

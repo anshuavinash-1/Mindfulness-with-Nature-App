@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'firebase_options.dart';
-import 'service/auth_service.dart';
 import 'pages/login_page.dart';
 import 'pages/splash_screen.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'app_startup.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-      ],
-      child: const MindfulnessApp(),
-    ),
-  );
+void main() {
+  runApp(const MindfulnessApp());
 }
 
 class MindfulnessApp extends StatelessWidget {

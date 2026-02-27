@@ -93,6 +93,7 @@ class _SignupPageState extends State<SignupPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+
               const SizedBox(height: 40),
 
               /// Leaf Icon
@@ -151,6 +152,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 child: Column(
                   children: [
+
                     const Text(
                       "Sign Up",
                       style: TextStyle(
@@ -244,8 +246,8 @@ class _SignupPageState extends State<SignupPage> {
                                 : Icons.visibility,
                           ),
                           onPressed: () {
-                            setState(
-                                () => _isConfirmObscured = !_isConfirmObscured);
+                            setState(() => _isConfirmObscured =
+                            !_isConfirmObscured);
                           },
                         ),
                       ),
@@ -267,16 +269,16 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
+                          color: Colors.white,
+                        )
                             : const Text(
-                                "Create",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                          "Create",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -319,4 +321,5 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+
 }

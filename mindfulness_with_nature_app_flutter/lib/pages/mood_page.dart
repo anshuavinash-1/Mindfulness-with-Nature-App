@@ -8,220 +8,285 @@ class MoodSettingsPage extends StatefulWidget {
 }
 
 class _MoodSettingsPageState extends State<MoodSettingsPage> {
+  // Keep as List<String> to match bottom_nav_page expectations
   final List<String> backgrounds = ["Forest", "Ocean", "Meadow"];
+
+  // Internal image URL mapping
+  final Map<String, String> backgroundImages = {
+    "Forest": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80",
+    "Ocean": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=300&q=80",
+    "Meadow": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=300&q=80",
+  };
+
   String? selectedBackground;
 
-  final List<String> sounds = ["Birdsong", "Waves", "Breeze", "Silence"];
+  final List<String> sounds = ["Ocean Waves", "Breeze", "Bird Songs", "Silence"];
   String? selectedSound;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xffeef3e6),
-              Color(0xffdde3c2),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back button
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                  color: const Color(0xFF374834),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Title
-                const Text(
-                  "Set Your Mood",
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2F3E2F),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  "Personalize your meditation environment",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF6B7A63),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Background Section
-                _buildCard(
-                  icon: Icons.landscape_outlined,
-                  title: "Background",
-                  subtitle: "Choose a calming visual",
-                  child: _buildChips(
-                    options: backgrounds,
-                    selectedValue: selectedBackground,
-                    onSelected: (val) =>
-                        setState(() => selectedBackground = val),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Sound Section
-                _buildCard(
-                  icon: Icons.music_note_outlined,
-                  title: "Nature Sound",
-                  subtitle: "Pick a sound that relaxes you",
-                  child: _buildChips(
-                    options: sounds,
-                    selectedValue: selectedSound,
-                    onSelected: (val) => setState(() => selectedSound = val),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Apply Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Mood settings saved 🌿"),
-                          backgroundColor: Color(0xFF556B2F),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      backgroundColor: const Color(0xFF556B2F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const Text(
-                      "Apply Settings",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ----------------------------
-  // Reusable Card Widget
-  // ----------------------------
-  Widget _buildCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Widget child,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      backgroundColor: const Color(0xFFD6CBC0),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(icon, color: const Color(0xFF556B2F)),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF374834),
+              const SizedBox(height: 16),
+
+              // Title
+              const Text(
+                "Set Your Mood",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C1F14),
+                  letterSpacing: 0.3,
                 ),
               ),
+
+              const SizedBox(height: 28),
+
+              // Main Card with blue border
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EAE0),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: const Color(0xFF6FA8DC),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.07),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Background section header
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.image_outlined,
+                          color: Color(0xFF2C1F14),
+                          size: 28,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Background",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2C1F14),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Background Image Thumbnails
+                    Row(
+                      children: backgrounds.map((name) {
+                        final isSelected = selectedBackground == name;
+                        final imageUrl = backgroundImages[name]!;
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedBackground = name;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Column(
+                                children: [
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: isSelected
+                                          ? Border.all(
+                                        color: const Color(0xFF6FA8DC),
+                                        width: 3,
+                                      )
+                                          : null,
+                                      boxShadow: isSelected
+                                          ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF6FA8DC)
+                                              .withOpacity(0.4),
+                                          blurRadius: 8,
+                                          spreadRadius: 1,
+                                        ),
+                                      ]
+                                          : [],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        imageUrl,
+                                        height: 110,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          height: 110,
+                                          color: const Color(0xFFCCC0B0),
+                                          child: const Icon(Icons.landscape,
+                                              color: Colors.white54, size: 40),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      color: const Color(0xFF2C1F14),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Nature Sounds header
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.music_note,
+                          color: Color(0xFF2C1F14),
+                          size: 26,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Nature Sounds",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2C1F14),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Sound Pills - first row (3 pills)
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: sounds.map((sound) {
+                        final isSelected = selectedSound == sound;
+                        final isWide = sound == "Silence";
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedSound = sound;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: isWide ? double.infinity : null,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF7A8C6E)
+                                  : const Color(0xFFE8E0D5),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF7A8C6E)
+                                    : const Color(0xFFBDB0A0),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                sound,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF2C1F14),
+                                  fontSize: 15,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 36),
+
+              // Apply Settings Button
+              GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Mood settings saved 🌿"),
+                      backgroundColor: Color(0xFF556B2F),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6B5C3E),
+                    borderRadius: BorderRadius.circular(40),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6B5C3E).withOpacity(0.35),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Apply settings",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              color: Color(0xFF6B7A63),
-            ),
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
+        ),
       ),
-    );
-  }
-
-  // ----------------------------
-  // Animated Choice Chips
-  // ----------------------------
-  Widget _buildChips({
-    required List<String> options,
-    required String? selectedValue,
-    required Function(String) onSelected,
-  }) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: options.map((label) {
-        final isSelected = selectedValue == label;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          child: ChoiceChip(
-            label: Text(label),
-            selected: isSelected,
-            onSelected: (_) => onSelected(label),
-            selectedColor: const Color(0xFF556B2F),
-            backgroundColor: const Color(0xfff3f0d8),
-            labelStyle: TextStyle(
-              color: isSelected ? Colors.white : Colors.black87,
-              fontSize: 15,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 10,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 }

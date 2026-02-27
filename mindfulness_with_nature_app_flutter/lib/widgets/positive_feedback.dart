@@ -7,20 +7,21 @@ class PositiveFeedback extends StatefulWidget {
   final FeedbackType type;
   final VoidCallback? onComplete;
   final double size;
-
+  
   const PositiveFeedback({
     Key? key,
     this.type = FeedbackType.random,
     this.onComplete,
     this.size = 150.0,
   }) : super(key: key);
-
+  
   @override
   _PositiveFeedbackState createState() => _PositiveFeedbackState();
 }
 
-class _PositiveFeedbackState extends State<PositiveFeedback>
+class _PositiveFeedbackState extends State<PositiveFeedback> 
     with SingleTickerProviderStateMixin {
+  
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
@@ -30,29 +31,27 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
   @override
   void initState() {
     super.initState();
-
+    
     _controller = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     )..forward();
-
+    
     // Growth animation: tracks the progression through stages
     _growthAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-
+    
     // Scale animation: 0 -> 1
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
     );
-
+    
     // Opacity animation: 1 -> 0 (fade at the end)
     _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.7, 1.0, curve: Curves.easeOut)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.7, 1.0, curve: Curves.easeOut)),
     );
-
+    
     // Floating animation: moves up
     _floatAnimation = Tween<Offset>(
       begin: const Offset(0, 0),
@@ -60,14 +59,14 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-
+    
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed && widget.onComplete != null) {
         widget.onComplete!();
       }
     });
   }
-
+  
   @override
   void dispose() {
     _controller.dispose();
@@ -76,7 +75,7 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
 
   Widget _buildGrowthStage(double growth, double size) {
     // Growth stages: 0-0.25: Seedling, 0.25-0.5: Sprout, 0.5-0.75: Leaf, 0.75-1.0: Flower
-
+    
     if (growth < 0.25) {
       // Stage 1: Seedling (small green dot growing)
       return CustomPaint(
@@ -134,10 +133,10 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
   }
 
   IconData _getIcon() {
-    final type = widget.type == FeedbackType.random
+    final type = widget.type == FeedbackType.random 
         ? FeedbackType.values[Random().nextInt(FeedbackType.values.length - 1)]
         : widget.type;
-
+        
     switch (type) {
       case FeedbackType.leaf:
         return Icons.eco;
@@ -157,10 +156,10 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
   }
 
   Color _getColor() {
-    final type = widget.type == FeedbackType.random
+    final type = widget.type == FeedbackType.random 
         ? FeedbackType.values[Random().nextInt(FeedbackType.values.length - 1)]
         : widget.type;
-
+        
     switch (type) {
       case FeedbackType.leaf:
         return const Color(0xFF4CAF50);
@@ -178,7 +177,7 @@ class _PositiveFeedbackState extends State<PositiveFeedback>
         return const Color(0xFF4CAF50);
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -223,10 +222,10 @@ class SeedlingPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final center = Offset(canvasSize.width / 2, canvasSize.height / 2);
-
+    
     // Draw soil (brown circle)
     canvas.drawCircle(center, size * 0.15, paint);
-
+    
     // Draw sprout stem
     final stemPaint = Paint()
       ..color = Color.lerp(
@@ -236,7 +235,7 @@ class SeedlingPainter extends CustomPainter {
       )!
       ..strokeWidth = size * 0.05
       ..style = PaintingStyle.stroke;
-
+    
     final stemHeight = size * 0.3 * progress;
     canvas.drawLine(
       center,
@@ -246,8 +245,7 @@ class SeedlingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(SeedlingPainter oldDelegate) =>
-      progress != oldDelegate.progress;
+  bool shouldRepaint(SeedlingPainter oldDelegate) => progress != oldDelegate.progress;
 }
 
 // Custom painter for sprout stage
@@ -260,19 +258,19 @@ class SproutPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size canvasSize) {
     final center = Offset(canvasSize.width / 2, canvasSize.height / 2);
-
+    
     // Draw stem
     final stemPaint = Paint()
       ..color = const Color(0xFF558B2F)
       ..strokeWidth = size * 0.06
       ..style = PaintingStyle.stroke;
-
+    
     canvas.drawLine(
       center,
       Offset(center.dx, center.dy - size * 0.3),
       stemPaint,
     );
-
+    
     // Draw left leaf
     final leafPaint = Paint()
       ..color = Color.lerp(
@@ -281,7 +279,7 @@ class SproutPainter extends CustomPainter {
         progress,
       )!
       ..style = PaintingStyle.fill;
-
+    
     final leafPath = Path();
     leafPath.moveTo(center.dx, center.dy - size * 0.15);
     leafPath.quadraticBezierTo(
@@ -296,9 +294,9 @@ class SproutPainter extends CustomPainter {
       center.dx,
       center.dy - size * 0.15,
     );
-
+    
     canvas.drawPath(leafPath, leafPaint);
-
+    
     // Draw right leaf (mirrored)
     final rightLeafPath = Path();
     rightLeafPath.moveTo(center.dx, center.dy - size * 0.15);
@@ -314,11 +312,11 @@ class SproutPainter extends CustomPainter {
       center.dx,
       center.dy - size * 0.15,
     );
-
+    
     canvas.drawPath(rightLeafPath, leafPaint);
   }
 
   @override
-  bool shouldRepaint(SproutPainter oldDelegate) =>
-      progress != oldDelegate.progress;
+  bool shouldRepaint(SproutPainter oldDelegate) => progress != oldDelegate.progress;
 }
+

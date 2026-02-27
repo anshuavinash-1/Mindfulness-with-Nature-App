@@ -105,20 +105,11 @@ class StoriesPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(
-                      icon: Icons.home, label: "Home", isActive: false),
-                  _buildNavItem(
-                      icon: Icons.spa, label: "Activities", isActive: false),
-                  _buildNavItem(
-                      icon: Icons.nature,
-                      label: "Set Your Mood",
-                      isActive: false),
-                  _buildNavItem(
-                      icon: Icons.insights,
-                      label: "Transformation",
-                      isActive: false),
-                  _buildNavItem(
-                      icon: Icons.people, label: "Community", isActive: true),
+                  _buildNavItem(icon: Icons.home, label: "Home", isActive: false),
+                  _buildNavItem(icon: Icons.spa, label: "Activities", isActive: false),
+                  _buildNavItem(icon: Icons.nature, label: "Set Your Mood", isActive: false),
+                  _buildNavItem(icon: Icons.insights, label: "Transformation", isActive: false),
+                  _buildNavItem(icon: Icons.people, label: "Community", isActive: true),
                 ],
               ),
             ),
@@ -155,8 +146,7 @@ class StoriesPage extends StatelessWidget {
                 child: Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(
-                          'assets/images/pattern.jpg'), // Add your pattern image
+                      image: AssetImage('assets/images/pattern.jpg'), // Add your pattern image
                       repeat: ImageRepeat.repeat,
                     ),
                   ),
@@ -209,8 +199,7 @@ class StoriesPage extends StatelessWidget {
 
                   // Play Button
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
