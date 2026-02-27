@@ -14,15 +14,39 @@ class _ActivitiesPageState extends State<ActivitiesPage>
     with TickerProviderStateMixin {
   // Activities list - shown as pills
   final List<Map<String, dynamic>> activities = [
-    {"name": "Being Present", "icon": Icons.self_improvement, "color": Color(0xFF6B9080)},
+    {
+      "name": "Being Present",
+      "icon": Icons.self_improvement,
+      "color": Color(0xFF6B9080),
+    },
     {"name": "Feeling Lighter", "icon": Icons.air, "color": Color(0xFFA4C3B2)},
-    {"name": "Connecting with Nature", "icon": Icons.nature_people, "color": Color(0xFF88AB8E)},
+    {
+      "name": "Connecting with Nature",
+      "icon": Icons.nature_people,
+      "color": Color(0xFF88AB8E),
+    },
     {"name": "Grattitude", "icon": Icons.favorite, "color": Color(0xFFEAB8A3)},
-    {"name": "Gentle Movements", "icon": Icons.accessibility_new, "color": Color(0xFFB8A99A)},
-    {"name": "Feeling Grounded", "icon": Icons.landscape, "color": Color(0xFF8D9B6A)},
+    {
+      "name": "Gentle Movements",
+      "icon": Icons.accessibility_new,
+      "color": Color(0xFFB8A99A),
+    },
+    {
+      "name": "Feeling Grounded",
+      "icon": Icons.landscape,
+      "color": Color(0xFF8D9B6A),
+    },
     {"name": "Joyfulness", "icon": Icons.wb_sunny, "color": Color(0xFFFFD89C)},
-    {"name": "Playfulness", "icon": Icons.celebration, "color": Color(0xFFB5C99A)},
-    {"name": "Practice Indoors", "icon": Icons.home, "color": Color(0xFF9DB4AB)},
+    {
+      "name": "Playfulness",
+      "icon": Icons.celebration,
+      "color": Color(0xFFB5C99A),
+    },
+    {
+      "name": "Practice Indoors",
+      "icon": Icons.home,
+      "color": Color(0xFF9DB4AB),
+    },
   ];
 
   String? selectedActivity;
@@ -167,8 +191,10 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Log Mood',
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Log Mood',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -187,8 +213,10 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Continue',
-                        style: TextStyle(color: Colors.white70)),
+                    child: const Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.white70),
+                    ),
                   ),
                 ),
               ],
@@ -304,19 +332,19 @@ class _ActivitiesPageState extends State<ActivitiesPage>
               ),
               boxShadow: isSelected
                   ? [
-                BoxShadow(
-                  color: const Color(0xFF3D2B1F).withOpacity(0.25),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ]
+                      BoxShadow(
+                        color: const Color(0xFF3D2B1F).withOpacity(0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
                   : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
             ),
             child: Text(
               name,
@@ -396,7 +424,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                       ),
                     )
                   else
-                  // Hourglass icon like the image
+                    // Hourglass icon like the image
                     Icon(
                       Icons.hourglass_bottom,
                       size: 90,
@@ -442,11 +470,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
             onChanged: isSessionActive
                 ? null
                 : (value) {
-              setState(() {
-                duration = value;
-                remainingSeconds = (duration * 60).toInt();
-              });
-            },
+                    setState(() {
+                      duration = value;
+                      remainingSeconds = (duration * 60).toInt();
+                    });
+                  },
           ),
         ),
         Padding(
@@ -553,19 +581,23 @@ class _ActivitiesPageState extends State<ActivitiesPage>
           borderRadius: BorderRadius.circular(40),
           boxShadow: selectedActivity != null
               ? [
-            BoxShadow(
-              color: const Color(0xFF3D2B1F).withOpacity(0.35),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: const Color(0xFF3D2B1F).withOpacity(0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : null,
         ),
         child: Center(
           child: Text(
-            selectedActivity != null ? "Start Session" : "Select an activity first",
+            selectedActivity != null
+                ? "Start Session"
+                : "Select an activity first",
             style: TextStyle(
-              color: Colors.white.withOpacity(selectedActivity != null ? 1.0 : 0.7),
+              color: Colors.white.withOpacity(
+                selectedActivity != null ? 1.0 : 0.7,
+              ),
               fontSize: selectedActivity != null ? 20 : 16,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,

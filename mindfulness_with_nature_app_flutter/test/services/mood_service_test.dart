@@ -122,29 +122,35 @@ void main() {
         final yesterday = now.subtract(const Duration(days: 1));
         final twoDaysAgo = now.subtract(const Duration(days: 2));
 
-        await moodService.addEntry(MoodEntry(
-          timestamp: now,
-          moodLevel: 4,
-          stressLevel: 2,
-          notes: 'Today',
-          userId: 'test-user',
-        ));
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: now,
+            moodLevel: 4,
+            stressLevel: 2,
+            notes: 'Today',
+            userId: 'test-user',
+          ),
+        );
 
-        await moodService.addEntry(MoodEntry(
-          timestamp: yesterday,
-          moodLevel: 3,
-          stressLevel: 3,
-          notes: 'Yesterday',
-          userId: 'test-user',
-        ));
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: yesterday,
+            moodLevel: 3,
+            stressLevel: 3,
+            notes: 'Yesterday',
+            userId: 'test-user',
+          ),
+        );
 
-        await moodService.addEntry(MoodEntry(
-          timestamp: twoDaysAgo,
-          moodLevel: 5,
-          stressLevel: 1,
-          notes: 'Two days ago',
-          userId: 'test-user',
-        ));
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: twoDaysAgo,
+            moodLevel: 5,
+            stressLevel: 1,
+            notes: 'Two days ago',
+            userId: 'test-user',
+          ),
+        );
 
         // Query for all entries in the range covering all three days
         final entries = moodService.getEntriesForRange(
@@ -161,13 +167,15 @@ void main() {
         final now = DateTime.now();
         final futureDate = now.add(const Duration(days: 10));
 
-        await moodService.addEntry(MoodEntry(
-          timestamp: now,
-          moodLevel: 4,
-          stressLevel: 2,
-          notes: 'Today',
-          userId: 'test-user',
-        ));
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: now,
+            moodLevel: 4,
+            stressLevel: 2,
+            notes: 'Today',
+            userId: 'test-user',
+          ),
+        );
 
         final entries = moodService.getEntriesForRange(
           futureDate,
@@ -183,27 +191,33 @@ void main() {
       // Test calculating mean mood and stress levels for analytics display
       test('should calculate correct averages', () async {
         final now = DateTime.now();
-        await moodService.addEntry(MoodEntry(
-          timestamp: now,
-          moodLevel: 5,
-          stressLevel: 1,
-          notes: 'Great',
-          userId: 'test-user',
-        ));
-        await moodService.addEntry(MoodEntry(
-          timestamp: now,
-          moodLevel: 3,
-          stressLevel: 3,
-          notes: 'Okay',
-          userId: 'test-user',
-        ));
-        await moodService.addEntry(MoodEntry(
-          timestamp: now,
-          moodLevel: 4,
-          stressLevel: 2,
-          notes: 'Good',
-          userId: 'test-user',
-        ));
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: now,
+            moodLevel: 5,
+            stressLevel: 1,
+            notes: 'Great',
+            userId: 'test-user',
+          ),
+        );
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: now,
+            moodLevel: 3,
+            stressLevel: 3,
+            notes: 'Okay',
+            userId: 'test-user',
+          ),
+        );
+        await moodService.addEntry(
+          MoodEntry(
+            timestamp: now,
+            moodLevel: 4,
+            stressLevel: 2,
+            notes: 'Good',
+            userId: 'test-user',
+          ),
+        );
 
         // Calculate averages for the time period containing all entries
         final averages = moodService.getAveragesForRange(

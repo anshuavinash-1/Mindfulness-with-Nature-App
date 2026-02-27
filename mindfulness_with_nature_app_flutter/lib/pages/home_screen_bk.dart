@@ -19,8 +19,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _particleController;
@@ -48,13 +47,10 @@ class _HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     // Particle animation (continuous)
     _particleController = AnimationController(
@@ -145,7 +141,10 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  icon: const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                  ),
                   onPressed: () {
                     debugPrint("Notifications clicked");
                   },
@@ -172,10 +171,7 @@ class _HomeScreenState extends State<HomeScreen>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF7A9F5A),
-                  const Color(0xFF556B2F),
-                ],
+                colors: [const Color(0xFF7A9F5A), const Color(0xFF556B2F)],
               ),
             ),
             child: Column(
@@ -188,10 +184,7 @@ class _HomeScreenState extends State<HomeScreen>
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.3),
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 3,
-                    ),
+                    border: Border.all(color: Colors.white, width: 3),
                   ),
                   child: const Icon(
                     Icons.person,
@@ -332,11 +325,7 @@ class _HomeScreenState extends State<HomeScreen>
     Color? textColor,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: textColor ?? Colors.white,
-        size: 24,
-      ),
+      leading: Icon(icon, color: textColor ?? Colors.white, size: 24),
       title: Text(
         title,
         style: TextStyle(
@@ -365,10 +354,7 @@ class _HomeScreenState extends State<HomeScreen>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF2D4A2B),
-                    Color(0xFF1A2F1A),
-                  ],
+                  colors: [Color(0xFF2D4A2B), Color(0xFF1A2F1A)],
                 ),
               ),
               child: const Center(
@@ -406,7 +392,9 @@ class _HomeScreenState extends State<HomeScreen>
           children: List.generate(15, (index) {
             final random = math.Random(index);
             final offsetX = random.nextDouble() * size.width;
-            final offsetY = ((_particleController.value + random.nextDouble()) % 1.0) * size.height;
+            final offsetY =
+                ((_particleController.value + random.nextDouble()) % 1.0) *
+                size.height;
             final particleSize = 20.0 + random.nextDouble() * 30;
             final opacity = 0.3 + random.nextDouble() * 0.4;
 
@@ -499,19 +487,12 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.nature,
-            color: Colors.white,
-            size: 24,
-          ),
+          Icon(Icons.nature, color: Colors.white, size: 24),
           SizedBox(width: 10),
           Text(
             "Mindfulness with Nature",
@@ -543,11 +524,7 @@ class _HomeScreenState extends State<HomeScreen>
         const SizedBox(height: 10),
         ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
-            colors: [
-              Colors.white,
-              Color(0xFFFFD700),
-              Colors.white,
-            ],
+            colors: [Colors.white, Color(0xFFFFD700), Colors.white],
           ).createShader(bounds),
           child: Text(
             widget.userName.toUpperCase(),
@@ -595,10 +572,7 @@ class _HomeScreenState extends State<HomeScreen>
               borderRadius: BorderRadius.circular(_borderRadius),
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 15,
-                horizontal: 20,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               decoration: BoxDecoration(
                 color: const Color(0xFFB89C63),
                 borderRadius: BorderRadius.circular(_borderRadius - 3),
@@ -668,10 +642,7 @@ class _HomeScreenState extends State<HomeScreen>
         width: isDesktop
             ? size.width * _desktopWidthPercent
             : size.width * _mobileWidthPercent,
-        padding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 24,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
         decoration: _buildGradientDecoration(
           colors: const [Color(0xFF7A9F5A), Color(0xFF556B2F)],
         ),
@@ -680,9 +651,7 @@ class _HomeScreenState extends State<HomeScreen>
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ProgressPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const ProgressPage()),
             );
           },
           child: Row(
@@ -718,7 +687,6 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
-
       ),
     );
   }
@@ -731,10 +699,7 @@ class _HomeScreenState extends State<HomeScreen>
         width: isDesktop
             ? size.width * _desktopWidthPercent
             : size.width * _mobileWidthPercent,
-        padding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 24,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
         decoration: _buildGradientDecoration(
           colors: const [Color(0xFF556B2F), Color(0xFF374834)],
         ),
@@ -743,19 +708,13 @@ class _HomeScreenState extends State<HomeScreen>
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => StoriesPage(),
-              ),
+              MaterialPageRoute(builder: (context) => StoriesPage()),
             );
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.auto_stories,
-                color: Colors.white,
-                size: 32,
-              ),
+              const Icon(Icons.auto_stories, color: Colors.white, size: 32),
               const SizedBox(width: 15),
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,7 +747,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   /// Quick access grid for additional features
-  Widget _buildQuickAccessGrid(BuildContext context, Size size, bool isDesktop) {
+  Widget _buildQuickAccessGrid(
+    BuildContext context,
+    Size size,
+    bool isDesktop,
+  ) {
     return Wrap(
       spacing: 15,
       runSpacing: 15,
@@ -904,15 +867,13 @@ class _HomeScreenState extends State<HomeScreen>
           spreadRadius: 2,
         ),
       ],
-      border: Border.all(
-        color: Colors.white.withOpacity(0.3),
-        width: 1.5,
-      ),
+      border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
     );
   }
 
   /// Circular icon container
-  Widget _buildIconCircle(IconData icon, {
+  Widget _buildIconCircle(
+    IconData icon, {
     required double size,
     double? iconSize,
   }) {
@@ -923,21 +884,14 @@ class _HomeScreenState extends State<HomeScreen>
         color: Colors.white.withOpacity(0.2),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        icon,
-        color: Colors.white,
-        size: iconSize ?? 28,
-      ),
+      child: Icon(icon, color: Colors.white, size: iconSize ?? 28),
     );
   }
 
   /// Progress stats preview badge
   Widget _buildStatsPreview() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.25),
         borderRadius: BorderRadius.circular(25),
@@ -969,18 +923,14 @@ class _HomeScreenState extends State<HomeScreen>
   void _navigateToProgress(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ProgressPage(),
-      ),
+      MaterialPageRoute(builder: (context) => ProgressPage()),
     );
   }
 
   void _navigateToStories(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => StoriesPage(),
-      ),
+      MaterialPageRoute(builder: (context) => StoriesPage()),
     );
   }
 
@@ -995,7 +945,6 @@ class _HomeScreenState extends State<HomeScreen>
       ),
     );
   }
-
 
   void _navigateToEditProfile() {
     debugPrint("Navigate to Edit Profile");
@@ -1032,13 +981,8 @@ class _HomeScreenState extends State<HomeScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A2F1A),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: const Text(
-          'Logout',
-          style: TextStyle(color: Colors.white),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Logout', style: TextStyle(color: Colors.white)),
         content: const Text(
           'Are you sure you want to logout?',
           style: TextStyle(color: Colors.white70),
@@ -1076,13 +1020,11 @@ class _AnimatedButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
 
-  const _AnimatedButton({
-  required this.child,
-    required this.onTap,
-  });
+  const _AnimatedButton({required this.child, required this.onTap});
   @override
   State<_AnimatedButton> createState() => _AnimatedButtonState();
 }
+
 class _AnimatedButtonState extends State<_AnimatedButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -1094,24 +1036,24 @@ class _AnimatedButtonState extends State<_AnimatedButton>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: widget.child,
-      ),
+      child: ScaleTransition(scale: _scaleAnimation, child: widget.child),
     );
   }
 }

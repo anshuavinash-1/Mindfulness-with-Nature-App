@@ -7,8 +7,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('end-to-end test', () {
-    testWidgets('happy path - login, check progress, and logout',
-        (WidgetTester tester) async {
+    testWidgets('happy path - login, check progress, and logout', (
+      WidgetTester tester,
+    ) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -18,15 +19,20 @@ void main() {
 
       // Enter login credentials
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'Email'), 'test@example.com');
+        find.widgetWithText(TextFormField, 'Email'),
+        'test@example.com',
+      );
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'Password'), 'password123');
+        find.widgetWithText(TextFormField, 'Password'),
+        'password123',
+      );
 
       // Tap the login button and wait for the simulated API call (2 seconds)
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
       await tester.pump(); // Start animations
-      await tester
-          .pump(const Duration(seconds: 3)); // Wait for API delay plus buffer
+      await tester.pump(
+        const Duration(seconds: 3),
+      ); // Wait for API delay plus buffer
       await tester.pumpAndSettle(); // Wait for all animations to complete
 
       // Verify we're on the dashboard by checking for the app bar title

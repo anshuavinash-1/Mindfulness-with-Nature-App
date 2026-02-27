@@ -255,8 +255,10 @@ void main() {
       test('should copy preferences with new theme', () {
         final newPrefs = testPreferences.copyWith(theme: 'ocean');
         expect(newPrefs.theme, equals('ocean'));
-        expect(newPrefs.notificationsEnabled,
-            equals(testPreferences.notificationsEnabled));
+        expect(
+          newPrefs.notificationsEnabled,
+          equals(testPreferences.notificationsEnabled),
+        );
       });
 
       // Test creating a copy with modified notification setting
@@ -276,8 +278,10 @@ void main() {
       test('should copy preferences without changes', () {
         final newPrefs = testPreferences.copyWith();
         expect(newPrefs.theme, equals(testPreferences.theme));
-        expect(newPrefs.notificationsEnabled,
-            equals(testPreferences.notificationsEnabled));
+        expect(
+          newPrefs.notificationsEnabled,
+          equals(testPreferences.notificationsEnabled),
+        );
         expect(newPrefs.fontScale, equals(testPreferences.fontScale));
       });
     });

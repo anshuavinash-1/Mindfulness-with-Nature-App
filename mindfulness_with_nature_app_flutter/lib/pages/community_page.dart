@@ -43,10 +43,7 @@ class CommunityPage extends StatelessWidget {
       body: Column(
         children: [
           // MAP at top - takes ~40% of screen
-          Expanded(
-            flex: 4,
-            child: _buildMapWidget(),
-          ),
+          Expanded(flex: 4, child: _buildMapWidget()),
 
           // Scrollable content below
           Expanded(
@@ -111,11 +108,16 @@ class CommunityPage extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Community Posts
-                  ...posts.map((post) => Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, bottom: 16),
-                    child: _buildPost(post),
-                  )),
+                  ...posts.map(
+                    (post) => Padding(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: 16,
+                      ),
+                      child: _buildPost(post),
+                    ),
+                  ),
 
                   const SizedBox(height: 20),
                 ],
@@ -134,10 +136,7 @@ class CommunityPage extends StatelessWidget {
         // Map background - light greenish like OpenStreetMap
         Container(
           color: const Color(0xFFE8F0D8),
-          child: CustomPaint(
-            painter: _MapPainter(),
-            size: Size.infinite,
-          ),
+          child: CustomPaint(painter: _MapPainter(), size: Size.infinite),
         ),
 
         // Location pins overlay
@@ -160,15 +159,15 @@ class CommunityPage extends StatelessWidget {
 
     return pins.map((pos) {
       return Positioned(
-        left: MediaQueryData.fromView(
-            WidgetsBinding.instance.platformDispatcher.views.first)
-            .size
-            .width *
+        left:
+            MediaQueryData.fromView(
+              WidgetsBinding.instance.platformDispatcher.views.first,
+            ).size.width *
             pos.dx,
-        top: MediaQueryData.fromView(
-            WidgetsBinding.instance.platformDispatcher.views.first)
-            .size
-            .height *
+        top:
+            MediaQueryData.fromView(
+              WidgetsBinding.instance.platformDispatcher.views.first,
+            ).size.height *
             0.4 *
             pos.dy,
         child: const Icon(
@@ -176,11 +175,7 @@ class CommunityPage extends StatelessWidget {
           color: Color(0xFF4A6741),
           size: 28,
           shadows: [
-            Shadow(
-              color: Colors.black26,
-              blurRadius: 4,
-              offset: Offset(1, 2),
-            ),
+            Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(1, 2)),
           ],
         ),
       );
@@ -286,8 +281,11 @@ class CommunityPage extends StatelessWidget {
                       errorBuilder: (_, __, ___) => Container(
                         height: 130,
                         color: const Color(0xFFCCC0B0),
-                        child: const Icon(Icons.landscape,
-                            color: Colors.white54, size: 36),
+                        child: const Icon(
+                          Icons.landscape,
+                          color: Colors.white54,
+                          size: 36,
+                        ),
                       ),
                     ),
                   ),
@@ -329,12 +327,28 @@ class _MapPainter extends CustomPainter {
     canvas.drawLine(Offset(0, h * 0.75), Offset(w, h * 0.78), minorRoadPaint);
     canvas.drawLine(Offset(w * 0.15, 0), Offset(w * 0.18, h), minorRoadPaint);
     canvas.drawLine(Offset(w * 0.75, 0), Offset(w * 0.72, h), minorRoadPaint);
-    canvas.drawLine(Offset(0, h * 0.55), Offset(w * 0.35, h * 0.50), minorRoadPaint);
-    canvas.drawLine(Offset(w * 0.42, h * 0.48), Offset(w, h * 0.55), minorRoadPaint);
+    canvas.drawLine(
+      Offset(0, h * 0.55),
+      Offset(w * 0.35, h * 0.50),
+      minorRoadPaint,
+    );
+    canvas.drawLine(
+      Offset(w * 0.42, h * 0.48),
+      Offset(w, h * 0.55),
+      minorRoadPaint,
+    );
 
     // Diagonal connector
-    canvas.drawLine(Offset(w * 0.15, h * 0.25), Offset(w * 0.35, h * 0.45), minorRoadPaint);
-    canvas.drawLine(Offset(w * 0.42, h * 0.50), Offset(w * 0.60, h * 0.62), minorRoadPaint);
+    canvas.drawLine(
+      Offset(w * 0.15, h * 0.25),
+      Offset(w * 0.35, h * 0.45),
+      minorRoadPaint,
+    );
+    canvas.drawLine(
+      Offset(w * 0.42, h * 0.50),
+      Offset(w * 0.60, h * 0.62),
+      minorRoadPaint,
+    );
   }
 
   @override

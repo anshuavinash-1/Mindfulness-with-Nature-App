@@ -144,7 +144,9 @@ void main() {
         // Verify changes were persisted
         expect(placesService.places.first.name, equals('Updated Park'));
         expect(
-            placesService.places.first.description, equals('New description'));
+          placesService.places.first.description,
+          equals('New description'),
+        );
       });
 
       // Test that updating a non-existent ID doesn't create a new place
@@ -169,25 +171,29 @@ void main() {
       setUp(() async {
         // Add two places: one near Portland, one near Seattle (234km apart)
         // Add places at different distances from Portland (45.5, -122.7)
-        await placesService.addPlace(FavoritePlace(
-          id: 'nearby',
-          name: 'Nearby Place',
-          latitude: 45.51, // Very close (~1.5 km from Portland)
-          longitude: -122.71,
-          description: 'Close to Portland',
-          addedAt: DateTime.now(),
-          userId: 'test-user',
-        ));
+        await placesService.addPlace(
+          FavoritePlace(
+            id: 'nearby',
+            name: 'Nearby Place',
+            latitude: 45.51, // Very close (~1.5 km from Portland)
+            longitude: -122.71,
+            description: 'Close to Portland',
+            addedAt: DateTime.now(),
+            userId: 'test-user',
+          ),
+        );
 
-        await placesService.addPlace(FavoritePlace(
-          id: 'far',
-          name: 'Far Place',
-          latitude: 47.6, // Seattle area (~234 km from Portland)
-          longitude: -122.3,
-          description: 'Far from Portland',
-          addedAt: DateTime.now(),
-          userId: 'test-user',
-        ));
+        await placesService.addPlace(
+          FavoritePlace(
+            id: 'far',
+            name: 'Far Place',
+            latitude: 47.6, // Seattle area (~234 km from Portland)
+            longitude: -122.3,
+            description: 'Far from Portland',
+            addedAt: DateTime.now(),
+            userId: 'test-user',
+          ),
+        );
       });
 
       // Test finding places within 50km radius of Portland

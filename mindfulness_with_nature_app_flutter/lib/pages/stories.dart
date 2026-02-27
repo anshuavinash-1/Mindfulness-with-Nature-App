@@ -65,10 +65,7 @@ class StoriesPage extends StatelessWidget {
 
                   const Text(
                     "Relaxing stories to help you unwind and sleep better",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF374834),
-                    ),
+                    style: TextStyle(fontSize: 16, color: Color(0xFF374834)),
                   ),
                 ],
               ),
@@ -105,11 +102,31 @@ class StoriesPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(icon: Icons.home, label: "Home", isActive: false),
-                  _buildNavItem(icon: Icons.spa, label: "Activities", isActive: false),
-                  _buildNavItem(icon: Icons.nature, label: "Set Your Mood", isActive: false),
-                  _buildNavItem(icon: Icons.insights, label: "Transformation", isActive: false),
-                  _buildNavItem(icon: Icons.people, label: "Community", isActive: true),
+                  _buildNavItem(
+                    icon: Icons.home,
+                    label: "Home",
+                    isActive: false,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.spa,
+                    label: "Activities",
+                    isActive: false,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.nature,
+                    label: "Set Your Mood",
+                    isActive: false,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.insights,
+                    label: "Transformation",
+                    isActive: false,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.people,
+                    label: "Community",
+                    isActive: true,
+                  ),
                 ],
               ),
             ),
@@ -146,7 +163,9 @@ class StoriesPage extends StatelessWidget {
                 child: Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/pattern.jpg'), // Add your pattern image
+                      image: AssetImage(
+                        'assets/images/pattern.jpg',
+                      ), // Add your pattern image
                       repeat: ImageRepeat.repeat,
                     ),
                   ),
@@ -199,7 +218,10 @@ class StoriesPage extends StatelessWidget {
 
                   // Play Button
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -207,11 +229,7 @@ class StoriesPage extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        Icon(Icons.play_arrow, color: Colors.white, size: 16),
                         const SizedBox(width: 4),
                         const Text(
                           "Listen",

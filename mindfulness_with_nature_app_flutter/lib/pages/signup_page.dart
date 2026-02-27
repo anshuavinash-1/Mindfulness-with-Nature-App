@@ -55,9 +55,9 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
 
@@ -93,15 +93,10 @@ class _SignupPageState extends State<SignupPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               const SizedBox(height: 40),
 
               /// Leaf Icon
-              const Icon(
-                Icons.eco,
-                size: 60,
-                color: Color(0xFF5E8C3B),
-              ),
+              const Icon(Icons.eco, size: 60, color: Color(0xFF5E8C3B)),
 
               const SizedBox(height: 20),
 
@@ -152,7 +147,6 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 child: Column(
                   children: [
-
                     const Text(
                       "Sign Up",
                       style: TextStyle(
@@ -246,8 +240,9 @@ class _SignupPageState extends State<SignupPage> {
                                 : Icons.visibility,
                           ),
                           onPressed: () {
-                            setState(() => _isConfirmObscured =
-                            !_isConfirmObscured);
+                            setState(
+                              () => _isConfirmObscured = !_isConfirmObscured,
+                            );
                           },
                         ),
                       ),
@@ -269,16 +264,16 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
+                                color: Colors.white,
+                              )
                             : const Text(
-                          "Create",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                                "Create",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -321,5 +316,4 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-
 }

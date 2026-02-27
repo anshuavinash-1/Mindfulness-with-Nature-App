@@ -1,10 +1,10 @@
 // bottom_nav.dart
 import 'package:flutter/material.dart';
-import 'home_screen.dart';     
-import 'activities_page.dart';     
-import 'progress_page.dart';      
-import 'mood_page.dart';          
-import 'community_page.dart'; 
+import 'home_screen.dart';
+import 'activities_page.dart';
+import 'progress_page.dart';
+import 'mood_page.dart';
+import 'community_page.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;

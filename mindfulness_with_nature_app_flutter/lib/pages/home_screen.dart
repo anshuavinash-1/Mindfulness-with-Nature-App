@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   final String userName;
 
@@ -46,18 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _initInBackground() async {
     // Audio init + image pre-caching run IN PARALLEL
-    await Future.wait([
-      _initAudio(),
-      _precacheImages(),
-    ]);
+    await Future.wait([_initAudio(), _precacheImages()]);
   }
 
   Future<void> _initAudio() async {
     try {
-      await _audioPlayer.setAsset(
-        'assets/audio/ambient.mp3',
-        preload: true,
-      );
+      await _audioPlayer.setAsset('assets/audio/ambient.mp3', preload: true);
       await _audioPlayer.setVolume(0.4);
 
       await Future.delayed(const Duration(milliseconds: 150));
@@ -96,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-
           /// Dynamic Background Image
           /// gaplessPlayback stops any white flash when image rebuilds
           Positioned.fill(
@@ -109,9 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           /// Dark overlay for readability
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.35),
-            ),
+            child: Container(color: Colors.black.withOpacity(0.35)),
           ),
 
           /// Main Content — identical to your original
@@ -120,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-
                   const SizedBox(height: 30),
 
                   /// Top App Title
@@ -143,13 +131,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.volume_up,
-                              color: Colors.white38, size: 13),
+                          const Icon(
+                            Icons.volume_up,
+                            color: Colors.white38,
+                            size: 13,
+                          ),
                           const SizedBox(width: 4),
                           const Text(
                             "Ambient sound on",
                             style: TextStyle(
-                                color: Colors.white38, fontSize: 12),
+                              color: Colors.white38,
+                              fontSize: 12,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
@@ -233,9 +226,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
-
-
     );
   }
 }

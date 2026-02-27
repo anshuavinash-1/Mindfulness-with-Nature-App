@@ -13,14 +13,22 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
 
   // Internal image URL mapping
   final Map<String, String> backgroundImages = {
-    "Forest": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80",
-    "Ocean": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=300&q=80",
-    "Meadow": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=300&q=80",
+    "Forest":
+        "https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80",
+    "Ocean":
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=300&q=80",
+    "Meadow":
+        "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=300&q=80",
   };
 
   String? selectedBackground;
 
-  final List<String> sounds = ["Ocean Waves", "Breeze", "Bird Songs", "Silence"];
+  final List<String> sounds = [
+    "Ocean Waves",
+    "Breeze",
+    "Bird Songs",
+    "Silence",
+  ];
   String? selectedSound;
 
   @override
@@ -56,10 +64,7 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0EAE0),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: const Color(0xFF6FA8DC),
-                    width: 2,
-                  ),
+                  border: Border.all(color: const Color(0xFF6FA8DC), width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.07),
@@ -106,7 +111,9 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                               });
                             },
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
                               child: Column(
                                 children: [
                                   AnimatedContainer(
@@ -115,19 +122,20 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                                       borderRadius: BorderRadius.circular(12),
                                       border: isSelected
                                           ? Border.all(
-                                        color: const Color(0xFF6FA8DC),
-                                        width: 3,
-                                      )
+                                              color: const Color(0xFF6FA8DC),
+                                              width: 3,
+                                            )
                                           : null,
                                       boxShadow: isSelected
                                           ? [
-                                        BoxShadow(
-                                          color: const Color(0xFF6FA8DC)
-                                              .withOpacity(0.4),
-                                          blurRadius: 8,
-                                          spreadRadius: 1,
-                                        ),
-                                      ]
+                                              BoxShadow(
+                                                color: const Color(
+                                                  0xFF6FA8DC,
+                                                ).withOpacity(0.4),
+                                                blurRadius: 8,
+                                                spreadRadius: 1,
+                                              ),
+                                            ]
                                           : [],
                                     ),
                                     child: ClipRRect(
@@ -140,8 +148,11 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                                         errorBuilder: (_, __, ___) => Container(
                                           height: 110,
                                           color: const Color(0xFFCCC0B0),
-                                          child: const Icon(Icons.landscape,
-                                              color: Colors.white54, size: 40),
+                                          child: const Icon(
+                                            Icons.landscape,
+                                            color: Colors.white54,
+                                            size: 40,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -207,7 +218,9 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                             duration: const Duration(milliseconds: 200),
                             width: isWide ? double.infinity : null,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? const Color(0xFF7A8C6E)

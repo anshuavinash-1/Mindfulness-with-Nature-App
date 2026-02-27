@@ -82,7 +82,9 @@ class _ProgressPageState extends State<ProgressPage> {
 
               const SizedBox(height: 14),
 
-              ...recentActivities.map((activity) => _buildActivityCard(activity)).toList(),
+              ...recentActivities
+                  .map((activity) => _buildActivityCard(activity))
+                  .toList(),
 
               const SizedBox(height: 20),
             ],
@@ -146,7 +148,9 @@ class _ProgressPageState extends State<ProgressPage> {
                         inactiveTrackColor: const Color(0xFFCCC0B0),
                         thumbColor: const Color(0xFF5B4FCF),
                         overlayColor: const Color(0xFF5B4FCF).withOpacity(0.15),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 10,
+                        ),
                         trackHeight: 3,
                       ),
                       child: Slider(
@@ -174,7 +178,9 @@ class _ProgressPageState extends State<ProgressPage> {
                         inactiveTrackColor: const Color(0xFFCCC0B0),
                         thumbColor: const Color(0xFF5B4FCF),
                         overlayColor: const Color(0xFF5B4FCF).withOpacity(0.15),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 10,
+                        ),
                         trackHeight: 3,
                       ),
                       child: Slider(
@@ -191,7 +197,10 @@ class _ProgressPageState extends State<ProgressPage> {
                     // Notes field
                     Container(
                       height: 80,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -275,10 +284,7 @@ class _ProgressPageState extends State<ProgressPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: CustomPaint(
-        painter: _MoodChartPainter(
-          mood1: moodLevel1,
-          mood2: moodLevel2,
-        ),
+        painter: _MoodChartPainter(mood1: moodLevel1, mood2: moodLevel2),
         child: const SizedBox.expand(),
       ),
     );
@@ -381,10 +387,7 @@ class _ProgressPageState extends State<ProgressPage> {
           ),
           Text(
             activity['time'],
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF9B8E7E),
-            ),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF9B8E7E)),
           ),
         ],
       ),
@@ -435,7 +438,11 @@ class _MoodChartPainter extends CustomPainter {
       ..strokeWidth = 0.5;
     for (int i = 1; i <= 5; i++) {
       final y = topPad + chartH - ((i - 1) / 4) * chartH;
-      canvas.drawLine(Offset(leftPad, y), Offset(size.width - rightPad, y), gridPaint);
+      canvas.drawLine(
+        Offset(leftPad, y),
+        Offset(size.width - rightPad, y),
+        gridPaint,
+      );
     }
 
     // Sample data points for 5 dates
@@ -462,8 +469,10 @@ class _MoodChartPainter extends CustomPainter {
     for (int i = 0; i < red.length; i++) {
       final x = leftPad + i * xStep;
       final y = yPos(red[i]);
-      if (i == 0) redPath.moveTo(x, y);
-      else redPath.lineTo(x, y);
+      if (i == 0)
+        redPath.moveTo(x, y);
+      else
+        redPath.lineTo(x, y);
     }
     canvas.drawPath(redPath, redPaint);
 
@@ -477,8 +486,10 @@ class _MoodChartPainter extends CustomPainter {
     for (int i = 0; i < green.length; i++) {
       final x = leftPad + i * xStep;
       final y = yPos(green[i]);
-      if (i == 0) greenPath.moveTo(x, y);
-      else greenPath.lineTo(x, y);
+      if (i == 0)
+        greenPath.moveTo(x, y);
+      else
+        greenPath.lineTo(x, y);
     }
     canvas.drawPath(greenPath, greenPaint);
 

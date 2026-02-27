@@ -19,11 +19,7 @@ class AppStartup {
 
   static Future<void> initialize() async {
     // Run ALL tasks in parallel with Future.wait
-    await Future.wait([
-      _initAudio(),
-      _initPrefs(),
-      _warmUpImageCache(),
-    ]);
+    await Future.wait([_initAudio(), _initPrefs(), _warmUpImageCache()]);
   }
 
   /// Pre-initialize audio player and buffer the default ambient sound
@@ -63,7 +59,7 @@ class AppStartup {
   static Future<void> preCacheImages(BuildContext context) async {
     await Future.wait(
       _imagesToPreCache.map(
-            (url) => precacheImage(CachedNetworkImageProvider(url), context),
+        (url) => precacheImage(CachedNetworkImageProvider(url), context),
       ),
     );
   }

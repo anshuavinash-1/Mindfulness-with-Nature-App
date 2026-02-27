@@ -5,11 +5,7 @@ class MyAccountPage extends StatelessWidget {
   final String userName;
   final String email;
 
-  const MyAccountPage({
-    super.key,
-    required this.userName,
-    required this.email,
-  });
+  const MyAccountPage({super.key, required this.userName, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +64,7 @@ class MyAccountPage extends StatelessWidget {
     return Positioned.fill(
       child: ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Image.asset(
-          "assets/images/forest_bg.jpg",
-          fit: BoxFit.cover,
-        ),
+        child: Image.asset("assets/images/forest_bg.jpg", fit: BoxFit.cover),
       ),
     );
   }
@@ -147,9 +140,7 @@ class MyAccountPage extends StatelessWidget {
           const SizedBox(height: 5),
           Text(
             "Mindfulness Explorer 🌿",
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-            ),
+            style: TextStyle(color: Colors.white.withOpacity(0.8)),
           ),
         ],
       ),
