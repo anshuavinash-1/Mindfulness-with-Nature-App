@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({super.key});

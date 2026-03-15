@@ -9,11 +9,11 @@ class PositiveFeedback extends StatefulWidget {
   final double size;
 
   const PositiveFeedback({
-    Key? key,
+    super.key,
     this.type = FeedbackType.random,
     this.onComplete,
     this.size = 150.0,
-  }) : super(key: key);
+  });
 
   @override
   _PositiveFeedbackState createState() => _PositiveFeedbackState();

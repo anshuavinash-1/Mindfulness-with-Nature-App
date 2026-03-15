@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({super.key});
@@ -84,7 +83,7 @@ class _ProgressPageState extends State<ProgressPage> {
 
               ...recentActivities
                   .map((activity) => _buildActivityCard(activity))
-                  .toList(),
+                  ,
 
               const SizedBox(height: 20),
             ],
@@ -469,10 +468,11 @@ class _MoodChartPainter extends CustomPainter {
     for (int i = 0; i < red.length; i++) {
       final x = leftPad + i * xStep;
       final y = yPos(red[i]);
-      if (i == 0)
+      if (i == 0) {
         redPath.moveTo(x, y);
-      else
+      } else {
         redPath.lineTo(x, y);
+      }
     }
     canvas.drawPath(redPath, redPaint);
 
@@ -486,10 +486,11 @@ class _MoodChartPainter extends CustomPainter {
     for (int i = 0; i < green.length; i++) {
       final x = leftPad + i * xStep;
       final y = yPos(green[i]);
-      if (i == 0)
+      if (i == 0) {
         greenPath.moveTo(x, y);
-      else
+      } else {
         greenPath.lineTo(x, y);
+      }
     }
     canvas.drawPath(greenPath, greenPaint);
 
