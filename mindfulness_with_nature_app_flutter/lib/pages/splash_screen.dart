@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullness/pages/login_page.dart';
+import 'package:../pages/login_page.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
