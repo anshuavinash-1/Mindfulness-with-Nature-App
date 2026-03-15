@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:../pages/login_page.dart';
+import 'login_page.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -12,7 +12,7 @@ class SplashScreen extends StatelessWidget {
           // Navigate to next screen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+            MaterialPageRoute(builder: (_) => LoginPage()),
           );
         },
         child: Stack(
