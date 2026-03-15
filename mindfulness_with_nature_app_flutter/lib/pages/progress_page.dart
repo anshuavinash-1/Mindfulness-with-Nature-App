@@ -82,8 +82,7 @@ class _ProgressPageState extends State<ProgressPage> {
               const SizedBox(height: 14),
 
               ...recentActivities
-                  .map((activity) => _buildActivityCard(activity))
-                  ,
+                  .map((activity) => _buildActivityCard(activity)),
 
               const SizedBox(height: 20),
             ],
