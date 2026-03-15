@@ -49,8 +49,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-        );
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
 
     // Particle animation (continuous)
     _particleController = AnimationController(
@@ -394,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             final offsetX = random.nextDouble() * size.width;
             final offsetY =
                 ((_particleController.value + random.nextDouble()) % 1.0) *
-                size.height;
+                    size.height;
             final particleSize = 20.0 + random.nextDouble() * 30;
             final opacity = 0.3 + random.nextDouble() * 0.4;
 

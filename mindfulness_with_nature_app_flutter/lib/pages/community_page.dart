@@ -159,13 +159,11 @@ class CommunityPage extends StatelessWidget {
 
     return pins.map((pos) {
       return Positioned(
-        left:
-            MediaQueryData.fromView(
+        left: MediaQueryData.fromView(
               WidgetsBinding.instance.platformDispatcher.views.first,
             ).size.width *
             pos.dx,
-        top:
-            MediaQueryData.fromView(
+        top: MediaQueryData.fromView(
               WidgetsBinding.instance.platformDispatcher.views.first,
             ).size.height *
             0.4 *
