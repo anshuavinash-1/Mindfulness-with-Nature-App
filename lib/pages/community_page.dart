@@ -11,8 +11,6 @@ class CommunityPage extends StatelessWidget {
         child: Column(
           children: [
             // Status Bar
-
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -80,10 +78,7 @@ class CommunityPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: Colors.white,
-                            ),
+                            Icon(Icons.chevron_right, color: Colors.white),
                           ],
                         ),
                       ),
@@ -216,20 +211,14 @@ class CommunityPage extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       time,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
                 ),
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(
-                  Icons.more_vert,
-                  color: Colors.grey,
-                ),
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
               ),
             ],
           ),
@@ -263,7 +252,10 @@ class CommunityPage extends StatelessWidget {
             ),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(20),
@@ -302,10 +294,7 @@ class CommunityPage extends StatelessWidget {
               // Share button
               IconButton(
                 onPressed: () {},
-                icon: const Icon(
-                  Icons.share_outlined,
-                  color: Colors.grey,
-                ),
+                icon: const Icon(Icons.share_outlined, color: Colors.grey),
               ),
             ],
           ),
@@ -324,24 +313,16 @@ class CommunityPage extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: Colors.grey[600],
-            size: 20,
-          ),
+          Icon(icon, color: Colors.grey[600], size: 20),
           const SizedBox(width: 6),
           Text(
             count.toString(),
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
     );
   }
-
 
   // Build navigation item
   Widget _buildNavItem({

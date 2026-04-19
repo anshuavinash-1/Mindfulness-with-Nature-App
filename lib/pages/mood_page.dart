@@ -159,9 +159,7 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     decoration: BoxDecoration(
                       color: const Color(0xFF556B2F),
                       borderRadius: BorderRadius.circular(30),
@@ -169,10 +167,7 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                     child: const Center(
                       child: Text(
                         "Apply Settings",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),
                   ),

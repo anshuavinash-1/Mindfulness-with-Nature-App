@@ -15,16 +15,11 @@ class HomeScreen extends StatelessWidget {
       children: [
         /// Full screen background image (mobile + tablet + web)
         Positioned.fill(
-          child: Image.asset(
-            "assets/images/forest_bg.jpg",
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset("assets/images/forest_bg.jpg", fit: BoxFit.cover),
         ),
 
         /// Semi-transparent overlay (optional, improves text visibility)
-        Container(
-          color: Colors.black.withOpacity(0.15),
-        ),
+        Container(color: Colors.black.withOpacity(0.15)),
 
         /// Content
         SafeArea(
@@ -64,7 +59,9 @@ class HomeScreen extends StatelessWidget {
 
                   /// Floating Card
                   Container(
-                    width: size.width < 600 ? size.width * 0.85 : size.width * 0.5,
+                    width: size.width < 600
+                        ? size.width * 0.85
+                        : size.width * 0.5,
                     padding: const EdgeInsets.symmetric(
                       vertical: 22,
                       horizontal: 16,
@@ -84,10 +81,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           "Today's Featured Practice",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 17),
                         ),
                         SizedBox(height: 8),
                         Text(
@@ -110,23 +104,20 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => ProgressPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => ProgressPage()),
                       );
                     },
                     child: Container(
-                      width: size.width < 600 ? size.width * 0.8 : size.width * 0.4,
+                      width: size.width < 600
+                          ? size.width * 0.8
+                          : size.width * 0.4,
                       padding: const EdgeInsets.symmetric(
                         vertical: 18,
                         horizontal: 24,
                       ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF7A9F5A),
-                            Color(0xFF556B2F),
-                          ],
+                          colors: [Color(0xFF7A9F5A), Color(0xFF556B2F)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -232,24 +223,21 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => StoriesPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => StoriesPage()),
                       );
                       print("Navigate to Stories Page");
                     },
                     child: Container(
-                      width: size.width < 600 ? size.width * 0.8 : size.width * 0.4,
+                      width: size.width < 600
+                          ? size.width * 0.8
+                          : size.width * 0.4,
                       padding: const EdgeInsets.symmetric(
                         vertical: 18,
                         horizontal: 24,
                       ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF556B2F),
-                            Color(0xFF374834),
-                          ],
+                          colors: [Color(0xFF556B2F), Color(0xFF374834)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -274,11 +262,7 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.book,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+                          Icon(Icons.book, color: Colors.white, size: 28),
                           const SizedBox(width: 15),
                           const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,9 +307,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   /// Quick Stats Row (for web/tablet)
-                  if (size.width > 600)
-
-                  const Spacer(),
+                  if (size.width > 600) const Spacer(),
                   const SizedBox(height: 100),
                 ],
               ),
@@ -347,9 +329,7 @@ class HomeScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ProgressPage(),
-          ),
+          MaterialPageRoute(builder: (context) => ProgressPage()),
         );
       },
       child: Container(
@@ -420,11 +400,7 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 30,
-            ),
+            Icon(icon, color: Colors.white, size: 30),
             const SizedBox(height: 10),
             Text(
               title,

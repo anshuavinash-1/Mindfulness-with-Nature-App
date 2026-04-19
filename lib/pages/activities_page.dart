@@ -84,10 +84,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
 
               const Text(
                 "What do you need today?",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xFF374834),
-                ),
+                style: TextStyle(fontSize: 20, color: Color(0xFF374834)),
               ),
 
               const SizedBox(height: 20),
@@ -131,10 +128,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Duration",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF374834),
-                  ),
+                  style: TextStyle(fontSize: 18, color: Color(0xFF374834)),
                 ),
               ),
 
@@ -154,10 +148,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("5 MIN"),
-                  Text("45 MIN"),
-                ],
+                children: const [Text("5 MIN"), Text("45 MIN")],
               ),
 
               const SizedBox(height: 20),
@@ -174,8 +165,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.hourglass_bottom,
-                        size: 80, color: const Color(0xFF374834)),
+                    Icon(
+                      Icons.hourglass_bottom,
+                      size: 80,
+                      color: const Color(0xFF374834),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       formatTime(remainingSeconds),
@@ -198,9 +192,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                 onTap: startSession,
                 child: Container(
                   width: size.width * 0.8,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 18,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
                     color: const Color(0xFF556B2F),
                     borderRadius: BorderRadius.circular(30),
@@ -208,10 +200,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                   child: const Center(
                     child: Text(
                       "Start Session",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                   ),
                 ),

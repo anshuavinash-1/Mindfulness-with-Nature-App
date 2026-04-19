@@ -11,8 +11,6 @@ class ProgressPage extends StatelessWidget {
         child: Column(
           children: [
             // Status Bar (Simulated)
-
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -95,8 +93,6 @@ class ProgressPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 40),
-
-
 
                     const SizedBox(height: 50), // Space for bottom nav
                   ],
@@ -188,11 +184,7 @@ class ProgressPage extends StatelessWidget {
               color: const Color(0xfff3f0d8),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF556B2F),
-              size: 28,
-            ),
+            child: Icon(icon, color: const Color(0xFF556B2F), size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -210,18 +202,12 @@ class ProgressPage extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   "$duration • $time",
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: Colors.grey,
-          ),
+          const Icon(Icons.chevron_right, color: Colors.grey),
         ],
       ),
     );
@@ -238,11 +224,31 @@ class ProgressPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(icon: Icons.home, label: "Home", isActive: activeIndex == 0),
-          _buildNavItem(icon: Icons.spa, label: "Activities", isActive: activeIndex == 1),
-          _buildNavItem(icon: Icons.nature, label: "Set Your Mood", isActive: activeIndex == 2),
-          _buildNavItem(icon: Icons.insights, label: "Transformation", isActive: activeIndex == 3),
-          _buildNavItem(icon: Icons.people, label: "Community", isActive: activeIndex == 4),
+          _buildNavItem(
+            icon: Icons.home,
+            label: "Home",
+            isActive: activeIndex == 0,
+          ),
+          _buildNavItem(
+            icon: Icons.spa,
+            label: "Activities",
+            isActive: activeIndex == 1,
+          ),
+          _buildNavItem(
+            icon: Icons.nature,
+            label: "Set Your Mood",
+            isActive: activeIndex == 2,
+          ),
+          _buildNavItem(
+            icon: Icons.insights,
+            label: "Transformation",
+            isActive: activeIndex == 3,
+          ),
+          _buildNavItem(
+            icon: Icons.people,
+            label: "Community",
+            isActive: activeIndex == 4,
+          ),
         ],
       ),
     );
