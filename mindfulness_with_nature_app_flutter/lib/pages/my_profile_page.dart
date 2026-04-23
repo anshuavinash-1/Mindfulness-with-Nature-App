@@ -49,7 +49,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           backgroundColor: const Color(0xFF6B9080),
           behavior: SnackBarBehavior.floating,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -311,12 +311,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFF5F0E8),
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Delete Account',
-          style: TextStyle(
-              color: Color(0xFF3D2B1F), fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Color(0xFF3D2B1F), fontWeight: FontWeight.bold),
         ),
         content: const Text(
           'This will permanently delete your account and all your data. This cannot be undone.',
@@ -338,8 +337,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Delete',
-                style: TextStyle(color: Colors.white)),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -419,35 +417,35 @@ class _ProfileField extends StatelessWidget {
                 const SizedBox(height: 2),
                 isEditing
                     ? TextField(
-                  controller: controller,
-                  keyboardType: keyboardType,
-                  style: const TextStyle(
-                    color: Color(0xFF3D2B1F),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding:
-                    const EdgeInsets.symmetric(vertical: 4),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xFF8B7355), width: 1.5),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xFF3D2B1F), width: 2),
-                    ),
-                  ),
-                )
+                        controller: controller,
+                        keyboardType: keyboardType,
+                        style: const TextStyle(
+                          color: Color(0xFF3D2B1F),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 4),
+                          enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Color(0xFF8B7355), width: 1.5),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(0xFF3D2B1F), width: 2),
+                          ),
+                        ),
+                      )
                     : Text(
-                  controller.text,
-                  style: const TextStyle(
-                    color: Color(0xFF3D2B1F),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                        controller.text,
+                        style: const TextStyle(
+                          color: Color(0xFF3D2B1F),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
               ],
             ),
           ),

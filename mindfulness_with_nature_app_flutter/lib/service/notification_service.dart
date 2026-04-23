@@ -62,7 +62,8 @@ class NotificationService extends ChangeNotifier {
 
   bool _isReminderEnabled = false;
   TimeOfDay? _reminderTime;
-  ReminderSound _reminderSound = ReminderSound.silent; // default silent until sound files added
+  ReminderSound _reminderSound =
+      ReminderSound.silent; // default silent until sound files added
   String _reminderMessage = _defaultMessage;
 
   bool get isReminderEnabled => _isReminderEnabled;
@@ -71,7 +72,7 @@ class NotificationService extends ChangeNotifier {
   String get reminderMessage => _reminderMessage;
 
   final FlutterLocalNotificationsPlugin _plugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   // ── Init — NO timezone init here, main.dart handles it ───────────────────────
   Future<void> init() async {
@@ -149,7 +150,7 @@ class NotificationService extends ChangeNotifier {
 
   Future<void> setReminderMessage(String message) async {
     _reminderMessage =
-    message.trim().isEmpty ? _defaultMessage : message.trim();
+        message.trim().isEmpty ? _defaultMessage : message.trim();
     await _savePrefs();
     if (_isReminderEnabled && _reminderTime != null) await _scheduleDaily();
     notifyListeners();
@@ -174,8 +175,7 @@ class NotificationService extends ChangeNotifier {
     );
 
     // If time already passed today (or within 5 seconds), push to tomorrow
-    if (scheduled.isBefore(now) ||
-        scheduled.difference(now).inSeconds < 5) {
+    if (scheduled.isBefore(now) || scheduled.difference(now).inSeconds < 5) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
@@ -210,7 +210,7 @@ class NotificationService extends ChangeNotifier {
       NotificationDetails(android: androidDetails, iOS: iosDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
 
@@ -235,13 +235,12 @@ class NotificationService extends ChangeNotifier {
 
     final androidGranted =
         await android?.requestNotificationsPermission() ?? true;
-    final iosGranted =
-        await iOS?.requestPermissions(
+    final iosGranted = await iOS?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         ) ??
-            true;
+        true;
 
     return androidGranted && iosGranted;
   }

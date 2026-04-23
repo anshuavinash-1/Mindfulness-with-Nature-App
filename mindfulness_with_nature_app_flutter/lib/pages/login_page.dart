@@ -192,15 +192,15 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                            color: Colors.white)
+                                color: Colors.white)
                             : const Text(
-                          "Login",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                                "Login",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
 
@@ -242,8 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                       width: double.infinity,
                       height: 50,
                       child: OutlinedButton.icon(
-                        onPressed:
-                        _isGuestLoading ? null : _handleGuestLogin,
+                        onPressed: _isGuestLoading ? null : _handleGuestLogin,
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
                             color: Color(0xFF5E8C3B),
@@ -255,17 +254,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         icon: _isGuestLoading
                             ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Color(0xFF5E8C3B),
-                          ),
-                        )
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF5E8C3B),
+                                ),
+                              )
                             : const Icon(
-                          Icons.person_outline,
-                          color: Color(0xFF5E8C3B),
-                        ),
+                                Icons.person_outline,
+                                color: Color(0xFF5E8C3B),
+                              ),
                         label: const Text(
                           "Continue as Guest",
                           style: TextStyle(
