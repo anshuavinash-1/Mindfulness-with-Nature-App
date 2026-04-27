@@ -31,9 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getBackgroundImage() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return "assets/images/sunrise.jpg";
+    if (hour < 12) return "assets/images/sunrise.jpeg";
     if (hour < 17) return "assets/images/sunny.jpg";
-    return "assets/images/sunset.jpg";
+    return "assets/images/sunset.jpeg";
   }
 
   @override
@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _goToLogin() {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
-      (_) => false,
+          (_) => false,
     );
   }
 
@@ -101,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFF5F0E8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Log Out',
           style: TextStyle(
@@ -148,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
+
       drawer: _AppDrawer(
         userName: widget.userName,
         isGuest: _isGuest,
@@ -156,7 +158,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+            MaterialPageRoute(
+                builder: (_) => const NotificationSettingsPage()),
           );
         },
         onMyProfile: () {
@@ -180,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _showLogoutDialog();
         },
       ),
+
       body: Stack(
         children: [
           Positioned.fill(
@@ -298,7 +302,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsPage()),
+                            builder: (_) =>
+                            const NotificationSettingsPage()),
                       );
                     },
                   ),
@@ -378,7 +383,8 @@ class _AppDrawer extends StatelessWidget {
             // Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 28),
               decoration: const BoxDecoration(color: Color(0xFF3D2B1F)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +395,8 @@ class _AppDrawer extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFF8B7355),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white30, width: 2),
+                      border:
+                      Border.all(color: Colors.white30, width: 2),
                     ),
                     child: Center(
                       child: Icon(
@@ -420,7 +427,8 @@ class _AppDrawer extends StatelessWidget {
                       ),
                       child: const Text(
                         'Guest Mode',
-                        style: TextStyle(color: Colors.white60, fontSize: 12),
+                        style:
+                        TextStyle(color: Colors.white60, fontSize: 12),
                       ),
                     )
                   else
@@ -466,21 +474,21 @@ class _AppDrawer extends StatelessWidget {
               label: 'Notification Settings',
               trailing: notificationService.isReminderEnabled
                   ? Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6B9080),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Text(
-                        'ON',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6B9080),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'ON',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
                   : null,
               onTap: onNotificationSettings,
             ),
@@ -548,7 +556,8 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = iconColor ?? const Color(0xFF3D2B1F);
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
       leading: Container(
         width: 40,
         height: 40,
@@ -595,7 +604,8 @@ class _NotificationQuickCard extends StatelessWidget {
       onTap: onOpenSettings,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        padding:
+        const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
@@ -607,7 +617,9 @@ class _NotificationQuickCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              isOn ? Icons.notifications_active : Icons.notifications_off,
+              isOn
+                  ? Icons.notifications_active
+                  : Icons.notifications_off,
               color: Colors.white,
               size: 28,
             ),
@@ -652,8 +664,8 @@ class _NotificationQuickCard extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: onToggle,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isOn
                       ? Colors.white.withOpacity(0.25)

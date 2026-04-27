@@ -18,7 +18,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   void initState() {
     super.initState();
     final service = context.read<NotificationService>();
-    _messageController = TextEditingController(text: service.reminderMessage);
+    _messageController =
+        TextEditingController(text: service.reminderMessage);
   }
 
   @override
@@ -99,7 +100,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 iconColor: service.isReminderEnabled
                     ? const Color(0xFF6B9080)
                     : const Color(0xFF9E8F80),
-                title: 'Daily Meditation Reminder',
+                title: 'Time to go outside',
                 subtitle: service.isReminderEnabled
                     ? 'Your mindful moment is scheduled'
                     : 'Turn on to build a daily habit',
@@ -126,8 +127,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   borderRadius: BorderRadius.circular(16),
                   onTap: () => _pickTime(service),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14, horizontal: 4),
                     child: Row(
                       children: [
                         Container(
@@ -493,8 +494,9 @@ class _SoundOption extends StatelessWidget {
               height: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    isSelected ? const Color(0xFF3D2B1F) : Colors.transparent,
+                color: isSelected
+                    ? const Color(0xFF3D2B1F)
+                    : Colors.transparent,
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFF3D2B1F)

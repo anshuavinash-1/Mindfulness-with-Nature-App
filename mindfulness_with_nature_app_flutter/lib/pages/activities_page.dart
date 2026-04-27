@@ -251,7 +251,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                       style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF4A6FA5),
+                        color: Color(0xFF1B3D2F),
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -260,7 +260,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                       "What brings you peace today?",
                       style: TextStyle(
                         fontSize: 16,
-                        color: const Color(0xFF4A6FA5).withOpacity(0.85),
+                        color: const Color(0xFF1B3D2F).withOpacity(0.85),
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -367,7 +367,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF4A6FA5),
+            color: Color(0xFF1B3D2F),
           ),
         ),
         const SizedBox(height: 4),
@@ -375,7 +375,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
           "${duration.toInt()} Minutes",
           style: const TextStyle(
             fontSize: 16,
-            color: Color(0xFF4A6FA5),
+            color: Color(0xFF1B3D2F),
             fontWeight: FontWeight.w500,
           ),
         ),
