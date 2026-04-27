@@ -32,8 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _getBackgroundImage() {
     final hour = DateTime.now().hour;
     if (hour < 12) return "assets/images/sunrise.jpg";
-    if (hour < 17) return "assets/images/sunset.jpg";
-    return "assets/images/sunset.jpg";
+    if (hour < 17) return "assets/images/sunset.jpeg";
+    return "assets/images/sunset.jpeg";
   }
 
   @override
