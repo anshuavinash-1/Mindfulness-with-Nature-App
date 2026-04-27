@@ -7,12 +7,25 @@ Millions struggle with daily stress and burnout. Many want to meditate but don't
 
 **Our solution:** A calm, nature-inspired app that makes mindfulness practice feel like a walk in the woods — not another task on your to-do list.
 
-## ✨ Key Features
-* **Guided Meditation:** Timed sessions with nature sounds (forest, ocean, meadow)
-* **Mood Tracking:**  Log your emotions and see patterns over time 
-* **Progress Dashboard:** Track meditation streaks and session history
-* **Favorite Places:** Save and share peaceful real-world locations
-* **Gentle Reminders:** Daily prompts to check in with yourself 
+## ✨ Features/Pages
+* **Welcome Page**
+  <img width="264" height="558" alt="welcome" src="https://github.com/user-attachments/assets/631fb72c-0c1a-475c-867a-3cc0eb140c46" />
+
+* **Home Page**
+  <img width="264" height="575" alt="dashboard" src="https://github.com/user-attachments/assets/2f8ed6cc-62b7-424b-9639-f484e25cb456" />
+
+* **Activities Page**
+  <img width="262" height="566" alt="activities" src="https://github.com/user-attachments/assets/a93edee1-c493-4c93-b999-97346c59e271" />
+
+* **Set Mood Page**
+  <img width="263" height="573" alt="setmood" src="https://github.com/user-attachments/assets/199a039c-8c6a-487d-86db-cd556d4bf5d2" />
+
+* **Progress Page**
+  <img width="258" height="571" alt="progress" src="https://github.com/user-attachments/assets/c04cdf03-20d4-4e0e-b5f1-5b4c17b136c3" />
+
+* **Community Page**
+  <img width="265" height="576" alt="community" src="https://github.com/user-attachments/assets/78775802-e0c9-4cf3-8509-33e9649bb14c" />
+
 
 ## 🚀 Try It Yourself
 
