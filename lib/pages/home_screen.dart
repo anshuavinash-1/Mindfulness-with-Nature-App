@@ -23,18 +23,33 @@ class _HomeScreenState extends State<HomeScreen> {
   bool get _isGuest => widget.userName == 'Guest';
 
   String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return "GOOD MORNING";
-    if (hour < 17) return "GOOD AFTERNOON";
-    return "GOOD EVENING";
-  }
+  final hour = DateTime.now().hour;
 
-  String _getBackgroundImage() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return "assets/images/Sunrise.jpg";
-    if (hour < 17) return "assets/images/Sunset.jpg";
-    return "assets/images/Sunset.jpg";
+  if (hour >= 5 && hour < 12) {
+    return "GOOD MORNING";
+  } else if (hour >= 12 && hour < 17) {
+    return "GOOD AFTERNOON";
+  } else if (hour >= 17 && hour < 20) {
+    return "GOOD EVENING";
+  } else {
+    return "GOOD NIGHT";
   }
+}
+
+String _getBackgroundImage() {
+  final hour = DateTime.now().hour;
+
+  if (hour >= 5 && hour < 12) {
+    return "assets/images/Sunrise.jpg";
+  } else if (hour >= 12 && hour < 17) {
+    return "assets/images/Sunny.jpg";
+  } else if (hour >= 17 && hour < 20) {
+    return "assets/images/Sunset.jpg";
+  } else {
+    return "assets/images/Night.jpg";
+  }
+}
+  
 
   @override
   void initState() {
