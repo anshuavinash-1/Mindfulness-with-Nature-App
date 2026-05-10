@@ -8,12 +8,10 @@ import 'login_page.dart';
 import 'my_profile_page.dart';
 
 class HomeScreen extends StatefulWidget {
-=======
 import 'stories.dart';
 import 'progress_page.dart'; // Import your progress page
 
 class HomeScreen extends StatelessWidget {
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
   final String userName;
 
   const HomeScreen({super.key, required this.userName});
@@ -40,8 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _getBackgroundImage() {
     final hour = DateTime.now().hour;
     if (hour < 12) return "assets/images/Sunrise.jpg";
-    if (hour < 17) return "assets/images/Sunset.jpg";
-    return "assets/images/Sunset.jpg";
+    if (hour < 17) return "assets/images/Sunrise.jpg";
+    return "assets/images/Sunrise.jpg";
   }
 
   @override
