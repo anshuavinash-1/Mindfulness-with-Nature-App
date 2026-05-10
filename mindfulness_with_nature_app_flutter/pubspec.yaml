@@ -34,5 +34,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/images/Sunrise.jpg
+    - assets/images/Sunset.jpg
     - assets/audio/

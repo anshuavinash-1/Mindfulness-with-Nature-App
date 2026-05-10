@@ -45,3 +45,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .DS_Store
+=======
+
+# Local Netlify folder
+.netlify
+mindfulness-with-nature-2025-8c65c2dad868.json.DS_Store
+macos/Pods/
+macos/Podfile.lock
+macos/*.xcworkspace
+>>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
