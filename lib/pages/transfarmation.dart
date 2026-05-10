@@ -26,19 +26,10 @@ class _TransformationPageState extends State<TransformationPage> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     List<double> activeData =
         selectedChartType == 'stress' ? stressData : moodData;
     int? selectedIndex =
         selectedChartType == 'stress' ? selectedStressIndex : selectedMoodIndex;
-=======
-    List<double> activeData = selectedChartType == 'stress'
-        ? stressData
-        : moodData;
-    int? selectedIndex = selectedChartType == 'stress'
-        ? selectedStressIndex
-        : selectedMoodIndex;
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
 
     return Scaffold(
       backgroundColor: const Color(0xffdde3c2),
@@ -197,21 +188,11 @@ class _TransformationPageState extends State<TransformationPage> {
                     onBarTap: (index) {
                       setState(() {
                         if (selectedChartType == 'stress') {
-<<<<<<< HEAD
                           selectedStressIndex =
                               selectedStressIndex == index ? null : index;
                         } else {
                           selectedMoodIndex =
                               selectedMoodIndex == index ? null : index;
-=======
-                          selectedStressIndex = selectedStressIndex == index
-                              ? null
-                              : index;
-                        } else {
-                          selectedMoodIndex = selectedMoodIndex == index
-                              ? null
-                              : index;
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                         }
                       });
                     },
@@ -468,19 +449,11 @@ class _TransformationPageState extends State<TransformationPage> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? (chartType == 'stress'
-<<<<<<< HEAD
                                   ? Colors.red
                                   : Colors.green)
                               : (chartType == 'stress'
                                   ? Colors.red.withOpacity(0.6)
                                   : Colors.green.withOpacity(0.6)),
-=======
-                                    ? Colors.red
-                                    : Colors.green)
-                              : (chartType == 'stress'
-                                    ? Colors.red.withOpacity(0.6)
-                                    : Colors.green.withOpacity(0.6)),
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(6),
                             topRight: Radius.circular(6),
@@ -496,14 +469,8 @@ class _TransformationPageState extends State<TransformationPage> {
                           color: isSelected
                               ? const Color(0xFF556B2F)
                               : Colors.grey[700],
-<<<<<<< HEAD
                           fontWeight:
                               isSelected ? FontWeight.bold : FontWeight.normal,
-=======
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                         ),
                       ),
                     ],

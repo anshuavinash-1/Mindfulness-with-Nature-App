@@ -41,11 +41,7 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart_outlined),
           activeIcon: Icon(Icons.bar_chart),
-<<<<<<< HEAD
           label: "Progress",
-=======
-          label: "Transformation",
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.people_alt_outlined),

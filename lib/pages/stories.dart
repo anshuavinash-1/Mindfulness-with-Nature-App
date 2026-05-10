@@ -164,11 +164,7 @@ class StoriesPage extends StatelessWidget {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage(
-<<<<<<< HEAD
                         'assets/images/pattern.jpg',
-=======
-                        'assets/pattern.jpg',
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                       ), // Add your pattern image
                       repeat: ImageRepeat.repeat,
                     ),

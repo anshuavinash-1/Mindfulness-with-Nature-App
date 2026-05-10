@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Mindfulness with Nature App
 
 A Flutter application for mindfulness and nature connection, featuring mood tracking, favorite places, and daily reminders.
@@ -9,56 +8,6 @@ A Flutter application for mindfulness and nature connection, featuring mood trac
 - **Favorite Places**: Save and organize your favorite nature spots
 - **User Authentication**: Firebase authentication with local fallback
 - **Location Services**: Find places near your current location using Haversine distance calculations
-=======
-# 🌿 Mindfulness with Nature App
-Mindfulness with Nature App is a mobile application that combines guided mindfulness exercises with nature's restorative power through audio/video sessions, progress tracking, and mood reflection tools.
-
-## The Problem
-
-Millions struggle with daily stress and burnout. Many want to meditate but don't know where to start or struggle to stay consistent. Traditional apps feel cold and disconnected from the natural world that calms us.
-
-**Our solution:** A calm, nature-inspired app that makes mindfulness practice feel like a walk in the woods — not another task on your to-do list.
-
-## ✨ Features/Pages
-* **Welcome Page**
-  <img width="264" height="558" alt="welcome" src="https://github.com/user-attachments/assets/631fb72c-0c1a-475c-867a-3cc0eb140c46" />
-
-* **Home Page**
-  <img width="264" height="575" alt="dashboard" src="https://github.com/user-attachments/assets/2f8ed6cc-62b7-424b-9639-f484e25cb456" />
-
-* **Activities Page**
-  <img width="262" height="566" alt="activities" src="https://github.com/user-attachments/assets/a93edee1-c493-4c93-b999-97346c59e271" />
-
-* **Set Mood Page**
-  <img width="263" height="573" alt="setmood" src="https://github.com/user-attachments/assets/199a039c-8c6a-487d-86db-cd556d4bf5d2" />
-
-* **Progress Page**
-  <img width="258" height="571" alt="progress" src="https://github.com/user-attachments/assets/c04cdf03-20d4-4e0e-b5f1-5b4c17b136c3" />
-
-* **Community Page**
-  <img width="265" height="576" alt="community" src="https://github.com/user-attachments/assets/78775802-e0c9-4cf3-8509-33e9649bb14c" />
-
-
-## 🚀 Try It Yourself
-
-### Web Version: https://mindfulness-with-nature-2025.web.app/
-### Mobile (iOS & Android)
-📱 Download coming soon!!
-
-### Source Code
-[GitHub Repository](https://github.com/anshuavinash-1/Mindfulness-with-Nature-App)
-
-### Requirements
-- **Web:** Any modern browser (Chrome, Safari, Firefox)
-- **Mobile:** iOS 13+ or Android 8+
-- No account needed to try — sign up as a guest
-
-# Team:
-* **Anshu Avinash** | UI/UX & Authentication | [@anshuavinash-1](
-* **Mitchell Bourdukofsky** | Backend & Firebase | [@mitch311111]
-*  **Ryan Kelly** | Testing & QA | [@ryankelly85556]
-
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
 
 ## Getting Started
 
@@ -165,7 +114,3 @@ test/
 ├── models/          # Model unit tests
 └── services/        # Service unit tests
 ```
-<<<<<<< HEAD
-=======
-
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7

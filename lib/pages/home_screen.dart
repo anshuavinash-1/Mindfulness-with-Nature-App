@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import '../service/notification_service.dart';
@@ -8,16 +7,11 @@ import 'login_page.dart';
 import 'my_profile_page.dart';
 
 class HomeScreen extends StatefulWidget {
-import 'stories.dart';
-import 'progress_page.dart'; // Import your progress page
-
-class HomeScreen extends StatelessWidget {
   final String userName;
 
   const HomeScreen({super.key, required this.userName});
 
   @override
-<<<<<<< HEAD
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
@@ -37,9 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getBackgroundImage() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return "assets/images/Sunrise.jpg";
-    if (hour < 17) return "assets/images/Sunrise.jpg";
-    return "assets/images/Sunrise.jpg";
+    if (hour < 12) return "assets/images/sunrise.jpeg";
+    if (hour < 17) return "assets/images/sunny.jpg";
+    return "assets/images/sunset.jpeg";
   }
 
   @override
@@ -71,17 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _precacheImages() async {
-    try {
-      await Future.wait([
-        // MATCH THE CASING HERE
-        precacheImage(const AssetImage('assets/images/Sunrise.jpg'), context),
-        precacheImage(const AssetImage('assets/images/Sunset.jpg'), context),
-        // Ensure sunny.jpg exists and matches case as well
-        precacheImage(const AssetImage('assets/images/sunny.jpg'), context),
-      ]);
-    } catch (e) {
-      debugPrint("Precache failed: $e");
-    }
+    await Future.wait([
+      precacheImage(const AssetImage('assets/images/sunrise.jpg'), context),
+      precacheImage(const AssetImage('assets/images/sunny.jpg'), context),
+      precacheImage(const AssetImage('assets/images/sunset.jpg'), context),
+    ]);
   }
 
   @override
@@ -104,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _goToLogin() {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
-      (_) => false,
+          (_) => false,
     );
   }
 
@@ -113,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFF5F0E8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Log Out',
           style: TextStyle(
@@ -160,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
+
       drawer: _AppDrawer(
         userName: widget.userName,
         isGuest: _isGuest,
@@ -168,7 +158,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+            MaterialPageRoute(
+                builder: (_) => const NotificationSettingsPage()),
           );
         },
         onMyProfile: () {
@@ -192,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _showLogoutDialog();
         },
       ),
+
       body: Stack(
         children: [
           Positioned.fill(
@@ -285,44 +277,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-=======
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Stack(
-      children: [
-        /// Full screen background image (mobile + tablet + web)
-        Positioned.fill(
-          child: Image.asset("assets/images/forest_bg.jpg", fit: BoxFit.cover),
-        ),
-
-        /// Semi-transparent overlay (optional, improves text visibility)
-        Container(color: Colors.black.withOpacity(0.15)),
-
-        /// Content
-        SafeArea(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.05, // 5% left/right padding
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-
-                  const Text(
-                    "Mindfulness with Nature",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w400,
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                     ),
                   ),
 
                   const Spacer(),
 
-<<<<<<< HEAD
                   Text(
                     "${_getGreeting()} ${widget.userName}",
                     textAlign: TextAlign.center,
@@ -343,7 +302,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsPage()),
+                            builder: (_) =>
+                            const NotificationSettingsPage()),
                       );
                     },
                   ),
@@ -357,46 +317,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xff9BAFAF).withOpacity(0.9),
                       borderRadius: BorderRadius.circular(30),
-=======
-                  /// Responsive greeting text
-                  Text(
-                    "GOOD MORNING,\n${userName.toUpperCase()}",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: size.width < 600 ? 32 : 48, // bigger on web
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  /// Floating Card
-                  Container(
-                    width: size.width < 600
-                        ? size.width * 0.85
-                        : size.width * 0.5,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 22,
-                      horizontal: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffB89C63),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                     ),
                     child: const Column(
                       children: [
                         Text(
-<<<<<<< HEAD
                           "Today's Practice Feature",
                           style: TextStyle(
                               fontSize: 22,
@@ -404,17 +328,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.w400),
                         ),
                         SizedBox(height: 10),
-=======
-                          "Today's Featured Practice",
-                          style: TextStyle(color: Colors.white, fontSize: 17),
-                        ),
-                        SizedBox(height: 8),
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
                         Text(
                           "Grounding in Nature",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-<<<<<<< HEAD
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.white),
@@ -466,7 +383,8 @@ class _AppDrawer extends StatelessWidget {
             // Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 28),
               decoration: const BoxDecoration(color: Color(0xFF3D2B1F)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,7 +395,8 @@ class _AppDrawer extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFF8B7355),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white30, width: 2),
+                      border:
+                      Border.all(color: Colors.white30, width: 2),
                     ),
                     child: Center(
                       child: Icon(
@@ -508,7 +427,8 @@ class _AppDrawer extends StatelessWidget {
                       ),
                       child: const Text(
                         'Guest Mode',
-                        style: TextStyle(color: Colors.white60, fontSize: 12),
+                        style:
+                        TextStyle(color: Colors.white60, fontSize: 12),
                       ),
                     )
                   else
@@ -554,21 +474,21 @@ class _AppDrawer extends StatelessWidget {
               label: 'Notification Settings',
               trailing: notificationService.isReminderEnabled
                   ? Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6B9080),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Text(
-                        'ON',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6B9080),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'ON',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
                   : null,
               onTap: onNotificationSettings,
             ),
@@ -636,7 +556,8 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = iconColor ?? const Color(0xFF3D2B1F);
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
       leading: Container(
         width: 40,
         height: 40,
@@ -683,7 +604,8 @@ class _NotificationQuickCard extends StatelessWidget {
       onTap: onOpenSettings,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        padding:
+        const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
@@ -695,7 +617,9 @@ class _NotificationQuickCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              isOn ? Icons.notifications_active : Icons.notifications_off,
+              isOn
+                  ? Icons.notifications_active
+                  : Icons.notifications_off,
               color: Colors.white,
               size: 28,
             ),
@@ -740,8 +664,8 @@ class _NotificationQuickCard extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: onToggle,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isOn
                       ? Colors.white.withOpacity(0.25)
@@ -765,337 +689,6 @@ class _NotificationQuickCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Icon(Icons.chevron_right, color: Colors.white, size: 28),
-=======
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  /// Yoga-Themed Progress Button
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ProgressPage()),
-                      );
-                    },
-                    child: Container(
-                      width: size.width < 600
-                          ? size.width * 0.8
-                          : size.width * 0.4,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 24,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF7A9F5A), Color(0xFF556B2F)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                          BoxShadow(
-                            color: const Color(0xFF94B447).withOpacity(0.4),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Yoga Lotus Icon
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.spa,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Track Your",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  " Progress",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Progress Stats Preview
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Column(
-                              children: [
-                                Text(
-                                  "7",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "days",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// Stories Button - Beautiful and eye-catching
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => StoriesPage()),
-                      );
-                      print("Navigate to Stories Page");
-                    },
-                    child: Container(
-                      width: size.width < 600
-                          ? size.width * 0.8
-                          : size.width * 0.4,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 24,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF556B2F), Color(0xFF374834)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                          BoxShadow(
-                            color: const Color(0xFF94B447).withOpacity(0.4),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.book, color: Colors.white, size: 28),
-                          const SizedBox(width: 15),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Nature Tales &",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                "Sleep Stories",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// Quick Stats Row (for web/tablet)
-                  if (size.width > 600) const Spacer(),
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Helper to build quick stat card
-  Widget _buildQuickStat({
-    required String value,
-    required String label,
-    required Color color,
-    required BuildContext context,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ProgressPage()),
-        );
-      },
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Helper to build small story cards (for web/tablet)
-  Widget _buildSmallStoryCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required BuildContext context,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        // Navigate to specific story category
-        print("Navigate to $title stories");
-      },
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: Colors.white, size: 30),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 12,
-              ),
-            ),
->>>>>>> 00bfcfa0476953464afcd2ade303665076339ac7
           ],
         ),
       ),
