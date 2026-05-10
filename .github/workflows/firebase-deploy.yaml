@@ -17,11 +17,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ./mindfulness_with_nature_app_flutter
+        working-directory: mindfulness_with_nature_app_flutter
 
       - name: Build Flutter Web
         run: flutter build web --release
-        working-directory: ./mindfulness_with_nature_app_flutter
+        working-directory: mindfulness_with_nature_app_flutter
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
