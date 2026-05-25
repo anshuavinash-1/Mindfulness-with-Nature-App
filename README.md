@@ -1,13 +1,13 @@
 # Mindfulness with Nature App
 
-A Flutter application for mindfulness and nature connection, featuring mood tracking, favorite places, and daily reminders.
+A Flutter application for mindfulness and nature connection, featuring mood tracking, Community posting, and daily reminders.
 
 ## Features
 
 - **Mood Tracking**: Log your daily mood and stress levels with notes
-- **Favorite Places**: Save and organize your favorite nature spots
+- **Relaxing Exercises**: Listen to calming mindfulness exercises with nature in the background
 - **User Authentication**: Firebase authentication with local fallback
-- **Location Services**: Find places near your current location using Haversine distance calculations
+- **Community Features**: Post your favorite nature spot!
 
 ## Getting Started
 
@@ -100,7 +100,6 @@ See `.github/workflows/flutter-test.yaml` for CI configuration.
 - **State Management**: Provider pattern
 - **Local Storage**: SharedPreferences for mood entries and favorite places
 - **Authentication**: Firebase Auth with graceful degradation
-- **Location**: Haversine formula for distance calculations
 
 ## Project Structure
 
