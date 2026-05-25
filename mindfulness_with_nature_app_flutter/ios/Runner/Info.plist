@@ -52,5 +52,9 @@
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>We use notifications to remind you to check in with your mood and practice mindfulness.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to find nearby parks and trails for mindfulness walks.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is used to find nearby parks and trails for mindfulness walks.</string>
 </dict>
 </plist>

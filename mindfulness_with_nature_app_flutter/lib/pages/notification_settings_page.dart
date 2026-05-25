@@ -78,41 +78,38 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Main toggle card ──────────────────────────────────────────────
-            _SectionCard(
-              child: _ToggleRow(
-                icon: service.isReminderEnabled
-                    ? Icons.notifications_active
-                    : Icons.notifications_off_outlined,
-                iconColor: service.isReminderEnabled
-                    ? const Color(0xFF6B9080)
-                    : const Color(0xFF9E8F80),
-                title: 'Time to go outside',
-                subtitle: service.isReminderEnabled
-                    ? 'Your mindful moment is scheduled'
-                    : 'Turn on to build a daily habit',
-                value: service.isReminderEnabled,
-                onChanged: (v) async {
-                  if (v && service.reminderTime == null) {
-                    await _pickTime(service);
-                  }
-                  if (service.reminderTime != null || !v) {
-                    await service.setReminderEnabled(v);
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: service.availableSounds.map((sound) {
+              final value = sound['value']!;
+              final isSelected = service.selectedSound == value;
+
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(sound['label']!),
+                trailing: isSelected
+                    ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                    : Icon(Icons.circle_outlined,
+                        color: theme.colorScheme.onSurface.withAlpha((0.55 * 255).round())),
+                onTap: () async {
+                  await service.setSound(value);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Sound changed to ${sound['label']}'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
                   }
                 },
-              ),
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
 
             if (service.isReminderEnabled) ...[
@@ -351,17 +348,277 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFF7A6A5A),
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1,
-        ),
-      ),
+    final theme = Theme.of(context);
+
+    return Consumer<NotificationService>(
+      builder: (context, notificationService, child) {
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: theme.colorScheme.primary,
+            foregroundColor: theme.colorScheme.onPrimary,
+            elevation: 1,
+            title: Text(
+              'Reminder Settings',
+              style: GoogleFonts.lora(
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Daily Mood Reminder Switch
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    'Daily Mood Reminder',
+                    style: GoogleFonts.lora(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Receive a daily reminder to check in with your mood',
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface
+                          .withAlpha((0.7 * 255).round()),
+                    ),
+                  ),
+                  value: notificationService.isReminderEnabled,
+                  activeThumbColor: theme.colorScheme.primary,
+                  onChanged: (bool value) async {
+                    if (value && !await notificationService.requestNotificationPermissions()) {
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Please enable notifications in your device settings',
+                            ),
+                            backgroundColor: Colors.red.shade400,
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    if (value && notificationService.reminderTime == null) {
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      final TimeOfDay? selectedTime = await _showStyledTimePicker(
+                        context,
+                        TimeOfDay.now(),
+                      );
+
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      if (selectedTime != null) {
+                        final formattedTime = selectedTime.format(context);
+                        await notificationService.saveSettings(
+                          isEnabled: true,
+                          time: selectedTime,
+                        );
+                        if (!context.mounted) {
+                          return;
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Daily reminder set for $formattedTime'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        await notificationService.saveSettings(
+                          isEnabled: false,
+                          time: notificationService.reminderTime,
+                        );
+                      }
+                    } else {
+                      await notificationService.saveSettings(
+                        isEnabled: value,
+                        time: notificationService.reminderTime,
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(value ? 'Reminders enabled' : 'Reminders disabled'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+
+                // Reminder Time Setting
+                if (notificationService.isReminderEnabled) ...[
+                  const Divider(height: 24),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'Reminder Time',
+                      style: GoogleFonts.lora(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    subtitle: Text(
+                      notificationService.reminderTime?.format(context) ?? 'Not set',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.7 * 255).round()),
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.access_time,
+                      color: theme.colorScheme.primary,
+                    ),
+                    onTap: () async {
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      final TimeOfDay? selectedTime = await _showStyledTimePicker(
+                        context,
+                        notificationService.reminderTime ?? TimeOfDay.now(),
+                      );
+
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      if (selectedTime != null) {
+                        final formattedTime = selectedTime.format(context);
+                        await notificationService.saveSettings(
+                          isEnabled: true,
+                          time: selectedTime,
+                        );
+                        if (!context.mounted) {
+                          return;
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Reminder time changed to $formattedTime'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+
+                // Sound Selection
+                if (notificationService.isReminderEnabled) ...[
+                  const Divider(height: 24),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'Notification Sound',
+                      style: GoogleFonts.lora(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    subtitle: Text(
+                      notificationService.availableSounds.firstWhere(
+                            (s) => s['value'] == notificationService.selectedSound,
+                        orElse: () => {'label': 'Default'},
+                      )['label']!,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface
+                            .withAlpha((0.7 * 255).round()),
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.music_note,
+                      color: theme.colorScheme.primary,
+                    ),
+                    onTap: () => _showSoundSelectionDialog(context, notificationService),
+                  ),
+                ],
+
+                const SizedBox(height: 24),
+
+                // Test Notification Button
+                if (notificationService.isReminderEnabled) ...[
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await notificationService.testNotification();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Test notification sent!'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.notifications_active),
+                    label: const Text('Send Test Notification'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                  // In NotificationSettingsPage, add this button
+                  const SizedBox(height: 12),
+                  // ElevatedButton.icon(
+                  //   onPressed: () async {
+                  //     await notificationService.test30SecondReminder();
+                  //     if (context.mounted) {
+                  //       ScaffoldMessenger.of(context).showSnackBar(
+                  //         const SnackBar(
+                  //           content: Text('30-second test scheduled! Close the app and wait...'),
+                  //           duration: Duration(seconds: 3),
+                  //         ),
+                  //       );
+                  //     }
+                  //   },
+                  //   icon: const Icon(Icons.timer),
+                  //   label: const Text('TEST: 30 Second Reminder'),
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.purple,
+                  //     foregroundColor: Colors.white,
+                  //   ),
+                  // ),
+                  // In your notification settings page, add:
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     await notificationService.testNotification(); // Immediate notification
+                  //   },
+                  //   child: const Text('Test Immediate Notification'),
+                  // ),
+                ],
+
+                // Descriptive text
+                Text(
+                  'Daily reminders can help you maintain a consistent mindfulness practice and track your mood patterns over time.',
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface
+                        .withAlpha((0.6 * 255).round()),
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

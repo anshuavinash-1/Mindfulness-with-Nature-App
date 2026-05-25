@@ -1,354 +1,453 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
-class CommunityPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:profanity_filter/profanity_filter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../models/community_post.dart';
+import '../services/auth_service.dart';
+import '../services/community_board_service.dart';
+
+class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
 
-  final List<Map<String, dynamic>> posts = const [
-    {
-      'name': 'Emma',
-      'time': '2h ago',
-      'content': 'A peaceful spot found today while hiking',
-      'color': Color(0xFF7A9F5A),
-      'images': [
-        'https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80',
-        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&q=80',
-      ],
-    },
-    {
-      'name': 'Alex',
-      'time': '5 minutes ago',
-      'content': 'Kayaking Day!!',
-      'color': Color(0xFF94B447),
-      'images': [
-        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&q=80',
-        'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=300&q=80',
-      ],
-    },
-    {
-      'name': 'Sophia',
-      'time': '1d ago',
-      'content': 'Morning sunrise meditation spot',
-      'color': Color(0xFFB89C63),
-      'images': [
-        'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=300&q=80',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80',
-      ],
-    },
-  ];
+  @override
+  State<CommunityPage> createState() => _CommunityPageState();
+}
+
+class _CommunityPageState extends State<CommunityPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _postController = TextEditingController();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  bool _isPosting = false;
+  XFile? _selectedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _prefillUsername();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _postController.dispose();
+    super.dispose();
+  }
+
+  void _prefillUsername() {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+
+    final derivedName = user?.displayName?.trim().isNotEmpty == true
+        ? user!.displayName!.trim()
+        : (user?.email.split('@').first ?? 'Nature Lover');
+
+    _usernameController.text = derivedName;
+  }
+
+  Future<void> _pickImage() async {
+    final file = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (!mounted || file == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedImage = file;
+    });
+  }
+
+  Future<void> _createPost() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final userId = authService.currentUser?.uid;
+    final username = _usernameController.text.trim();
+    final content = _postController.text.trim();
+
+    if (userId == null || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to post to the community.'),
+        ),
+      );
+      return;
+    }
+
+    if (username.isEmpty || content.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both username and post text.'),
+        ),
+      );
+      return;
+    }
+
+    final filter = ProfanityFilter();
+    if (filter.hasProfanity(content) || filter.hasProfanity(username)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Your post contains inappropriate language and cannot be submitted.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isPosting = true;
+    });
+
+    await CommunityBoardService.addPost(
+      userId: userId,
+      username: username,
+      content: content,
+      image: _selectedImage,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    _postController.clear();
+    setState(() {
+      _selectedImage = null;
+      _isPosting = false;
+    });
+  }
+
+  Future<void> _refreshFeed() async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+
+  Future<void> _confirmDeletePost(CommunityPost post) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete post?'),
+          content: const Text('This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    await CommunityBoardService.deletePost(postId: post.id, imageUrl: post.imageUrl);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Post deleted.')),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('MMM d, yyyy • h:mm a').format(dateTime);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final currentUserId = authService.currentUser?.uid;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFD6CBC0),
-      body: Column(
-        children: [
-          // MAP at top - takes ~40% of screen
-          Expanded(flex: 4, child: _buildMapWidget()),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refreshFeed,
+                child: StreamBuilder<List<CommunityPost>>(
+                  stream: CommunityBoardService.watchPosts(),
+                  builder: (context, snapshot) {
+                    final posts = snapshot.data ?? const <CommunityPost>[];
 
-          // Scrollable content below
-          Expanded(
-            flex: 6,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-
-                  // Title
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      "Where do you find peace?",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C1F14),
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Add Favorite Place Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 17),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6B5C3E),
-                          borderRadius: BorderRadius.circular(40),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF6B5C3E).withOpacity(0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "Add favorite place",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.3,
-                            ),
+                    return ListView(
+                      padding: const EdgeInsets.all(20),
+                      children: [
+                        Text(
+                          'Where do you find peace?',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Community Posts
-                  ...posts.map(
-                    (post) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        bottom: 16,
-                      ),
-                      child: _buildPost(post),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                ],
+                        const SizedBox(height: 16),
+                        _buildCreatePostCard(theme),
+                        const SizedBox(height: 26),
+                        Text(
+                          'Community Posts',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          const Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        else if (snapshot.hasError)
+                          const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text(
+                              'Unable to load community posts right now.',
+                            ),
+                          )
+                        else if (posts.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text(
+                              'No community posts yet. Share a mindful moment with the community.',
+                            ),
+                          )
+                        else
+                          ...posts.map((post) => Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _buildCommunityPost(
+                                  post,
+                                  theme,
+                                  canDelete: currentUserId != null &&
+                                      post.userId == currentUserId,
+                                ),
+                              )),
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMapWidget() {
-    // Simulate a map with a light green background + location pins
-    return Stack(
-      children: [
-        // Map background - light greenish like OpenStreetMap
-        Container(
-          color: const Color(0xFFE8F0D8),
-          child: CustomPaint(painter: _MapPainter(), size: Size.infinite),
-        ),
-
-        // Location pins overlay
-        ..._mapPins(),
-      ],
-    );
-  }
-
-  List<Widget> _mapPins() {
-    // Approximate pin positions as fractions of the map area
-    final pins = [
-      const Offset(0.22, 0.28),
-      const Offset(0.33, 0.26),
-      const Offset(0.42, 0.42),
-      const Offset(0.46, 0.50),
-      const Offset(0.44, 0.58),
-      const Offset(0.74, 0.52),
-      const Offset(0.31, 0.68),
-    ];
-
-    return pins.map((pos) {
-      return Positioned(
-        left: MediaQueryData.fromView(
-              WidgetsBinding.instance.platformDispatcher.views.first,
-            ).size.width *
-            pos.dx,
-        top: MediaQueryData.fromView(
-              WidgetsBinding.instance.platformDispatcher.views.first,
-            ).size.height *
-            0.4 *
-            pos.dy,
-        child: const Icon(
-          Icons.location_on,
-          color: Color(0xFF4A6741),
-          size: 28,
-          shadows: [
-            Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(1, 2)),
-          ],
-        ),
-      );
-    }).toList();
-  }
-
-  Widget _buildPost(Map<String, dynamic> post) {
-    final List<String> images = List<String>.from(post['images']);
+  Widget _buildCreatePostCard(ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0EAE0),
-        borderRadius: BorderRadius.circular(20),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
-          Row(
-            children: [
-              // Avatar
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: post['color'] as Color,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    (post['name'] as String)[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      post['name'] as String,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2C1F14),
-                      ),
-                    ),
-                    Text(
-                      post['time'] as String,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9B8E7E),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.more_vert, color: Color(0xFF9B8E7E), size: 22),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Post caption
-          Text(
-            post['content'] as String,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Color(0xFF2C1F14),
-              height: 1.4,
+          TextField(
+            controller: _usernameController,
+            decoration: const InputDecoration(
+              labelText: 'Username',
+              prefixIcon: Icon(Icons.person_outline),
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // Two side-by-side images
+          TextField(
+            controller: _postController,
+            minLines: 3,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              labelText: 'What would you like to share?',
+              alignLabelWithHint: true,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_selectedImage != null) _buildSelectedImagePreview(),
+          if (_selectedImage != null) const SizedBox(height: 10),
           Row(
-            children: images.map((url) {
-              return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: url == images.first ? 6 : 0,
-                    left: url == images.last ? 6 : 0,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      url,
-                      height: 130,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        height: 130,
-                        color: const Color(0xFFCCC0B0),
-                        child: const Icon(
-                          Icons.landscape,
-                          color: Colors.white54,
-                          size: 36,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+            children: [
+              OutlinedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.photo_library_outlined),
+                label: const Text('Attach Photo'),
+              ),
+              const Spacer(),
+              FilledButton.icon(
+                onPressed: _isPosting ? null : _createPost,
+                icon: _isPosting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send_outlined),
+                label: const Text('Post'),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
-}
 
-// Draws simple map-like road lines
-class _MapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final roadPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
+  Widget _buildCommunityPost(
+    CommunityPost post,
+    ThemeData theme, {
+    required bool canDelete,
+  }) {
+    const avatarColor = Color(0xFF7A9F5A);
 
-    final minorRoadPaint = Paint()
-      ..color = Colors.white.withOpacity(0.7)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-
-    final w = size.width;
-    final h = size.height;
-
-    // Major roads
-    canvas.drawLine(Offset(0, h * 0.45), Offset(w, h * 0.48), roadPaint);
-    canvas.drawLine(Offset(w * 0.35, 0), Offset(w * 0.42, h), roadPaint);
-    canvas.drawLine(Offset(0, h * 0.65), Offset(w, h * 0.60), roadPaint);
-    canvas.drawLine(Offset(w * 0.6, 0), Offset(w * 0.55, h), roadPaint);
-
-    // Minor roads
-    canvas.drawLine(Offset(0, h * 0.25), Offset(w, h * 0.28), minorRoadPaint);
-    canvas.drawLine(Offset(0, h * 0.75), Offset(w, h * 0.78), minorRoadPaint);
-    canvas.drawLine(Offset(w * 0.15, 0), Offset(w * 0.18, h), minorRoadPaint);
-    canvas.drawLine(Offset(w * 0.75, 0), Offset(w * 0.72, h), minorRoadPaint);
-    canvas.drawLine(
-      Offset(0, h * 0.55),
-      Offset(w * 0.35, h * 0.50),
-      minorRoadPaint,
-    );
-    canvas.drawLine(
-      Offset(w * 0.42, h * 0.48),
-      Offset(w, h * 0.55),
-      minorRoadPaint,
-    );
-
-    // Diagonal connector
-    canvas.drawLine(
-      Offset(w * 0.15, h * 0.25),
-      Offset(w * 0.35, h * 0.45),
-      minorRoadPaint,
-    );
-    canvas.drawLine(
-      Offset(w * 0.42, h * 0.50),
-      Offset(w * 0.60, h * 0.62),
-      minorRoadPaint,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: avatarColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    post.username.isNotEmpty
+                        ? post.username[0].toUpperCase()
+                        : 'N',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.username,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF374834),
+                      ),
+                    ),
+                    Text(
+                      _formatDateTime(post.createdAt),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              if (canDelete)
+                IconButton(
+                  tooltip: 'Delete post',
+                  onPressed: () => _confirmDeletePost(post),
+                  icon: const Icon(Icons.delete_outline),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            post.content,
+            style: const TextStyle(height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          if (post.imageUrl != null && post.imageUrl!.isNotEmpty) _buildPostImage(post.imageUrl!),
+        ],
+      ),
     );
   }
 
-  @override
-  bool shouldRepaint(_MapPainter old) => false;
+  Widget _buildSelectedImagePreview() {
+    if (_selectedImage == null) {
+      return const SizedBox.shrink();
+    }
+
+    return FutureBuilder<Uint8List>(
+      future: _selectedImage!.readAsBytes(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox(
+            height: 170,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.memory(
+            snapshot.data!,
+            height: 170,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildFallbackImage(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPostImage(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.network(
+        imageUrl,
+        height: 180,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildFallbackImage(),
+      ),
+    );
+  }
+
+  Widget _buildFallbackImage() {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFDDE3C2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(
+        child: Icon(Icons.landscape_outlined,
+            color: Color(0xFF556B2F), size: 40),
+      ),
+    );
+  }
 }
