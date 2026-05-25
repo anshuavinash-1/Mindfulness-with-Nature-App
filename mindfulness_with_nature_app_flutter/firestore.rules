@@ -14,8 +14,11 @@ service cloud.firestore {
     }
 
     function isValidPostCreate() {
-      return request.resource.data.keys().hasOnly(['userId', 'username', 'content', 'imageUrl', 'createdAt'])
+      return request.resource.data.keys().hasOnly(['userId', 'postName', 'username', 'content', 'imageUrl', 'createdAt'])
         && request.resource.data.userId == request.auth.uid
+        && request.resource.data.postName is string
+        && request.resource.data.postName.size() > 0
+        && request.resource.data.postName.size() <= 120
         && request.resource.data.username is string
         && request.resource.data.username.size() > 0
         && request.resource.data.username.size() <= 40

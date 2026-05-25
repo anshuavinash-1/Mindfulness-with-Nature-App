@@ -33,18 +33,29 @@ class CommunityBoardService {
     }
 
     final trimmedUsername = username.trim().isEmpty ? 'Nature Lover' : username.trim();
+    final postName = _buildPostName(trimmedUsername);
     String? imageUrl;
     if (image != null) {
       imageUrl = await _uploadImage(userId: userId, image: image);
     }
 
-    await _postsCollection.add({
+    await _postsCollection.doc(postName).set({
       'userId': userId,
+      'postName': postName,
       'username': trimmedUsername,
       'content': trimmedContent,
       'imageUrl': imageUrl,
       'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  static String _buildPostName(String username) {
+    final safeUsername = username
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
+    final normalized = safeUsername.isEmpty ? 'nature_lover' : safeUsername;
+    return '${normalized}_${DateTime.now().millisecondsSinceEpoch}';
   }
 
   static Future<String> _uploadImage({

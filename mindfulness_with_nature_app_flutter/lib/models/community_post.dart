@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CommunityPost {
   final String id;
+  final String? postName;
   final String userId;
   final String username;
   final String content;
@@ -10,6 +11,7 @@ class CommunityPost {
 
   const CommunityPost({
     required this.id,
+    this.postName,
     required this.userId,
     required this.username,
     required this.content,
@@ -21,6 +23,7 @@ class CommunityPost {
     return {
       'userId': userId,
       'id': id,
+      'postName': postName,
       'username': username,
       'content': content,
       'imageUrl': imageUrl,
@@ -36,6 +39,7 @@ class CommunityPost {
 
     return CommunityPost(
       id: id,
+      postName: json['postName'] ?? id,
       userId: json['userId'] ?? '',
       username: json['username'] ?? json['authorName'] ?? 'Nature Lover',
       content: json['content'] ?? 'Shared a peaceful moment.',
