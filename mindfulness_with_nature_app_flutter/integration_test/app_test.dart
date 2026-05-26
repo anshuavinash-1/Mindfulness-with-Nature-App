@@ -6,65 +6,123 @@ import 'package:mindfulness_with_nature_app_flutter/main.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('end-to-end test', () {
-    testWidgets('happy path - login, check progress, and logout', (
-      WidgetTester tester,
-    ) async {
-      // Start the app
-      app.main();
+  Future<void> launchApp(WidgetTester tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+    expect(find.text('Mindfulness with Nature'), findsOneWidget);
+  }
+
+  Future<void> openSignupPage(WidgetTester tester) async {
+    await tester.tap(find.text('Sign Up'));
+    await tester.pumpAndSettle();
+    expect(find.text('Create Account'), findsOneWidget);
+  }
+
+  group('authentication integration tests', () {
+    testWidgets('login shows validation for empty fields',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign In'));
       await tester.pumpAndSettle();
 
-      // Verify we're on the login page
-      expect(find.text('Welcome to\nMindfulness with Nature'), findsOneWidget);
+      expect(find.text('Please fill in all fields'), findsOneWidget);
+    });
 
-      // Enter login credentials
+    testWidgets('login shows validation for invalid email',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'),
-        'test@example.com',
-      );
+          find.widgetWithText(TextField, 'Email'), 'invalid-email');
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Password'),
-        'password123',
+          find.widgetWithText(TextField, 'Password'), 'password123');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign In'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please enter a valid email'), findsOneWidget);
+    });
+
+    testWidgets('signup flow navigates from login to signup and back',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+
+      await openSignupPage(tester);
+
+      await tester.tap(find.text('Sign In'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mindfulness with Nature'), findsOneWidget);
+    });
+
+    testWidgets('signup shows validation for empty fields',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+      await openSignupPage(tester);
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please fill in all fields'), findsOneWidget);
+    });
+
+    testWidgets('signup shows validation for invalid email',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+      await openSignupPage(tester);
+
+      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Email'), 'invalid-email');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'password123');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Confirm Password'), 'password123');
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please enter a valid email'), findsOneWidget);
+    });
+
+    testWidgets('signup shows validation for short password',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+      await openSignupPage(tester);
+
+      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Email'), 'pat@example.com');
+      await tester.enterText(find.widgetWithText(TextField, 'Password'), '123');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Confirm Password'), '123');
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Password must be at least 6 characters'),
+        findsOneWidget,
       );
+    });
 
-      // Tap the login button and wait for the simulated API call (2 seconds)
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
-      await tester.pump(); // Start animations
-      await tester.pump(
-        const Duration(seconds: 3),
-      ); // Wait for API delay plus buffer
-      await tester.pumpAndSettle(); // Wait for all animations to complete
+    testWidgets('signup shows validation for mismatched passwords',
+        (WidgetTester tester) async {
+      await launchApp(tester);
+      await openSignupPage(tester);
 
-      // Verify we're on the dashboard by checking for the app bar title
-      expect(find.text('Mindfulness Dashboard'), findsOneWidget);
+      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Email'), 'pat@example.com');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'password123');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Confirm Password'), 'password999');
 
-      // Tap the Meditate tab
-      await tester.tap(find.text('Meditate'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
       await tester.pumpAndSettle();
 
-      // Make sure we are on the Meditation page
-      expect(find.text('Meditation Timer'), findsOneWidget);
-
-      // Tap the mood tab
-      await tester.tap(find.text('Mood'));
-      await tester.pumpAndSettle();
-
-      // Verify we're on the Mood page
-      expect(find.text("Mood & Stress Tracking"), findsOneWidget);
-
-      // Tap the Progress tab in bottom navigation
-      await tester.tap(find.text('Progress'));
-      await tester.pumpAndSettle();
-
-      // Verify we're on the Progress page
-      expect(find.text('Your Mindfulness Journey'), findsOneWidget);
-
-      // Find and tap the logout button in the app bar
-      await tester.tap(find.byTooltip('Logout'));
-      await tester.pumpAndSettle();
-
-      // Verify we're back on the login page
-      expect(find.text('Welcome to\nMindfulness with Nature'), findsOneWidget);
+      expect(find.text('Passwords do not match'), findsOneWidget);
     });
   });
 }

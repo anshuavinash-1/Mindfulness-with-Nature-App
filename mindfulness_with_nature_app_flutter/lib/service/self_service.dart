@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../utils/feedback_utils.dart';
 
@@ -8,7 +7,6 @@ class SessionService {
   factory SessionService() => _instance;
   SessionService._internal();
 
-  final Random _random = Random();
   Timer? _sessionTimer;
   int _remainingSeconds = 0;
   String? _currentActivity;
@@ -48,9 +46,8 @@ class SessionService {
   /// Complete the session and show feedback
   void _completeSession(BuildContext context) {
     // Determine feedback type based on activity
-    final feedbackType = FeedbackUtils.getFeedbackTypeForActivity(
-      _currentActivity,
-    );
+    final feedbackType =
+        FeedbackUtils.getFeedbackTypeForActivity(_currentActivity);
 
     // Show the micro-interaction
     // FeedbackUtils.showPositiveFeedback(
@@ -61,6 +58,10 @@ class SessionService {
 
     // Show completion dialog after a delay
     Future.delayed(const Duration(milliseconds: 1500), () {
+      if (!context.mounted) {
+        return;
+      }
+
       FeedbackUtils.showFeedbackDialog(
         context,
         type: feedbackType,
@@ -85,7 +86,7 @@ class SessionService {
       'duration': _sessionDuration,
       'timestamp': DateTime.now().toIso8601String(),
     };
-    print('Session saved: $sessionData');
+    debugPrint('Session saved: $sessionData');
     // Implement your actual save logic here
   }
 

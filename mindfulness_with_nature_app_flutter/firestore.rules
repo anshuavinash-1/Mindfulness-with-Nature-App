@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isModerator() {
+      return isSignedIn() && (
+        request.auth.token.moderator == true
+        || request.auth.token.admin == true
+        || request.auth.token.owner == true
+      );
+    }
+
+    function hasValidAuthorRole() {
+      return !('authorRole' in request.resource.data)
+        || request.resource.data.authorRole == null
+        || (
+          request.resource.data.authorRole is string
+          && request.resource.data.authorRole in ['MODERATOR', 'ADMIN', 'OWNER']
+          && (
+            (request.resource.data.authorRole == 'MODERATOR' && request.auth.token.moderator == true)
+            || (request.resource.data.authorRole == 'ADMIN' && request.auth.token.admin == true)
+            || (request.resource.data.authorRole == 'OWNER' && request.auth.token.owner == true)
+          )
+        );
+    }
+
+    function isPostOwner() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function isValidPostCreate() {
+      return request.resource.data.keys().hasOnly(['userId', 'postName', 'authorRole', 'username', 'content', 'imageUrl', 'createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.postName is string
+        && request.resource.data.postName.size() > 0
+        && request.resource.data.postName.size() <= 120
+        && hasValidAuthorRole()
+        && request.resource.data.username is string
+        && request.resource.data.username.size() > 0
+        && request.resource.data.username.size() <= 40
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 2000
+        && (
+          !('imageUrl' in request.resource.data)
+          || request.resource.data.imageUrl == null
+          || (request.resource.data.imageUrl is string && request.resource.data.imageUrl.size() <= 2000)
+        )
+        && request.resource.data.createdAt is timestamp;
+    }
+
+    function isUserDocOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidUserWrite(uid) {
+      return request.resource.data.keys().hasOnly([
+          'uid',
+          'email',
+          'displayName',
+          'createdAt',
+          'lastLogin',
+          'preferences'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.lastLogin is timestamp
+        && (
+          !('displayName' in request.resource.data)
+          || request.resource.data.displayName == null
+          || (request.resource.data.displayName is string && request.resource.data.displayName.size() <= 80)
+        )
+        && request.resource.data.preferences is map
+        && request.resource.data.preferences.keys().hasOnly([
+          'theme',
+          'notificationsEnabled',
+          'fontScale'
+        ]);
+    }
+
+    match /users/{uid} {
+      allow read: if isUserDocOwner(uid) || isModerator();
+      allow create, update: if isUserDocOwner(uid) && isValidUserWrite(uid);
+      allow delete: if isUserDocOwner(uid);
+    }
+
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidPostCreate();
+      allow update: if false;
+      allow delete: if isPostOwner() || isModerator();
+    }
+  }
+}
