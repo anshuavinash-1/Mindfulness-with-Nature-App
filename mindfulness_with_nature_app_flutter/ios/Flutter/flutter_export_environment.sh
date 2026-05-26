@@ -1,9 +1,9 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/anshuavinash/development/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/anshuavinash/Documents/Mindfulness-with-Nature-App/mindfulness_with_nature_app_flutter"
+export "FLUTTER_ROOT=C:\Users\ryank\flutter"
+export "FLUTTER_APPLICATION_PATH=C:\Users\ryank\Desktop\Mindfulness with nature app project\Mindfulness-with-Nature-App\mindfulness_with_nature_app_flutter"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
-export "FLUTTER_TARGET=lib/main.dart"
+export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.0.0"
 export "FLUTTER_BUILD_NUMBER=1"

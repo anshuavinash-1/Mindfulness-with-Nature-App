@@ -25,6 +25,7 @@ class CommunityBoardService {
     required String userId,
     required String username,
     required String content,
+    String? authorRole,
     XFile? image,
   }) async {
     final trimmedContent = content.trim();
@@ -42,6 +43,7 @@ class CommunityBoardService {
     await _postsCollection.doc(postName).set({
       'userId': userId,
       'postName': postName,
+      'authorRole': authorRole,
       'username': trimmedUsername,
       'content': trimmedContent,
       'imageUrl': imageUrl,

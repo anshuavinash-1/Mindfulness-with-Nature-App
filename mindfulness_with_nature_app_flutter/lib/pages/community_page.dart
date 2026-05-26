@@ -23,12 +23,15 @@ class _CommunityPageState extends State<CommunityPage> {
   final ImagePicker _imagePicker = ImagePicker();
 
   bool _isPosting = false;
+  bool _canModeratePosts = false;
+  String? _currentUserRole;
   XFile? _selectedImage;
 
   @override
   void initState() {
     super.initState();
     _prefillUsername();
+    _loadCurrentUserRole();
   }
 
   @override
@@ -109,6 +112,7 @@ class _CommunityPageState extends State<CommunityPage> {
       userId: userId,
       username: username,
       content: content,
+      authorRole: _currentUserRole,
       image: _selectedImage,
     );
 
@@ -120,6 +124,29 @@ class _CommunityPageState extends State<CommunityPage> {
     setState(() {
       _selectedImage = null;
       _isPosting = false;
+    });
+  }
+
+  Future<void> _loadCurrentUserRole() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final claims = await authService.getCurrentUserClaims(forceRefresh: true);
+
+    String? role;
+    if (claims['owner'] == true) {
+      role = 'OWNER';
+    } else if (claims['admin'] == true) {
+      role = 'ADMIN';
+    } else if (claims['moderator'] == true) {
+      role = 'MODERATOR';
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _currentUserRole = role;
+      _canModeratePosts = role != null;
     });
   }
 
@@ -231,7 +258,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                   post,
                                   theme,
                                   canDelete: currentUserId != null &&
-                                      post.userId == currentUserId,
+                                      (post.userId == currentUserId || _canModeratePosts),
                                 ),
                               )),
                         const SizedBox(height: 24),
@@ -367,6 +394,25 @@ class _CommunityPageState extends State<CommunityPage> {
                         color: Color(0xFF374834),
                       ),
                     ),
+                    if (post.authorRole != null && post.authorRole!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2D4A34),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            post.authorRole!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
                     Text(
                       _formatDateTime(post.createdAt),
                       style: const TextStyle(color: Colors.grey, fontSize: 12),

@@ -5,7 +5,7 @@ import '../services/auth_service.dart';
 import '../models/user_model.dart';
 import 'login_page.dart';
 import 'notification_settings_page.dart';
-import 'mood_tracking_page.dart';
+import 'mood_page.dart';
 import 'community_page.dart';
 
 // REQ-008: Dashboard Page
@@ -91,8 +91,7 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           HomeTab(user: widget.user),
           MeditationTab(onSessionComplete: _addMeditationSession),
-          // Assuming these pages are styled with the theme too
-          const MoodTrackingPage(),
+          const MoodSettingsPage(),
           ProgressTab(totalMinutes: _meditationMinutes, user: widget.user),
           const CommunityPage(),
         ],

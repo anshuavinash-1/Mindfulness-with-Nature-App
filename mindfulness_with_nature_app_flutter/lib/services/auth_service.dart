@@ -46,7 +46,7 @@ class AuthService with ChangeNotifier {
       return null;
     }
     final user = await _getUserFromFirebaseUser(firebaseUser);
-    _userEmail = user?.email;
+    _userEmail = user.email;
     _currentUser = user;
     return user;
   }
@@ -64,7 +64,7 @@ class AuthService with ChangeNotifier {
       await _updateLastLogin(userCredential.user!.uid);
 
       final user = await _getUserFromFirebaseUser(userCredential.user!);
-      _userEmail = user?.email;
+      _userEmail = user.email;
       _currentUser = user;
 
       _isLoading = false;
@@ -99,7 +99,7 @@ class AuthService with ChangeNotifier {
       await _createUserDocument(userCredential.user!, displayName);
 
       final user = await _getUserFromFirebaseUser(userCredential.user!);
-      _userEmail = user?.email;
+      _userEmail = user.email;
       _currentUser = user;
 
       _isLoading = false;
@@ -149,6 +149,12 @@ class AuthService with ChangeNotifier {
   // Keep your existing logout method
   void logout() {
     signOut();
+  }
+
+  Future<Map<String, dynamic>> getCurrentUserClaims({bool forceRefresh = false}) async {
+    _ensureFirebaseAvailable();
+    final tokenResult = await _firebaseAuth!.currentUser?.getIdTokenResult(forceRefresh);
+    return tokenResult?.claims ?? const <String, dynamic>{};
   }
 
   Future<void> resetPassword(String email) async {

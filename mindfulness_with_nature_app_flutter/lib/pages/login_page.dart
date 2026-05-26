@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _isObscured = true;
   bool _isLoading = false;
-  bool _isGuestLoading = false;
 
   @override
   void dispose() {
@@ -73,24 +72,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() => _isLoading = false);
       }
     }
-
-    if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _isLoading = false);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => BottomNavPage(userName: email.split('@')[0]),
-        ),
-      );
-    });
   }
 
   @override

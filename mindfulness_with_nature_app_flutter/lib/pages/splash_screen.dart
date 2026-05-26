@@ -22,7 +22,7 @@ class SplashScreen extends StatelessWidget {
             Image.asset('assets/images/splash_bg.jpg', fit: BoxFit.cover),
 
             // Optional Dark Overlay (better text visibility)
-            Container(color: Colors.black.withOpacity(0.3)),
+            Container(color: Colors.black.withValues(alpha: 0.3)),
 
             // Text Content
             Center(
