@@ -33,7 +33,8 @@ class CommunityBoardService {
       return;
     }
 
-    final trimmedUsername = username.trim().isEmpty ? 'Nature Lover' : username.trim();
+    final trimmedUsername =
+        username.trim().isEmpty ? 'Nature Lover' : username.trim();
     final postName = _buildPostName(trimmedUsername);
     String? imageUrl;
     if (image != null) {
@@ -65,7 +66,8 @@ class CommunityBoardService {
     required XFile image,
   }) async {
     final String safeUserId = userId.isEmpty ? 'anonymous' : userId;
-    final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+    final String fileName =
+        '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
     final ref = _storage.ref('community_posts/$safeUserId/$fileName');
 
     final bytes = await image.readAsBytes();

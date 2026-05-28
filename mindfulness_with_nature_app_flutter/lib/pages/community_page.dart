@@ -1,5 +1,6 @@
-import 'dart:typed_data';
-
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,7 +12,9 @@ import '../services/auth_service.dart';
 import '../services/community_board_service.dart';
 
 class CommunityPage extends StatefulWidget {
-  const CommunityPage({super.key});
+  final Stream<List<CommunityPost>>? postsStream;
+
+  const CommunityPage({super.key, this.postsStream});
 
   @override
   State<CommunityPage> createState() => _CommunityPageState();
@@ -26,6 +29,20 @@ class _CommunityPageState extends State<CommunityPage> {
   bool _canModeratePosts = false;
   String? _currentUserRole;
   XFile? _selectedImage;
+
+  String? _resolvedUserId() {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final userId = authService.currentUser?.uid;
+    if (userId != null && userId.isNotEmpty) {
+      return userId;
+    }
+
+    try {
+      return fb_auth.FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   void initState() {
@@ -44,10 +61,21 @@ class _CommunityPageState extends State<CommunityPage> {
   void _prefillUsername() {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
+    fb_auth.User? firebaseUser;
+    try {
+      firebaseUser = fb_auth.FirebaseAuth.instance.currentUser;
+    } catch (_) {
+      firebaseUser = null;
+    }
+    final fallbackEmail = firebaseUser?.email;
+    final fallbackName = firebaseUser?.displayName;
 
     final derivedName = user?.displayName?.trim().isNotEmpty == true
         ? user!.displayName!.trim()
-        : (user?.email.split('@').first ?? 'Nature Lover');
+        : ((fallbackName?.trim().isNotEmpty == true)
+            ? fallbackName!.trim()
+            : ((user?.email ?? fallbackEmail)?.split('@').first ??
+                'Nature Lover'));
 
     _usernameController.text = derivedName;
   }
@@ -68,8 +96,7 @@ class _CommunityPageState extends State<CommunityPage> {
   }
 
   Future<void> _createPost() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final userId = authService.currentUser?.uid;
+    final userId = _resolvedUserId();
     final username = _usernameController.text.trim();
     final content = _postController.text.trim();
 
@@ -179,7 +206,8 @@ class _CommunityPageState extends State<CommunityPage> {
       return;
     }
 
-    await CommunityBoardService.deletePost(postId: post.id, imageUrl: post.imageUrl);
+    await CommunityBoardService.deletePost(
+        postId: post.id, imageUrl: post.imageUrl);
 
     if (!mounted) {
       return;
@@ -197,8 +225,7 @@ class _CommunityPageState extends State<CommunityPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final currentUserId = authService.currentUser?.uid;
+    final currentUserId = _resolvedUserId();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -209,7 +236,8 @@ class _CommunityPageState extends State<CommunityPage> {
               child: RefreshIndicator(
                 onRefresh: _refreshFeed,
                 child: StreamBuilder<List<CommunityPost>>(
-                  stream: CommunityBoardService.watchPosts(),
+                  stream:
+                      widget.postsStream ?? CommunityBoardService.watchPosts(),
                   builder: (context, snapshot) {
                     final posts = snapshot.data ?? const <CommunityPost>[];
 
@@ -223,7 +251,11 @@ class _CommunityPageState extends State<CommunityPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildCreatePostCard(theme),
+                        _buildCreatePostCard(
+                          theme,
+                          canPost: currentUserId != null &&
+                              currentUserId.trim().isNotEmpty,
+                        ),
                         const SizedBox(height: 26),
                         Text(
                           'Community Posts',
@@ -258,7 +290,8 @@ class _CommunityPageState extends State<CommunityPage> {
                                   post,
                                   theme,
                                   canDelete: currentUserId != null &&
-                                      (post.userId == currentUserId || _canModeratePosts),
+                                      (post.userId == currentUserId ||
+                                          _canModeratePosts),
                                 ),
                               )),
                         const SizedBox(height: 24),
@@ -274,7 +307,7 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  Widget _buildCreatePostCard(ThemeData theme) {
+  Widget _buildCreatePostCard(ThemeData theme, {required bool canPost}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -291,8 +324,20 @@ class _CommunityPageState extends State<CommunityPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (!canPost)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                'Guests can browse community posts but must sign in to create a post.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                ),
+              ),
+            ),
           TextField(
+            key: const Key('community-username-field'),
             controller: _usernameController,
+            enabled: canPost,
             decoration: const InputDecoration(
               labelText: 'Username',
               prefixIcon: Icon(Icons.person_outline),
@@ -300,7 +345,9 @@ class _CommunityPageState extends State<CommunityPage> {
           ),
           const SizedBox(height: 12),
           TextField(
+            key: const Key('community-post-field'),
             controller: _postController,
+            enabled: canPost,
             minLines: 3,
             maxLines: 5,
             decoration: const InputDecoration(
@@ -315,13 +362,15 @@ class _CommunityPageState extends State<CommunityPage> {
           Row(
             children: [
               OutlinedButton.icon(
-                onPressed: _pickImage,
+                key: const Key('community-attach-button'),
+                onPressed: canPost ? _pickImage : null,
                 icon: const Icon(Icons.photo_library_outlined),
                 label: const Text('Attach Photo'),
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: _isPosting ? null : _createPost,
+                key: const Key('community-post-button'),
+                onPressed: !canPost || _isPosting ? null : _createPost,
                 icon: _isPosting
                     ? const SizedBox(
                         width: 16,
@@ -398,7 +447,8 @@ class _CommunityPageState extends State<CommunityPage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFF2D4A34),
                             borderRadius: BorderRadius.circular(999),
@@ -434,7 +484,8 @@ class _CommunityPageState extends State<CommunityPage> {
             style: const TextStyle(height: 1.4),
           ),
           const SizedBox(height: 10),
-          if (post.imageUrl != null && post.imageUrl!.isNotEmpty) _buildPostImage(post.imageUrl!),
+          if (post.imageUrl != null && post.imageUrl!.isNotEmpty)
+            _buildPostImage(post.imageUrl!),
         ],
       ),
     );
@@ -470,16 +521,162 @@ class _CommunityPageState extends State<CommunityPage> {
   }
 
   Widget _buildPostImage(String imageUrl) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.network(
-        imageUrl,
-        height: 180,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildFallbackImage(),
-      ),
+    return FutureBuilder<String?>(
+      future: _resolveDisplayImageUrl(imageUrl),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 180,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final resolvedUrl = snapshot.data;
+        if (resolvedUrl == null || resolvedUrl.isEmpty) {
+          return _buildFallbackImage();
+        }
+
+        return InkWell(
+          key: const Key('community-image-preview'),
+          onTap: () => _openImageViewer(resolvedUrl),
+          borderRadius: BorderRadius.circular(12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 220,
+              width: double.infinity,
+              color: Colors.black.withValues(alpha: 0.05),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image.network(
+                      resolvedUrl,
+                      fit: BoxFit.contain,
+                      // On Flutter web, Firebase Storage media URLs may fail in the
+                      // default image codec path due to browser CORS restrictions.
+                      // Using an HTML img element keeps rendering reliable.
+                      webHtmlElementStrategy: kIsWeb
+                          ? WebHtmlElementStrategy.prefer
+                          : WebHtmlElementStrategy.never,
+                      errorBuilder: (_, __, ___) => _buildFallbackImage(),
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        'Tap to expand',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  Future<void> _openImageViewer(String imageUrl) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(12),
+          backgroundColor: Colors.black,
+          child: Column(
+            children: [
+              Container(
+                height: 52,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.75),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      key: const Key('community-viewer-close-icon'),
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      key: const Key('community-viewer-close-button'),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: InteractiveViewer(
+                  minScale: 0.8,
+                  maxScale: 5,
+                  child: Center(
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      webHtmlElementStrategy: kIsWeb
+                          ? WebHtmlElementStrategy.prefer
+                          : WebHtmlElementStrategy.never,
+                      errorBuilder: (_, __, ___) => _buildFallbackImage(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<String?> _resolveDisplayImageUrl(String source) async {
+    final trimmed = source.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+
+    try {
+      if (trimmed.startsWith('gs://')) {
+        return FirebaseStorage.instance.refFromURL(trimmed).getDownloadURL();
+      }
+
+      return FirebaseStorage.instance.ref(trimmed).getDownloadURL();
+    } catch (_) {
+      return null;
+    }
   }
 
   Widget _buildFallbackImage() {
@@ -491,8 +688,8 @@ class _CommunityPageState extends State<CommunityPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: const Center(
-        child: Icon(Icons.landscape_outlined,
-            color: Color(0xFF556B2F), size: 40),
+        child:
+            Icon(Icons.landscape_outlined, color: Color(0xFF556B2F), size: 40),
       ),
     );
   }

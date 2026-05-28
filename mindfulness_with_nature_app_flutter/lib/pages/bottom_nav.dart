@@ -1,6 +1,5 @@
 // bottom_nav.dart
 import 'package:flutter/material.dart';
-// Page imports removed; BottomNavBar doesn't need direct page imports.
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -42,7 +41,7 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart_outlined),
           activeIcon: Icon(Icons.bar_chart),
-          label: "Transformation",
+          label: "Progress",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.people_alt_outlined),

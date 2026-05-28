@@ -71,7 +71,8 @@ void main() {
       await launchApp(tester);
       await openSignupPage(tester);
 
-      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Full Name'), 'Pat');
       await tester.enterText(
           find.widgetWithText(TextField, 'Email'), 'invalid-email');
       await tester.enterText(
@@ -90,7 +91,8 @@ void main() {
       await launchApp(tester);
       await openSignupPage(tester);
 
-      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Full Name'), 'Pat');
       await tester.enterText(
           find.widgetWithText(TextField, 'Email'), 'pat@example.com');
       await tester.enterText(find.widgetWithText(TextField, 'Password'), '123');
@@ -111,7 +113,8 @@ void main() {
       await launchApp(tester);
       await openSignupPage(tester);
 
-      await tester.enterText(find.widgetWithText(TextField, 'Full Name'), 'Pat');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Full Name'), 'Pat');
       await tester.enterText(
           find.widgetWithText(TextField, 'Email'), 'pat@example.com');
       await tester.enterText(

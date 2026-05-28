@@ -151,9 +151,11 @@ class AuthService with ChangeNotifier {
     signOut();
   }
 
-  Future<Map<String, dynamic>> getCurrentUserClaims({bool forceRefresh = false}) async {
+  Future<Map<String, dynamic>> getCurrentUserClaims(
+      {bool forceRefresh = false}) async {
     _ensureFirebaseAvailable();
-    final tokenResult = await _firebaseAuth!.currentUser?.getIdTokenResult(forceRefresh);
+    final tokenResult =
+        await _firebaseAuth!.currentUser?.getIdTokenResult(forceRefresh);
     return tokenResult?.claims ?? const <String, dynamic>{};
   }
 

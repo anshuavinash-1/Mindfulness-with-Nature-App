@@ -14,7 +14,8 @@ service firebase.storage {
     }
 
     match /community_posts/{userId}/{fileName} {
-      allow read: if isSignedIn();
+      // Community images are public so guests can browse posts.
+      allow read: if true;
 
       allow write: if isSignedIn()
         && (

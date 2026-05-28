@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -65,26 +67,48 @@ class NotificationService extends ChangeNotifier {
   ReminderSound _reminderSound =
       ReminderSound.silent; // default silent until sound files added
   String _reminderMessage = _defaultMessage;
+  bool _isNotificationSupported = true;
+  String? _supportMessage;
 
   bool get isReminderEnabled => _isReminderEnabled;
   TimeOfDay? get reminderTime => _reminderTime;
   ReminderSound get reminderSound => _reminderSound;
   String get reminderMessage => _reminderMessage;
+  bool get isNotificationSupported => _isNotificationSupported;
+  String? get supportMessage => _supportMessage;
 
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   // ── Init — NO timezone init here, main.dart handles it ───────────────────────
   Future<void> init() async {
+    if (kIsWeb) {
+      _isNotificationSupported = false;
+      _supportMessage = 'Daily local reminders are not supported on web yet.';
+      await _loadPrefs();
+      return;
+    }
+
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iOS = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: iOS),
-    );
+    try {
+      await _plugin.initialize(
+        const InitializationSettings(android: android, iOS: iOS),
+      );
+      _isNotificationSupported = true;
+      _supportMessage = null;
+    } on MissingPluginException {
+      _isNotificationSupported = false;
+      _supportMessage =
+          'Notifications are not available on this platform build.';
+    } on PlatformException catch (e) {
+      _isNotificationSupported = false;
+      _supportMessage = 'Notifications unavailable (${e.code}).';
+    }
 
     await _loadPrefs();
   }
@@ -124,6 +148,13 @@ class NotificationService extends ChangeNotifier {
 
   // ── Public API ────────────────────────────────────────────────────────────────
   Future<void> setReminderEnabled(bool value) async {
+    if (value && !_isNotificationSupported) {
+      _isReminderEnabled = false;
+      await _savePrefs();
+      notifyListeners();
+      return;
+    }
+
     _isReminderEnabled = value;
     await _savePrefs();
     if (value && _reminderTime != null) {
@@ -158,6 +189,10 @@ class NotificationService extends ChangeNotifier {
 
   // ── Scheduling ────────────────────────────────────────────────────────────────
   Future<void> _scheduleDaily() async {
+    if (!_isNotificationSupported) {
+      return;
+    }
+
     await _cancelAll();
     if (_reminderTime == null) return;
 
@@ -202,37 +237,71 @@ class NotificationService extends ChangeNotifier {
       presentSound: _reminderSound != ReminderSound.silent,
     );
 
-    await _plugin.zonedSchedule(
-      _notificationId,
-      'Mindfulness with Nature',
-      _reminderMessage,
-      scheduled,
-      NotificationDetails(android: androidDetails, iOS: iosDetails),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    try {
+      await _plugin.zonedSchedule(
+        _notificationId,
+        'Mindfulness with Nature',
+        _reminderMessage,
+        scheduled,
+        NotificationDetails(android: androidDetails, iOS: iosDetails),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } on PlatformException catch (e) {
+      debugPrint(
+        '⚠️ Exact alarm scheduling failed (${e.code}). Falling back to inexact schedule.',
+      );
+      await _plugin.zonedSchedule(
+        _notificationId,
+        'Mindfulness with Nature',
+        _reminderMessage,
+        scheduled,
+        NotificationDetails(android: androidDetails, iOS: iosDetails),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    }
 
-    // Debug: confirm it was registered
-    final pending = await _plugin.pendingNotificationRequests();
-    debugPrint('✅ Pending notifications: ${pending.length}');
-    for (final p in pending) {
-      debugPrint('   → id:${p.id} | title:${p.title} | body:${p.body}');
+    try {
+      // Debug: confirm it was registered
+      final pending = await _plugin.pendingNotificationRequests();
+      debugPrint('✅ Pending notifications: ${pending.length}');
+      for (final p in pending) {
+        debugPrint('   → id:${p.id} | title:${p.title} | body:${p.body}');
+      }
+    } on MissingPluginException {
+      debugPrint(
+          '⚠️ pendingNotificationRequests unavailable on this platform.');
     }
   }
 
   Future<void> _cancelAll() async {
-    await _plugin.cancel(_notificationId);
-    debugPrint('🔕 Notification cancelled');
+    if (!_isNotificationSupported) {
+      return;
+    }
+
+    try {
+      await _plugin.cancel(_notificationId);
+      debugPrint('🔕 Notification cancelled');
+    } on MissingPluginException {
+      debugPrint('⚠️ cancel unavailable on this platform.');
+    }
   }
 
   Future<bool> requestPermissions() async {
+    if (!_isNotificationSupported) {
+      return false;
+    }
+
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     final iOS = _plugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
 
-    final androidGranted =
+    final androidNotificationGranted =
         await android?.requestNotificationsPermission() ?? true;
+    final androidExactAlarmGranted =
+        await android?.requestExactAlarmsPermission() ?? true;
     final iosGranted = await iOS?.requestPermissions(
           alert: true,
           badge: true,
@@ -240,6 +309,6 @@ class NotificationService extends ChangeNotifier {
         ) ??
         true;
 
-    return androidGranted && iosGranted;
+    return androidNotificationGranted && androidExactAlarmGranted && iosGranted;
   }
 }
