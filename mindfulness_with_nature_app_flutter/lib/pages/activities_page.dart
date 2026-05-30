@@ -1,5 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../services/activities_audio_service.dart';
 
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({super.key});
@@ -10,44 +13,22 @@ class ActivitiesPage extends StatefulWidget {
 
 class _ActivitiesPageState extends State<ActivitiesPage>
     with TickerProviderStateMixin {
-  // Activities list - shown as pills
-  final List<Map<String, dynamic>> activities = [
-    {
-      "name": "Being Present",
-      "icon": Icons.self_improvement,
-      "color": Color(0xFF6B9080),
-    },
-    {"name": "Feeling Lighter", "icon": Icons.air, "color": Color(0xFFA4C3B2)},
-    {
-      "name": "Connecting with Nature",
-      "icon": Icons.nature_people,
-      "color": Color(0xFF88AB8E),
-    },
-    {"name": "Grattitude", "icon": Icons.favorite, "color": Color(0xFFEAB8A3)},
-    {
-      "name": "Gentle Movements",
-      "icon": Icons.accessibility_new,
-      "color": Color(0xFFB8A99A),
-    },
-    {
-      "name": "Feeling Grounded",
-      "icon": Icons.landscape,
-      "color": Color(0xFF8D9B6A),
-    },
-    {"name": "Joyfulness", "icon": Icons.wb_sunny, "color": Color(0xFFFFD89C)},
-    {
-      "name": "Playfulness",
-      "icon": Icons.celebration,
-      "color": Color(0xFFB5C99A),
-    },
-    {
-      "name": "Practice Indoors",
-      "icon": Icons.home,
-      "color": Color(0xFF9DB4AB),
-    },
-  ];
+  late final ActivitiesAudioService _audioService;
 
-  String? selectedActivity;
+  static const Map<String, String> _hardCodedTitleByKeyword = {
+    'rooted like a tree': 'Rooted Like a Tree',
+    'sensory scan': 'Sensory Scan',
+    'symbiotic breathing': 'Symbiotic Breathing',
+    'hang your worries on a': 'Hang Your Worries on a Tree',
+    'nature art gallery': 'Nature Art Gallery',
+    'alien on earth': 'Alien on Earth',
+    'grateful nature art': 'Grateful Nature Art',
+    'walking meditation': 'Walking Meditation',
+    'slow down your body to slow down your mind':
+        'Slow Down Your Body to Slow Down Your Mind',
+    'skow down your body to slow down you mind':
+        'Slow Down Your Body to Slow Down Your Mind',
+  };
 
   // Slider state - 5 to 60 minutes
   double duration = 5;
@@ -64,6 +45,9 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   @override
   void initState() {
     super.initState();
+    _audioService = ActivitiesAudioService();
+    unawaited(_audioService.initialize());
+
     remainingSeconds = (duration * 60).toInt();
 
     _breatheController = AnimationController(
@@ -86,12 +70,31 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   @override
   void dispose() {
     timer?.cancel();
+    _audioService.dispose();
     _breatheController.dispose();
     _pulseController.dispose();
     super.dispose();
   }
 
   void startSession() {
+    unawaited(_startSessionAsync());
+  }
+
+  Future<void> _startSessionAsync() async {
+    final started = await _audioService.startSessionPlaylist();
+    if (!mounted) {
+      return;
+    }
+
+    if (!started) {
+      final message = _audioService.audioError ??
+          'Select tags to compile a playlist first.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      return;
+    }
+
     setState(() {
       isSessionActive = true;
       showCompletionFeedback = false;
@@ -118,12 +121,14 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   void stopSession() {
     timer?.cancel();
     _breatheController.stop();
+    unawaited(_audioService.stopAudio());
     setState(() {
       isSessionActive = false;
     });
   }
 
   void _onSessionComplete() {
+    unawaited(_audioService.stopAudio());
     setState(() {
       isSessionActive = false;
       showCompletionFeedback = true;
@@ -141,6 +146,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   }
 
   Widget _buildCompletionDialog() {
+    final selectedTrack = _audioService.currentPlaylistTrack;
+    final completionTitle = selectedTrack == null
+        ? null
+        : _hardCodedTitleForTrack(selectedTrack);
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
@@ -155,7 +165,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
             const Icon(Icons.check_circle, size: 64, color: Color(0xFF8B7355)),
             const SizedBox(height: 20),
             const Text(
-              'Session Complete! 🌿',
+              'Session Complete! \uD83C\uDF3F',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -163,9 +173,9 @@ class _ActivitiesPageState extends State<ActivitiesPage>
               ),
             ),
             const SizedBox(height: 12),
-            if (selectedActivity != null)
+            if (completionTitle != null)
               Text(
-                selectedActivity!,
+                completionTitle,
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
             const SizedBox(height: 8),
@@ -228,110 +238,122 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   String formatTime(int sec) {
     final min = (sec ~/ 60).toString().padLeft(2, '0');
     final s = (sec % 60).toString().padLeft(2, '0');
-    return "$min:$s";
+    return '$min:$s';
+  }
+
+  String _hardCodedTitleForTrack(
+    AudioTrack track,
+  ) {
+    final normalizedName = track.name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    final normalizedPath = track.fullPath
+        .toLowerCase()
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    for (final entry in _hardCodedTitleByKeyword.entries) {
+      if (normalizedName.contains(entry.key) ||
+          normalizedPath.contains(entry.key)) {
+        return entry.value;
+      }
+    }
+
+    return track.name;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFD6CBC0),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Center(
-                child: Column(
-                  children: [
-                    const Text(
-                      "Activities",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1B3D2F),
-                        letterSpacing: 0.3,
-                      ),
+    return AnimatedBuilder(
+      animation: _audioService,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFD6CBC0),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Activities',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1B3D2F),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'What brings you peace today?',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xFF1B3D2F).withOpacity(0.85),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "What brings you peace today?",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: const Color(0xFF1B3D2F).withOpacity(0.85),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildActivityPills(),
+                  const SizedBox(height: 28),
+                  _buildDurationSection(),
+                  const SizedBox(height: 28),
+                  _buildSlider(),
+                  const SizedBox(height: 36),
+                  _buildAudioSection(),
+                  const SizedBox(height: 28),
+                  _buildTimerDisplay(),
+                  const SizedBox(height: 32),
+                  _buildStartButton(),
+                  const SizedBox(height: 20),
+                ],
               ),
-
-              const SizedBox(height: 32),
-
-              // Activity Pills - Wrap layout like the image
-              _buildActivityPills(),
-
-              const SizedBox(height: 36),
-
-              // Duration Section
-              _buildDurationSection(),
-
-              const SizedBox(height: 28),
-
-              // Timer / Hourglass Display
-              _buildTimerDisplay(),
-
-              const SizedBox(height: 24),
-
-              // Slider
-              _buildSlider(),
-
-              const SizedBox(height: 32),
-
-              // Start Session Button
-              _buildStartButton(),
-
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildActivityPills() {
+    final canEditTags = !isSessionActive;
+
     return Wrap(
       spacing: 10,
       runSpacing: 12,
-      children: activities.map((activity) {
-        final name = activity['name'] as String;
-        final isSelected = selectedActivity == name;
+      children: List.generate(ActivitiesAudioService.audioTags.length, (index) {
+        final tag = ActivitiesAudioService.audioTags[index];
+        final isSelected = _audioService.selectedTagIds.contains(tag.id);
+
         return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedActivity = name;
-            });
-          },
+          onTap: canEditTags ? () => _audioService.toggleTag(tag.id) : null,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF3D2B1F)
+                  ? tag.color.withOpacity(0.22)
                   : const Color(0xFFEBE3D8),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: isSelected
-                    ? const Color(0xFF3D2B1F)
-                    : const Color(0xFFCCC0B0),
+                color: isSelected ? tag.color : const Color(0xFFCCC0B0),
                 width: 1.5,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF3D2B1F).withOpacity(0.25),
+                        color: tag.color.withOpacity(0.18),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -345,16 +367,20 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     ],
             ),
             child: Text(
-              name,
+              tag.label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF3D2B1F),
+                color: isSelected
+                    ? tag.color
+                    : canEditTags
+                        ? const Color(0xFF3D2B1F)
+                        : const Color(0xFF3D2B1F).withOpacity(0.45),
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ),
         );
-      }).toList(),
+      }),
     );
   }
 
@@ -363,7 +389,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Duration",
+          'Duration',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -372,11 +398,191 @@ class _ActivitiesPageState extends State<ActivitiesPage>
         ),
         const SizedBox(height: 4),
         Text(
-          "${duration.toInt()} Minutes",
+          '${duration.toInt()} Minutes',
           style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF1B3D2F),
             fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAudioSection() {
+    final playlistCandidates = _audioService.playlistPreview;
+    final currentTrack = _audioService.currentPlaylistTrack;
+    final currentTrackTitle = currentTrack == null
+        ? null
+        : _hardCodedTitleForTrack(currentTrack);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Playlist',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1B3D2F),
+          ),
+        ),
+        const SizedBox(height: 4),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F0E8),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_audioService.audioLoading) ...[
+                const LinearProgressIndicator(
+                  minHeight: 3,
+                  color: Color(0xFF3D2B1F),
+                  backgroundColor: Color(0xFFE1D7C8),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Loading audio library...',
+                  style: TextStyle(
+                    color: const Color(0xFF3D2B1F).withOpacity(0.72),
+                  ),
+                ),
+              ] else if (_audioService.audioTracks.isEmpty) ...[
+                Text(
+                  _audioService.audioError ??
+                      'No audio tracks are available right now.',
+                  style: const TextStyle(
+                    color: Color(0xFF7A5B4A),
+                    fontSize: 14,
+                  ),
+                ),
+              ] else if (!_audioService.hasSelectedTags) ...[
+                const Text(
+                  'Select one or more tags to build your playlist.',
+                  style: TextStyle(
+                    color: Color(0xFF7A5B4A),
+                    fontSize: 14,
+                  ),
+                ),
+              ] else if (playlistCandidates.isEmpty) ...[
+                const Text(
+                  'No tracks match the current tag combination.',
+                  style: TextStyle(
+                    color: Color(0xFF7A5B4A),
+                    fontSize: 14,
+                  ),
+                ),
+              ] else ...[
+                Text(
+                  'Playlist ready: ${playlistCandidates.length} track(s)',
+                  style: const TextStyle(
+                    color: Color(0xFF3D2B1F),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (currentTrack != null) ...[
+                  Text(
+                    'Now Playing: $currentTrackTitle',
+                    style: const TextStyle(
+                      color: Color(0xFF3D2B1F),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 110,
+                  child: ListView.builder(
+                    itemCount: playlistCandidates.length,
+                    itemBuilder: (context, index) {
+                      final track = playlistCandidates[index];
+                      final isCurrent = currentTrack != null &&
+                          track.fullPath == currentTrack.fullPath;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          '${index + 1}. ${_hardCodedTitleForTrack(track)}',
+                          style: TextStyle(
+                            color: isCurrent
+                                ? const Color(0xFF3D2B1F)
+                                : const Color(0xFF6C5A4A),
+                            fontWeight:
+                                isCurrent ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: _audioService.compiledPlaylist.length > 1
+                          ? () => unawaited(_audioService.previousTrack())
+                          : null,
+                      icon: const Icon(Icons.skip_previous),
+                      color: const Color(0xFF3D2B1F),
+                      tooltip: 'Previous track',
+                    ),
+                    IconButton(
+                      onPressed: _audioService.isAudioPlaying
+                          ? () => unawaited(_audioService.pauseAudio())
+                          : () => unawaited(_audioService.resumePlaylist()),
+                      icon: Icon(
+                        _audioService.isAudioPlaying
+                            ? Icons.pause_circle
+                            : Icons.play_circle,
+                        size: 34,
+                      ),
+                      color: const Color(0xFF3D2B1F),
+                      tooltip: _audioService.isAudioPlaying ? 'Pause' : 'Play',
+                    ),
+                    IconButton(
+                      onPressed: _audioService.compiledPlaylist.length > 1
+                          ? () => unawaited(_audioService.nextTrack())
+                          : null,
+                      icon: const Icon(Icons.skip_next),
+                      color: const Color(0xFF3D2B1F),
+                      tooltip: 'Next track',
+                    ),
+                    const Spacer(),
+                    Text(
+                      _audioService.isAudioPlaying ? 'Playing' : 'Ready',
+                      style: const TextStyle(
+                        color: Color(0xFF3D2B1F),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_audioService.audioError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _audioService.audioError!,
+                    style: const TextStyle(
+                      color: Color(0xFF8B3A3A),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+              ],
+            ],
           ),
         ),
       ],
@@ -422,7 +628,6 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                       ),
                     )
                   else
-                    // Hourglass icon like the image
                     Icon(
                       Icons.hourglass_bottom,
                       size: 90,
@@ -475,13 +680,13 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                   },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                "5 MINS",
+                '5 MINS',
                 style: TextStyle(
                   color: Color(0xFF3D2B1F),
                   fontWeight: FontWeight.bold,
@@ -489,7 +694,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                 ),
               ),
               Text(
-                "60 MINS",
+                '60 MINS',
                 style: TextStyle(
                   color: Color(0xFF3D2B1F),
                   fontWeight: FontWeight.bold,
@@ -523,7 +728,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
           ),
           child: const Center(
             child: Text(
-              "End Session",
+              'End Session',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -541,7 +746,6 @@ class _ActivitiesPageState extends State<ActivitiesPage>
         onTap: () {
           setState(() {
             showCompletionFeedback = false;
-            selectedActivity = null;
             duration = 5;
             remainingSeconds = 300;
           });
@@ -555,7 +759,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
           ),
           child: const Center(
             child: Text(
-              "Start New Session",
+              'Start New Session',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -567,17 +771,19 @@ class _ActivitiesPageState extends State<ActivitiesPage>
       );
     }
 
+    final hasTrack = _audioService.hasPlaylistCandidates;
+
     return GestureDetector(
-      onTap: selectedActivity != null ? startSession : null,
+      onTap: hasTrack ? startSession : null,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
-          color: selectedActivity != null
+          color: hasTrack
               ? const Color(0xFF3D2B1F)
               : const Color(0xFF3D2B1F).withOpacity(0.45),
           borderRadius: BorderRadius.circular(40),
-          boxShadow: selectedActivity != null
+          boxShadow: hasTrack
               ? [
                   BoxShadow(
                     color: const Color(0xFF3D2B1F).withOpacity(0.35),
@@ -589,14 +795,10 @@ class _ActivitiesPageState extends State<ActivitiesPage>
         ),
         child: Center(
           child: Text(
-            selectedActivity != null
-                ? "Start Session"
-                : "Select an activity first",
+            hasTrack ? 'Start Session' : 'Select tags first',
             style: TextStyle(
-              color: Colors.white.withOpacity(
-                selectedActivity != null ? 1.0 : 0.7,
-              ),
-              fontSize: selectedActivity != null ? 20 : 16,
+              color: Colors.white.withOpacity(hasTrack ? 1.0 : 0.7),
+              fontSize: hasTrack ? 20 : 16,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
             ),
