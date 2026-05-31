@@ -147,9 +147,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
 
   Widget _buildCompletionDialog() {
     final selectedTrack = _audioService.currentPlaylistTrack;
-    final completionTitle = selectedTrack == null
-        ? null
-        : _hardCodedTitleForTrack(selectedTrack);
+    final completionTitle =
+        selectedTrack == null ? null : _hardCodedTitleForTrack(selectedTrack);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -412,9 +411,8 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   Widget _buildAudioSection() {
     final playlistCandidates = _audioService.playlistPreview;
     final currentTrack = _audioService.currentPlaylistTrack;
-    final currentTrackTitle = currentTrack == null
-        ? null
-        : _hardCodedTitleForTrack(currentTrack);
+    final currentTrackTitle =
+        currentTrack == null ? null : _hardCodedTitleForTrack(currentTrack);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

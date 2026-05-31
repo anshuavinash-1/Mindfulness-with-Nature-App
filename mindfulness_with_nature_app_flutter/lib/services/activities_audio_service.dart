@@ -76,7 +76,8 @@ class ActivitiesAudioService extends ChangeNotifier {
   List<AudioTrack> get _safeCompiledPlaylist =>
       _compiledPlaylist ??= <AudioTrack>[];
   Set<int> get _safeSelectedTagIds => _selectedTagIds ??= <int>{};
-  bool get _isSurpriseSelected => _safeSelectedTagIds.contains(_surpriseMeTagId);
+  bool get _isSurpriseSelected =>
+      _safeSelectedTagIds.contains(_surpriseMeTagId);
 
   List<AudioTrack> get audioTracks => _safeAudioTracks;
   bool get audioLoading => _audioLoading;
