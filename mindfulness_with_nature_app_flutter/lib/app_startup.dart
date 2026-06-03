@@ -29,7 +29,7 @@ class AppStartup {
       // Set audio source but DON'T play yet — just buffer it
       // Use a short, compressed ambient sound asset
       await audioPlayer.setAsset(
-        'assets/audio/ambient.mp3',
+        'assets/audio/bird.mp3',
         preload: true, // buffers into memory immediately
       );
       await audioPlayer.setLoopMode(LoopMode.all);

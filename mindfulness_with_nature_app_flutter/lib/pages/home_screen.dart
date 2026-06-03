@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../service/notification_service.dart';
+import '../services/app_experience_service.dart';
 import 'notification_settings_page.dart';
 import 'login_page.dart';
 import 'my_profile_page.dart';
@@ -16,8 +17,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final AudioPlayer _audioPlayer;
-  bool _audioReady = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool get _isGuest => widget.userName == 'Guest';
@@ -36,21 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  String _getBackgroundImage() {
-    final hour = DateTime.now().hour;
-
-    if (hour >= 5 && hour < 12) {
-      return "assets/images/sunrise.jpg";
-    } else if (hour >= 12 && hour < 17) {
-      return "assets/images/sunny.jpg";
-    } else if (hour >= 17 && hour < 20) {
-      return "assets/images/sunset.jpg";
-    } else {
-      return "assets/images/night.jpg";
-    }
-  }
-
-  Widget _buildBackgroundLayer() {
+  Widget _buildBackgroundLayer(AppExperienceService appExperience) {
     Widget buildAsset(String path) {
       return Image.asset(
         path,
@@ -74,13 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         Image.asset(
-          _getBackgroundImage(),
+          appExperience.homeBackgroundAsset,
           fit: BoxFit.cover,
           gaplessPlayback: true,
           filterQuality: FilterQuality.high,
           errorBuilder: (_, __, ___) {
             return Image.asset(
-              'assets/images/forest_bg.jpg',
+              'assets/images/splash_bg.jpg',
               fit: BoxFit.cover,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
@@ -101,29 +86,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initInBackground();
     });
   }
 
   Future<void> _initInBackground() async {
-    await Future.wait([_initAudio(), _precacheImages()]);
-  }
-
-  Future<void> _initAudio() async {
-    try {
-      await _audioPlayer.setAsset('assets/audio/ambient.mp3', preload: true);
-      await _audioPlayer.setVolume(0.4);
-      await Future.delayed(const Duration(milliseconds: 150));
-      await _audioPlayer.play();
-      if (mounted) setState(() => _audioReady = true);
-      await Future.delayed(const Duration(seconds: 5));
-      await _audioPlayer.stop();
-      if (mounted) setState(() => _audioReady = false);
-    } catch (e) {
-      debugPrint('Audio init skipped: $e');
-    }
+    await _precacheImages();
   }
 
   Future<void> _precacheImages() async {
@@ -136,7 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -231,6 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final notificationService = context.watch<NotificationService>();
+    final appExperience = context.watch<AppExperienceService>();
+    final ambientActive = appExperience.selectedSound != 'Silence';
 
     return Scaffold(
       key: _scaffoldKey,
@@ -270,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          Positioned.fill(child: _buildBackgroundLayer()),
+          Positioned.fill(child: _buildBackgroundLayer(appExperience)),
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.35)),
           ),
@@ -322,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Ambient audio indicator
                   AnimatedOpacity(
-                    opacity: _audioReady ? 1.0 : 0.0,
+                    opacity: ambientActive ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 600),
                     child: Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -338,15 +308,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () async {
-                              if (_audioPlayer.playing) {
-                                await _audioPlayer.pause();
+                              if (appExperience.selectedSound == 'Silence') {
+                                await appExperience
+                                    .setSoundSelection('Bird Songs');
                               } else {
-                                await _audioPlayer.play();
+                                await appExperience
+                                    .setSoundSelection('Silence');
                               }
-                              setState(() {});
+                              await appExperience.persistSelections();
                             },
                             child: Icon(
-                              _audioPlayer.playing
+                              ambientActive
                                   ? Icons.pause_circle_outline
                                   : Icons.play_circle_outline,
                               color: Colors.white54,
@@ -595,6 +567,40 @@ class _AppDrawer extends StatelessWidget {
               ),
 
             const Spacer(),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => launchUrl(
+                      Uri.parse('https://www.flaticon.com/free-icons/leaf'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: const Text(
+                      'flaticon.com/free-icons/leaf',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF5E8C3B),
+                        fontSize: 11,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Color(0xFF5E8C3B),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Leaf icons created by Pixel perfect - Flaticon',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF7A6A5A),
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
             Padding(
               padding: const EdgeInsets.only(bottom: 20),

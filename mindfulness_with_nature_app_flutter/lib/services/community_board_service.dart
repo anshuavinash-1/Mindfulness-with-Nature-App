@@ -9,10 +9,12 @@ class CommunityBoardService {
       FirebaseFirestore.instance.collection('community_posts');
   static final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  static Stream<List<CommunityPost>> watchPosts() {
+  static Stream<List<CommunityPost>> watchPosts({int limit = 10}) {
+    final safeLimit = limit < 1 ? 10 : limit;
+
     return _postsCollection
         .orderBy('createdAt', descending: true)
-        .limit(100)
+        .limit(safeLimit)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

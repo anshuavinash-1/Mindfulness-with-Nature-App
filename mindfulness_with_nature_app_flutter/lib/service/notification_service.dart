@@ -84,7 +84,8 @@ class NotificationService extends ChangeNotifier {
   Future<void> init() async {
     if (kIsWeb) {
       _isNotificationSupported = false;
-      _supportMessage = 'Daily local reminders are not supported on web yet.';
+      _supportMessage =
+          'Reminders are not available on the web app. Install the mobile app to set daily reminders.';
       await _loadPrefs();
       return;
     }

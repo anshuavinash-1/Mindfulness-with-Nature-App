@@ -346,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
         child: Image.asset(
-          "assets/images/forest_bg.jpg",
+          "assets/images/splash_bg.jpg",
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(

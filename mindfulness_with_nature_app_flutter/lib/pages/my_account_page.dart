@@ -64,7 +64,7 @@ class MyAccountPage extends StatelessWidget {
     return Positioned.fill(
       child: ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Image.asset("assets/images/forest_bg.jpg", fit: BoxFit.cover),
+        child: Image.asset("assets/images/splash_bg.jpg", fit: BoxFit.cover),
       ),
     );
   }

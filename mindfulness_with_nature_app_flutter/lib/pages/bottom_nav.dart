@@ -13,13 +13,15 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navTheme = Theme.of(context).bottomNavigationBarTheme;
+
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      backgroundColor: const Color(0xffF0EEDC),
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
+      backgroundColor: navTheme.backgroundColor,
+      type: navTheme.type ?? BottomNavigationBarType.fixed,
+      selectedItemColor: navTheme.selectedItemColor,
+      unselectedItemColor: navTheme.unselectedItemColor,
       iconSize: 28,
       elevation: 0,
       items: const [

@@ -25,6 +25,17 @@ class AuthService with ChangeNotifier {
     _cachedAuthStream = _firebaseAuth == null
         ? Stream.value(null)
         : _firebaseAuth!.authStateChanges().asyncMap(_mapFirebaseUser);
+
+    final initialUser = _firebaseAuth?.currentUser;
+    if (initialUser != null) {
+      _userEmail = initialUser.email;
+      _currentUser = _buildFallbackUser(initialUser);
+      _getUserFromFirebaseUser(initialUser).then((resolvedUser) {
+        _userEmail = resolvedUser.email;
+        _currentUser = resolvedUser;
+        notifyListeners();
+      });
+    }
   }
 
   String? _userEmail;

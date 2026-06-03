@@ -35,6 +35,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
   Timer? timer;
   int remainingSeconds = 300;
   bool isSessionActive = false;
+  bool isSessionPaused = false;
   bool showCompletionFeedback = false;
 
   late AnimationController _breatheController;
@@ -97,6 +98,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
 
     setState(() {
       isSessionActive = true;
+      isSessionPaused = false;
       showCompletionFeedback = false;
       remainingSeconds = (duration * 60).toInt();
     });
@@ -118,12 +120,40 @@ class _ActivitiesPageState extends State<ActivitiesPage>
     });
   }
 
+  void pauseSession() {
+    timer?.cancel();
+    _breatheController.stop();
+    setState(() {
+      isSessionPaused = true;
+    });
+  }
+
+  void resumeSession() {
+    setState(() {
+      isSessionPaused = false;
+    });
+    _breatheController.repeat(reverse: true);
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (remainingSeconds <= 0) {
+        timer?.cancel();
+        _breatheController.stop();
+        _onSessionComplete();
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+        _pulseController.forward().then((_) => _pulseController.reverse());
+      }
+    });
+  }
+
   void stopSession() {
     timer?.cancel();
     _breatheController.stop();
     unawaited(_audioService.stopAudio());
     setState(() {
       isSessionActive = false;
+      isSessionPaused = false;
     });
   }
 
@@ -271,7 +301,7 @@ class _ActivitiesPageState extends State<ActivitiesPage>
       animation: _audioService,
       builder: (context, _) {
         return Scaffold(
-          backgroundColor: const Color(0xFFD6CBC0),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -539,8 +569,18 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     ),
                     IconButton(
                       onPressed: _audioService.isAudioPlaying
-                          ? () => unawaited(_audioService.pauseAudio())
-                          : () => unawaited(_audioService.resumePlaylist()),
+                          ? () {
+                              pauseSession();
+                              unawaited(_audioService.pauseAudio());
+                            }
+                          : isSessionActive
+                              ? () {
+                                  resumeSession();
+                                  unawaited(_audioService.resumePlaylist());
+                                }
+                              : playlistCandidates.isNotEmpty
+                                  ? startSession
+                                  : null,
                       icon: Icon(
                         _audioService.isAudioPlaying
                             ? Icons.pause_circle
@@ -548,7 +588,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                         size: 34,
                       ),
                       color: const Color(0xFF3D2B1F),
-                      tooltip: _audioService.isAudioPlaying ? 'Pause' : 'Play',
+                      tooltip: _audioService.isAudioPlaying
+                          ? 'Pause'
+                          : isSessionActive
+                              ? 'Resume'
+                              : 'Start session',
                     ),
                     IconButton(
                       onPressed: _audioService.compiledPlaylist.length > 1
@@ -560,7 +604,11 @@ class _ActivitiesPageState extends State<ActivitiesPage>
                     ),
                     const Spacer(),
                     Text(
-                      _audioService.isAudioPlaying ? 'Playing' : 'Ready',
+                      _audioService.isAudioPlaying
+                          ? 'Playing'
+                          : isSessionPaused
+                              ? 'Paused'
+                              : 'Ready',
                       style: const TextStyle(
                         color: Color(0xFF3D2B1F),
                         fontWeight: FontWeight.w600,

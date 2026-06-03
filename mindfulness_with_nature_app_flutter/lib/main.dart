@@ -7,6 +7,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'firebase_options.dart';
 import 'pages/splash_screen.dart';
 import 'service/notification_service.dart';
+import 'services/app_experience_service.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -23,6 +24,9 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.init();
 
+  final appExperienceService = AppExperienceService();
+  appExperienceService.initialize();
+
   runApp(
     MultiProvider(
       providers: [
@@ -30,6 +34,9 @@ void main() async {
           value: notificationService,
         ),
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider<AppExperienceService>.value(
+          value: appExperienceService,
+        ),
       ],
       child: const MindfulnessApp(),
     ),
@@ -41,11 +48,26 @@ class MindfulnessApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = context.watch<AuthService>();
+    final appExperience = context.watch<AppExperienceService>();
+
+    final user = authService.currentUser;
+    appExperience.updateAuthState(
+      userId: user?.uid,
+      isSignedIn: user != null,
+    );
+
     return MaterialApp(
       title: 'Mindfulness with Nature',
       theme: ThemeData(
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: const Color(0xffdde3c2),
+        scaffoldBackgroundColor: appExperience.scaffoldBackgroundColor,
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: appExperience.navBackgroundColor,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+        ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF374834),
           foregroundColor: Colors.white,

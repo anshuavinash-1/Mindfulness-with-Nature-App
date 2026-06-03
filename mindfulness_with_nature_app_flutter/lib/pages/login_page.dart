@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'bottom_nav_page.dart';
@@ -245,86 +246,88 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 20),
 
-                    // Divider with OR
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            color: Colors.black26,
-                            thickness: 1,
+                    if (kIsWeb) ...[
+                      // Divider with OR
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: Colors.black26,
+                              thickness: 1,
+                            ),
                           ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            "OR",
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              "OR",
+                              style: TextStyle(
+                                color: Colors.black45,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Colors.black26,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Continue as Guest button (web only)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          onPressed: _isGuestLoading ? null : _handleGuestLogin,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color(0xFF5E8C3B),
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          icon: _isGuestLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF5E8C3B),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.person_outline,
+                                  color: Color(0xFF5E8C3B),
+                                ),
+                          label: const Text(
+                            "Continue as Guest",
                             style: TextStyle(
-                              color: Colors.black45,
+                              fontSize: 16,
+                              color: Color(0xFF2E4E2E),
                               fontWeight: FontWeight.w500,
-                              fontSize: 13,
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: Divider(
-                            color: Colors.black26,
-                            thickness: 1,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 12),
 
-                    // Continue as Guest button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: _isGuestLoading ? null : _handleGuestLogin,
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                            color: Color(0xFF5E8C3B),
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        icon: _isGuestLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Color(0xFF5E8C3B),
-                                ),
-                              )
-                            : const Icon(
-                                Icons.person_outline,
-                                color: Color(0xFF5E8C3B),
-                              ),
-                        label: const Text(
-                          "Continue as Guest",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF2E4E2E),
-                            fontWeight: FontWeight.w500,
-                          ),
+                      // Guest disclaimer
+                      const Text(
+                        "Guest mode has limited features",
+                        style: TextStyle(
+                          color: Colors.black38,
+                          fontSize: 12,
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Guest disclaimer
-                    const Text(
-                      "Guest mode has limited features",
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 12,
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),

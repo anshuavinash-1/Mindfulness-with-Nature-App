@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../services/mood_settings_service.dart';
+import '../services/app_experience_service.dart';
 
 class MoodSettingsPage extends StatefulWidget {
   const MoodSettingsPage({super.key});
@@ -23,11 +24,11 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
 
   String? selectedBackground;
 
-  final List<String> sounds = [
-    "Ocean Waves",
-    "Breeze",
-    "Bird Songs",
-    "Silence",
+  final List<_SoundOption> sounds = [
+    const _SoundOption(label: "Bird Songs"),
+    const _SoundOption(label: "Ocean Waves", unavailable: true),
+    const _SoundOption(label: "Rain", unavailable: true),
+    const _SoundOption(label: "Silence"),
   ];
   String? selectedSound;
 
@@ -37,23 +38,27 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
   @override
   void initState() {
     super.initState();
-    _loadSettings();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSettings();
+    });
   }
 
   Future<void> _loadSettings() async {
     setState(() => _isLoading = true);
 
     try {
-      final saved = await MoodSettingsService.loadSettings();
+      final appExperience =
+          Provider.of<AppExperienceService>(context, listen: false);
+
       if (!mounted) return;
 
-      final bg = saved['background'];
-      final snd = saved['sound'];
-
       setState(() {
+        final bg = appExperience.selectedBackground;
+        final snd = appExperience.selectedSound;
         selectedBackground =
             (bg != null && backgrounds.contains(bg)) ? bg : null;
-        selectedSound = (snd != null && sounds.contains(snd)) ? snd : null;
+        selectedSound =
+            sounds.any((sound) => sound.label == snd) ? snd : 'Bird Songs';
       });
     } catch (e) {
       if (!mounted) return;
@@ -69,13 +74,26 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
   }
 
   Future<void> _saveSettings() async {
+    final appExperience =
+        Provider.of<AppExperienceService>(context, listen: false);
+
+    if (!appExperience.canEditMoodPreferences) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Guest theme changes are only available on the web app.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSaving = true);
 
     try {
-      await MoodSettingsService.saveSettings(
-        background: selectedBackground,
-        sound: selectedSound,
-      );
+      appExperience.setBackgroundSelection(selectedBackground);
+      await appExperience.setSoundSelection(selectedSound);
+      await appExperience.persistSelections();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,8 +117,11 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appExperience = context.watch<AppExperienceService>();
+    final canEdit = appExperience.canEditMoodPreferences;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFD6CBC0),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -122,6 +143,24 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                       ),
                     ),
                     const SizedBox(height: 28),
+                    if (!canEdit)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF3E0),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFB74D)),
+                        ),
+                        child: const Text(
+                          'Guest theme changes are available on web only. Sign in on mobile to save theme and sound.',
+                          style: TextStyle(
+                            color: Color(0xFF7A4A00),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
@@ -164,8 +203,10 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                               final imageUrl = backgroundImages[name]!;
                               return Expanded(
                                 child: GestureDetector(
-                                  onTap: () =>
-                                      setState(() => selectedBackground = name),
+                                  onTap: canEdit
+                                      ? () => setState(
+                                          () => selectedBackground = name)
+                                      : null,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 4),
@@ -256,11 +297,14 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                             spacing: 10,
                             runSpacing: 10,
                             children: sounds.map((sound) {
-                              final isSelected = selectedSound == sound;
-                              final isWide = sound == "Silence";
+                              final isSelected = selectedSound == sound.label;
+                              final isWide = sound.label == "Silence";
                               return GestureDetector(
-                                onTap: () =>
-                                    setState(() => selectedSound = sound),
+                                onTap: (canEdit && !sound.unavailable)
+                                    ? () => setState(
+                                          () => selectedSound = sound.label,
+                                        )
+                                    : null,
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
                                   width: isWide ? double.infinity : null,
@@ -279,17 +323,35 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
                                     ),
                                   ),
                                   child: Center(
-                                    child: Text(
-                                      sound,
-                                      style: TextStyle(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : const Color(0xFF2C1F14),
-                                        fontSize: 15,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.w500,
-                                      ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          sound.label,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : const Color(0xFF2C1F14),
+                                            fontSize: 15,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w500,
+                                          ),
+                                        ),
+                                        if (sound.unavailable) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Unavailable',
+                                            style: TextStyle(
+                                              color: isSelected
+                                                  ? Colors.white70
+                                                  : const Color(0xFF8B3A3A),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -303,7 +365,8 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
 
                     // ── Apply button ──────────────────────────────────────
                     GestureDetector(
-                      onTap: _isSaving ? null : _saveSettings,
+                      key: const Key('mood-apply-settings-button'),
+                      onTap: (_isSaving || !canEdit) ? null : _saveSettings,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
                         width: double.infinity,
@@ -350,4 +413,11 @@ class _MoodSettingsPageState extends State<MoodSettingsPage> {
       ),
     );
   }
+}
+
+class _SoundOption {
+  final String label;
+  final bool unavailable;
+
+  const _SoundOption({required this.label, this.unavailable = false});
 }

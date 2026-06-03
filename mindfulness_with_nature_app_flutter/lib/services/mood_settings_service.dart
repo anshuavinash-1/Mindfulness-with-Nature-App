@@ -3,7 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class MoodSettingsService {
   static DocumentReference<Map<String, dynamic>>? get _moodDocRef {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    String? uid;
+    try {
+      uid = FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return null;
+    }
+
     if (uid == null || uid.isEmpty) return null;
     return FirebaseFirestore.instance
         .collection('users')
@@ -31,7 +37,10 @@ class MoodSettingsService {
     required String? sound,
   }) async {
     final ref = _moodDocRef;
-    if (ref == null) throw Exception('User not signed in.');
+    if (ref == null) {
+      // Guests can interact with controls without showing an auth warning.
+      return;
+    }
 
     await ref.set(
       {

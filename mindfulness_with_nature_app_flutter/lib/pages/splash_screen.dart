@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:provider/provider.dart';
+
+import '../services/auth_service.dart';
+import 'bottom_nav_page.dart';
 import 'login_page.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -9,10 +14,41 @@ class SplashScreen extends StatelessWidget {
     return Scaffold(
       body: GestureDetector(
         onTap: () {
-          // Navigate to next screen
+          final authService = Provider.of<AuthService>(context, listen: false);
+          final authServiceUser = authService.currentUser;
+
+          fb_auth.User? firebaseUser;
+          try {
+            firebaseUser = fb_auth.FirebaseAuth.instance.currentUser;
+          } catch (_) {
+            firebaseUser = null;
+          }
+
+          if (authServiceUser != null || firebaseUser != null) {
+            final displayName =
+                authServiceUser?.displayName?.trim().isNotEmpty == true
+                    ? authServiceUser!.displayName!.trim()
+                    : (firebaseUser?.displayName?.trim().isNotEmpty == true
+                        ? firebaseUser!.displayName!.trim()
+                        : (authServiceUser?.email.isNotEmpty == true
+                            ? authServiceUser!.email.split('@').first
+                            : (firebaseUser?.email?.split('@').first ??
+                                'User')));
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BottomNavPage(
+                  userName: displayName,
+                ),
+              ),
+            );
+            return;
+          }
+
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => LoginPage()),
+            MaterialPageRoute(builder: (_) => const LoginPage()),
           );
         },
         child: Stack(

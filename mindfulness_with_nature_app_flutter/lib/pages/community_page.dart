@@ -21,6 +21,22 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
+  static const int _pageSize = 10;
+  static const List<String> _blockedTerms = [
+    'nigger',
+    'nigga',
+    'faggot',
+    'kike',
+    'chink',
+    'spic',
+    'slut',
+    'whore',
+    'bitch',
+    'cunt',
+    'retard',
+    'rape',
+  ];
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _postController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
@@ -29,6 +45,7 @@ class _CommunityPageState extends State<CommunityPage> {
   bool _canModeratePosts = false;
   String? _currentUserRole;
   XFile? _selectedImage;
+  int _visiblePostLimit = _pageSize;
 
   String? _resolvedUserId() {
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -118,8 +135,8 @@ class _CommunityPageState extends State<CommunityPage> {
       return;
     }
 
-    final filter = ProfanityFilter();
-    if (filter.hasProfanity(content) || filter.hasProfanity(username)) {
+    if (_containsOffensiveLanguage(content) ||
+        _containsOffensiveLanguage(username)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -154,6 +171,28 @@ class _CommunityPageState extends State<CommunityPage> {
     });
   }
 
+  bool _containsOffensiveLanguage(String value) {
+    final normalized = value
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    final filter = ProfanityFilter();
+    if (filter.hasProfanity(normalized)) {
+      return true;
+    }
+
+    for (final term in _blockedTerms) {
+      final pattern = RegExp('(^|\\s)${RegExp.escape(term)}(\\s|\$)');
+      if (pattern.hasMatch(normalized)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future<void> _loadCurrentUserRole() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     final claims = await authService.getCurrentUserClaims(forceRefresh: true);
@@ -179,6 +218,12 @@ class _CommunityPageState extends State<CommunityPage> {
 
   Future<void> _refreshFeed() async {
     await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+
+  void _loadMorePosts() {
+    setState(() {
+      _visiblePostLimit += _pageSize;
+    });
   }
 
   Future<void> _confirmDeletePost(CommunityPost post) async {
@@ -236,10 +281,16 @@ class _CommunityPageState extends State<CommunityPage> {
               child: RefreshIndicator(
                 onRefresh: _refreshFeed,
                 child: StreamBuilder<List<CommunityPost>>(
-                  stream:
-                      widget.postsStream ?? CommunityBoardService.watchPosts(),
+                  stream: widget.postsStream ??
+                      CommunityBoardService.watchPosts(
+                        limit: _visiblePostLimit,
+                      ),
                   builder: (context, snapshot) {
                     final posts = snapshot.data ?? const <CommunityPost>[];
+                    final hasMore = widget.postsStream == null &&
+                        !snapshot.hasError &&
+                        snapshot.connectionState != ConnectionState.waiting &&
+                        posts.length >= _visiblePostLimit;
 
                     return ListView(
                       padding: const EdgeInsets.all(20),
@@ -294,6 +345,18 @@ class _CommunityPageState extends State<CommunityPage> {
                                           _canModeratePosts),
                                 ),
                               )),
+                        if (hasMore)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 12),
+                            child: Center(
+                              child: OutlinedButton.icon(
+                                key: const Key('community-load-more-button'),
+                                onPressed: _loadMorePosts,
+                                icon: const Icon(Icons.expand_more),
+                                label: const Text('Load 10 more posts'),
+                              ),
+                            ),
+                          ),
                         const SizedBox(height: 24),
                       ],
                     );

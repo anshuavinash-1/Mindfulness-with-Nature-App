@@ -19,11 +19,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
 
-  // Mock stats — replace with real data from your backend/local DB
-  final int totalSessions = 12;
-  final int totalMinutes = 147;
-  final int currentStreak = 4;
-
   @override
   void initState() {
     super.initState();
@@ -200,56 +195,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                       ],
                     ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // ── Stats ──────────────────────────────────────────────
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 10),
-                      child: Text(
-                        'YOUR JOURNEY',
-                        style: TextStyle(
-                          color: const Color(0xFF7A6A5A),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.self_improvement,
-                          value: '$totalSessions',
-                          label: 'Sessions',
-                          iconColor: const Color(0xFF6B9080),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.timer_outlined,
-                          value: '$totalMinutes',
-                          label: 'Minutes',
-                          iconColor: const Color(0xFF8B7355),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.local_fire_department_outlined,
-                          value: '$currentStreak',
-                          label: 'Day Streak',
-                          iconColor: const Color(0xFFEAB8A3),
-                        ),
-                      ),
-                    ],
                   ),
 
                   const SizedBox(height: 24),
@@ -447,68 +392,6 @@ class _ProfileField extends StatelessWidget {
                         ),
                       ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F0E8),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor, size: 22),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF3D2B1F),
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF7A6A5A),
-              fontSize: 11,
             ),
           ),
         ],

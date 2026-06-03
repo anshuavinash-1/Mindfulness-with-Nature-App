@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/app_experience_service.dart';
 import 'home_screen.dart';
 import 'activities_page.dart';
 import 'progress_page.dart';
@@ -18,11 +21,13 @@ class BottomNavPage extends StatefulWidget {
 class _BottomNavPageState extends State<BottomNavPage> {
   int _currentIndex = 0;
 
+  late AppExperienceService _appExperience;
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _appExperience = context.read<AppExperienceService>();
     _pages = [
       HomeScreen(userName: widget.userName),
       ActivitiesPage(),
@@ -30,6 +35,19 @@ class _BottomNavPageState extends State<BottomNavPage> {
       ProgressPage(),
       CommunityPage(),
     ];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _appExperience.setShellActive(true);
+      _appExperience.setActivitiesTabActive(false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _appExperience.setActivitiesTabActive(false);
+    _appExperience.setShellActive(false);
+    super.dispose();
   }
 
   @override
@@ -39,6 +57,8 @@ class _BottomNavPageState extends State<BottomNavPage> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
+          _appExperience.setActivitiesTabActive(index == 1);
+
           setState(() {
             _currentIndex = index;
           });

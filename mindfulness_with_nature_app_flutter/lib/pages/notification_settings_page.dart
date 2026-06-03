@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../service/notification_service.dart';
@@ -94,6 +95,39 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Web notice ────────────────────────────────────────────────────
+            if (kIsWeb) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3CD),
+                  borderRadius: BorderRadius.circular(14),
+                  border:
+                      Border.all(color: const Color(0xFFFFCC70), width: 1.2),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline,
+                        color: Color(0xFF856404), size: 20),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Reminder notifications are not available on the web app. '
+                        'Install the mobile app to receive daily mindfulness reminders.',
+                        style: TextStyle(
+                          color: Color(0xFF856404),
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             // ── Main toggle card ──────────────────────────────────────────────
             _SectionCard(
               child: _ToggleRow(
