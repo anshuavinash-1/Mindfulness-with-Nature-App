@@ -5,9 +5,9 @@ A Flutter application for mindfulness and nature connection, featuring mood trac
 ## Features
 
 - **Mood Tracking**: Log your daily mood and stress levels with notes
-- **Favorite Places**: Save and organize your favorite nature spots
 - **User Authentication**: Firebase authentication with local fallback
-- **Location Services**: Find places near your current location using Haversine distance calculations
+- **Community posting**: Post images and messages to your community!
+- **Mood settings**: Chnage the app's appearance and ambient sounds to your liking!
 
 ## Getting Started
 
@@ -55,14 +55,13 @@ flutter test test/services/mood_service_test.dart
 
 ### Test Coverage
 
-- **Model Tests** (`test/models/`):
-  - `user_model_test.dart`: User and UserPreferences models (21 tests)
-  
-- **Service Tests** (`test/services/`):
-  - `mood_service_test.dart`: MoodService with SharedPreferences (10 tests)
-  - `place_service_test.dart`: PlacesService with location calculations (11 tests)
+- **Pages**
+   activities page
+   bottom_nav
+   community_page
+   mood_page
 
-Total: **42 passing tests**
+Total: **11 passing tests**
 
 ### Writing Tests
 
@@ -100,7 +99,6 @@ See `.github/workflows/flutter-test.yaml` for CI configuration.
 - **State Management**: Provider pattern
 - **Local Storage**: SharedPreferences for mood entries and favorite places
 - **Authentication**: Firebase Auth with graceful degradation
-- **Location**: Haversine formula for distance calculations
 
 ## Project Structure
 
