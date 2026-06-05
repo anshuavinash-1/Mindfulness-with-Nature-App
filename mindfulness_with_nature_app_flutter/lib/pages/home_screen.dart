@@ -97,9 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _precacheImages() async {
     await Future.wait([
+      precacheImage(const AssetImage('assets/images/splash_bg.jpg'), context),
+      precacheImage(const AssetImage('assets/images/pattern.jpg'), context),
       precacheImage(const AssetImage('assets/images/sunrise.jpg'), context),
       precacheImage(const AssetImage('assets/images/sunny.jpg'), context),
       precacheImage(const AssetImage('assets/images/sunset.jpg'), context),
+      precacheImage(const AssetImage('assets/images/night.jpg'), context),
     ]);
   }
 

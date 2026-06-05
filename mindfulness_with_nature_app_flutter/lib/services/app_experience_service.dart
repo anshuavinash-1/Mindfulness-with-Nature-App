@@ -10,6 +10,16 @@ import 'mood_settings_service.dart';
 class AppExperienceService extends ChangeNotifier {
   static const String _guestWebBackgroundKey = 'guest_web_background';
   static const String _guestWebSoundKey = 'guest_web_sound';
+  static const Set<String> _validBackgroundSelections = {
+    'Forest',
+    'Ocean',
+    'Meadow',
+  };
+  static const Map<String, String> _daylightBackgroundAssets = {
+    'Forest': 'assets/images/splash_bg.jpg',
+    'Ocean': 'assets/images/pattern.jpg',
+    'Meadow': 'assets/images/sunny.jpg',
+  };
 
   final AudioPlayer _ambientPlayer = AudioPlayer();
 
@@ -30,6 +40,8 @@ class AppExperienceService extends ChangeNotifier {
   String? _selectedSound;
   String? _loadedAmbientAsset;
   Timer? _ambientReplayTimer;
+  Timer? _timeOfDayRefreshTimer;
+  _TimeOfDayPeriod _lastResolvedTimeOfDayPeriod = _TimeOfDayPeriod.day;
   StreamSubscription<ProcessingState>? _ambientProcessingSubscription;
 
   String? get selectedBackground => _selectedBackground;
@@ -62,15 +74,23 @@ class AppExperienceService extends ChangeNotifier {
   }
 
   String get homeBackgroundAsset {
-    switch (_selectedBackground) {
-      case 'Ocean':
-        return 'assets/images/sunny.jpg';
-      case 'Meadow':
-        return 'assets/images/sunrise.jpg';
-      case 'Forest':
-      default:
-        return 'assets/images/splash_bg.jpg';
+    final background = _effectiveBackgroundSelection;
+    final period = _timeOfDayPeriod;
+
+    if (period == _TimeOfDayPeriod.night) {
+      return 'assets/images/night.jpg';
     }
+
+    if (period == _TimeOfDayPeriod.sunrise) {
+      return 'assets/images/sunrise.jpg';
+    }
+
+    if (period == _TimeOfDayPeriod.sunset) {
+      return 'assets/images/sunset.jpg';
+    }
+
+    return _daylightBackgroundAssets[background] ??
+        'assets/images/splash_bg.jpg';
   }
 
   Future<void> initialize() async {
@@ -92,6 +112,8 @@ class AppExperienceService extends ChangeNotifier {
     }
 
     await _loadPreferencesForCurrentUser();
+    _lastResolvedTimeOfDayPeriod = _timeOfDayPeriod;
+    _startTimeOfDayRefreshLoop();
     await _applyAmbientPlayback();
   }
 
@@ -140,7 +162,7 @@ class AppExperienceService extends ChangeNotifier {
       return;
     }
 
-    _selectedBackground = background;
+    _selectedBackground = _normalizeBackgroundSelection(background);
     notifyListeners();
   }
 
@@ -213,7 +235,8 @@ class AppExperienceService extends ChangeNotifier {
     if (_isSignedIn) {
       try {
         final saved = await MoodSettingsService.loadSettings();
-        _selectedBackground = saved['background'];
+        _selectedBackground =
+            _normalizeBackgroundSelection(saved['background']);
         _selectedSound = _normalizeSoundSelection(saved['sound']);
       } catch (_) {
         // Keep app functional even if cloud settings are temporarily unavailable.
@@ -224,7 +247,9 @@ class AppExperienceService extends ChangeNotifier {
 
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
-      _selectedBackground = prefs.getString(_guestWebBackgroundKey);
+      _selectedBackground = _normalizeBackgroundSelection(
+        prefs.getString(_guestWebBackgroundKey),
+      );
       _selectedSound = _normalizeSoundSelection(
         prefs.getString(_guestWebSoundKey),
       );
@@ -272,6 +297,7 @@ class AppExperienceService extends ChangeNotifier {
   @override
   void dispose() {
     _ambientReplayTimer?.cancel();
+    _timeOfDayRefreshTimer?.cancel();
     _ambientProcessingSubscription?.cancel();
     _ambientPlayer.dispose();
     super.dispose();
@@ -342,4 +368,50 @@ class AppExperienceService extends ChangeNotifier {
       // Ignore audio runtime failures so UX remains functional.
     }
   }
+
+  void _startTimeOfDayRefreshLoop() {
+    _timeOfDayRefreshTimer?.cancel();
+    _timeOfDayRefreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      final currentPeriod = _timeOfDayPeriod;
+      if (currentPeriod == _lastResolvedTimeOfDayPeriod) {
+        return;
+      }
+
+      _lastResolvedTimeOfDayPeriod = currentPeriod;
+      notifyListeners();
+    });
+  }
+
+  String get _effectiveBackgroundSelection {
+    final selected = _normalizeBackgroundSelection(_selectedBackground);
+    return selected ?? 'Forest';
+  }
+
+  _TimeOfDayPeriod get _timeOfDayPeriod {
+    final hour = DateTime.now().hour;
+    if (hour >= 20 || hour < 5) {
+      return _TimeOfDayPeriod.night;
+    }
+    if (hour < 8) {
+      return _TimeOfDayPeriod.sunrise;
+    }
+    if (hour < 17) {
+      return _TimeOfDayPeriod.day;
+    }
+    return _TimeOfDayPeriod.sunset;
+  }
+
+  String? _normalizeBackgroundSelection(String? background) {
+    if (background == null) {
+      return null;
+    }
+    return _validBackgroundSelections.contains(background) ? background : null;
+  }
+}
+
+enum _TimeOfDayPeriod {
+  sunrise,
+  day,
+  sunset,
+  night,
 }
